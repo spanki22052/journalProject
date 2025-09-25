@@ -1,0 +1,20 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.label {
+  font-weight: 500;
+  color: #262626;
+  font-size: 14px;
+}
+
+.select {
+  min-width: 300px;
+}
+
+.select .ant-select-selector {
+  border-radius: 6px;
+}

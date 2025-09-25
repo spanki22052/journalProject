@@ -1,0 +1,222 @@
+.card {
+  margin: 0;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  width: 100%;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  width: 100%;
+  flex-direction: row;
+}
+
+.title {
+  margin: 0 !important;
+  color: #262626;
+  flex: 0 0 auto;
+  margin-right: 24px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.viewControls {
+  flex: 0 0 auto;
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px;
+  background: #fafafa;
+  border-radius: 6px;
+  border: 1px solid #f0f0f0;
+  justify-content: flex-end;
+}
+
+.ganttContainer {
+  overflow-x: auto;
+  border: 1px solid #d9d9d9;
+}
+
+.emptyState {
+  text-align: center;
+  padding: 48px 24px;
+  color: #8c8c8c;
+  font-size: 16px;
+}
+
+.tooltip {
+  background: white;
+  padding: 12px;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  min-width: 200px;
+}
+
+.tooltip h4 {
+  margin: 0 0 8px 0;
+  color: #262626;
+  font-size: 14px;
+}
+
+.tooltip p {
+  margin: 4px 0;
+  color: #595959;
+  font-size: 12px;
+}
+
+/* Стили для таблицы задач */
+.taskList {
+  background: white;
+  border: 1px solid #d9d9d9;
+}
+
+.taskRow {
+  display: flex;
+  border-bottom: 1px solid #f0f0f0;
+  transition: background-color 0.2s;
+}
+
+.taskRow:hover {
+  background-color: #fafafa;
+}
+
+.taskCell {
+  padding: 12px 16px;
+  border-right: 1px solid #f0f0f0;
+  display: flex;
+  align-items: center;
+  min-height: 40px;
+}
+
+.taskCell:last-child {
+  border-right: none;
+}
+
+.objectCell {
+  border-right: none !important;
+  white-space: nowrap;
+}
+
+.taskName {
+  font-weight: 500;
+  color: #262626;
+}
+
+.taskNameContainer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.expandButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+  color: #595959;
+}
+
+.expandButton:hover {
+  background-color: #f0f0f0;
+}
+
+.objectRow {
+  background-color: #f6ffed;
+  border-left: 3px solid #52c41a;
+}
+
+.objectName {
+  font-weight: 600;
+  color: #389e0d;
+}
+
+.taskRowChild {
+  padding-left: 24px;
+  background-color: #fafafa;
+}
+
+.assigneeTag {
+  margin: 0;
+  font-size: 12px;
+}
+
+/* Стили для кастомного заголовка */
+.customTaskListHeader {
+  display: flex;
+  background: #fafafa;
+  border-bottom: 1px solid #d9d9d9;
+  font-weight: 500;
+  color: #262626;
+  align-items: center;
+}
+
+.customHeaderCell {
+  padding: 12px 16px;
+  border-right: 1px solid #d9d9d9;
+  display: flex;
+  align-items: center;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.customHeaderCell:last-child {
+  border-right: none;
+}
+
+/* Стили для минимального заголовка */
+.minimalTaskListHeader {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fafafa;
+  border-bottom: 1px solid #d9d9d9;
+  font-weight: 500;
+  color: #262626;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Стили для квартального отображения */
+.quarterView {
+  /* Увеличиваем ширину колонок для лучшего отображения кварталов */
+  --quarter-column-width: 200px;
+}
+
+.quarterView .ganttContainer {
+  /* Дополнительные стили для контейнера в квартальном режиме */
+  font-size: 13px;
+}
+
+/* Стили для кнопки квартального режима */
+.quarterButton {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  color: white;
+}
+
+.quarterButton:hover {
+  background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+  color: white;
+}
+
+.quarterButton.ant-btn-primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-color: #667eea;
+}
+
+.quarterButton.ant-btn-primary:hover {
+  background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+  border-color: #5a6fd8;
+}

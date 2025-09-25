@@ -1,0 +1,235 @@
+.App {
+  text-align: left;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu',
+    'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family:
+    source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+}
+
+/* Стили для Gantt диаграммы */
+.gantt-task-react {
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu',
+    'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+}
+
+.gantt-task-react .gantt-table {
+  border-collapse: collapse;
+}
+
+.gantt-task-react .gantt-table-header {
+  background-color: #fafafa;
+  border-bottom: 1px solid #d9d9d9;
+}
+
+.gantt-task-react .gantt-table-header-cell {
+  padding: 8px 12px;
+  font-weight: 500;
+  color: #262626;
+  border-right: 1px solid #d9d9d9;
+}
+
+.gantt-task-react .gantt-table-body {
+  background-color: white;
+}
+
+.gantt-task-react .gantt-table-body-row {
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.gantt-task-react .gantt-table-body-row:hover {
+  background-color: #fafafa;
+}
+
+.gantt-task-react .gantt-table-body-cell {
+  padding: 8px 12px;
+  color: #595959;
+  border-right: 1px solid #f0f0f0;
+}
+
+.gantt-task-react .gantt-chart {
+  background-color: white;
+  border-left: 1px solid #d9d9d9;
+}
+
+.gantt-task-react .gantt-chart-header {
+  background-color: #fafafa;
+  border-bottom: 1px solid #d9d9d9;
+}
+
+.gantt-task-react .gantt-chart-header-cell {
+  padding: 8px 4px;
+  font-weight: 500;
+  color: #262626;
+  text-align: center;
+  border-right: 1px solid #d9d9d9;
+}
+
+/* Переопределение английских заголовков на русские */
+.gantt-task-react .gantt-chart-header-cell[data-column='from']::before {
+  content: 'От';
+  display: block;
+}
+
+.gantt-task-react .gantt-chart-header-cell[data-column='to']::before {
+  content: 'До';
+  display: block;
+}
+
+.gantt-task-react .gantt-chart-header-cell[data-column='from'],
+.gantt-task-react .gantt-chart-header-cell[data-column='to'] {
+  font-size: 0;
+}
+
+.gantt-task-react .gantt-chart-header-cell[data-column='from']::before,
+.gantt-task-react .gantt-chart-header-cell[data-column='to']::before {
+  font-size: 12px;
+}
+
+/* Скрытие колонок "from" и "to" */
+.gantt-task-react .gantt-chart-header-cell[data-column='from'],
+.gantt-task-react .gantt-chart-header-cell[data-column='to'],
+.gantt-task-react .gantt-chart-body-cell[data-column='from'],
+.gantt-task-react .gantt-chart-body-cell[data-column='to'] {
+  display: none !important;
+}
+
+/* Кастомизация заголовков месяцев/дней */
+.gantt-task-react .gantt-chart-header-cell {
+  position: relative;
+}
+
+/* Переопределение заголовков временной шкалы */
+.gantt-task-react .gantt-chart-header-cell[data-column='month']::before {
+  content: 'Месяц';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 12px;
+  font-weight: 500;
+  z-index: 1;
+}
+
+.gantt-task-react .gantt-chart-header-cell[data-column='day']::before {
+  content: 'День';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 12px;
+  font-weight: 500;
+  z-index: 1;
+}
+
+/* Скрытие оригинального текста заголовков */
+.gantt-task-react .gantt-chart-header-cell[data-column='month'],
+.gantt-task-react .gantt-chart-header-cell[data-column='day'] {
+  font-size: 0;
+}
+
+/* Кастомизация заголовков для разных режимов просмотра */
+.gantt-task-react .gantt-chart-header-cell[data-column='week']::before {
+  content: 'Неделя';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 12px;
+  font-weight: 500;
+  z-index: 1;
+}
+
+.gantt-task-react .gantt-chart-header-cell[data-column='week'] {
+  font-size: 0;
+}
+
+.gantt-task-react .gantt-chart-header-cell[data-column='year']::before {
+  content: 'Год';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 12px;
+  font-weight: 500;
+  z-index: 1;
+}
+
+.gantt-task-react .gantt-chart-header-cell[data-column='year'] {
+  font-size: 0;
+}
+
+.gantt-task-react .gantt-chart-body {
+  background-color: white;
+}
+
+.gantt-task-react .gantt-chart-body-row {
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.gantt-task-react .gantt-chart-body-row:hover {
+  background-color: #fafafa;
+}
+
+.gantt-task-react .gantt-chart-body-cell {
+  border-right: 1px solid #f0f0f0;
+  position: relative;
+}
+
+.gantt-task-react .gantt-task {
+  position: absolute;
+  height: 20px;
+  border-radius: 4px;
+  background-color: #1890ff;
+  color: white;
+  font-size: 11px;
+  line-height: 20px;
+  padding: 0 8px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  cursor: pointer;
+  z-index: 1;
+}
+
+.gantt-task-react .gantt-task:hover {
+  background-color: #40a9ff;
+  z-index: 2;
+}
+
+.gantt-task-react .gantt-task-progress {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background-color: rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+}
+
+.gantt-task-react .gantt-task-milestone {
+  width: 0;
+  height: 0;
+  border-left: 10px solid #1890ff;
+  border-top: 10px solid transparent;
+  border-bottom: 10px solid transparent;
+  background-color: transparent;
+  border-radius: 0;
+}
+
+.gantt-task-react .gantt-task-milestone:hover {
+  border-left-color: #40a9ff;
+}

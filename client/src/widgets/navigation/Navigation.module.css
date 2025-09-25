@@ -1,0 +1,36 @@
+.header {
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  background: #001529;
+  justify-content: flex-end;
+}
+
+.logo {
+  color: white;
+  font-size: 20px;
+  font-weight: bold;
+  margin-right: 24px;
+  min-width: 150px;
+}
+
+.menu {
+  flex: 1;
+  border: none;
+  background: transparent;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.menu .ant-menu-item {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.menu .ant-menu-item:hover {
+  color: #1890ff;
+}
+
+.menu .ant-menu-item-selected {
+  color: #1890ff;
+  background-color: transparent;
+}
