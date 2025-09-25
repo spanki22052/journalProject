@@ -1,12 +1,8 @@
 import React from 'react';
-import { Layout } from 'antd';
-import { Navigation } from '@widgets/navigation/Navigation';
 import { GanntTable } from '@widgets/gannt-table';
 import { FiltersModal } from '@features/filters-modal/FiltersModal';
 import { useMainPage } from '../hooks/useMainPage';
 import styles from './MainPage.module.css';
-
-const { Content } = Layout;
 
 export const MainPage: React.FC = () => {
   const {
@@ -20,9 +16,8 @@ export const MainPage: React.FC = () => {
   } = useMainPage();
 
   return (
-    <Layout className={styles.layout}>
-      <Navigation />
-      <Content className={styles.content}>
+    <div className={styles.layout}>
+      <div className={styles.content}>
         <div className={styles.container}>
           <GanntTable
             selectedOrganization={selectedOrganization}
@@ -38,7 +33,7 @@ export const MainPage: React.FC = () => {
           onOrganizationChange={setSelectedOrganization}
           onWorksChange={setSelectedWorks}
         />
-      </Content>
-    </Layout>
+      </div>
+    </div>
   );
 };

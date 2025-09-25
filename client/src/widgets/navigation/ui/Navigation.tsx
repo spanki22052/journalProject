@@ -1,18 +1,12 @@
 import React from 'react';
 import { Layout, Menu } from 'antd';
-import { CalendarOutlined } from '@ant-design/icons';
-import styles from './Navigation.module.css';
+import { useNavigation } from '../hooks/useNavigation';
+import styles from '../Navigation.module.css';
 
 const { Header } = Layout;
 
 export const Navigation: React.FC = () => {
-  const menuItems = [
-    {
-      key: 'gantt',
-      icon: <CalendarOutlined />,
-      label: 'Диаграмма Ганта',
-    },
-  ];
+  const { handleMenuClick, getSelectedKeys, menuItems } = useNavigation();
 
   return (
     <Header className={styles.header}>
@@ -20,8 +14,9 @@ export const Navigation: React.FC = () => {
       <Menu
         theme='dark'
         mode='horizontal'
-        defaultSelectedKeys={['gantt']}
+        selectedKeys={getSelectedKeys()}
         items={menuItems}
+        onClick={handleMenuClick}
         className={styles.menu}
       />
     </Header>
