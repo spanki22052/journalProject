@@ -1,0 +1,109 @@
+.layout {
+  min-height: 100vh;
+  background: #f5f5f5;
+}
+
+.content {
+  padding: 24px;
+  background: #f5f5f5;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  background: white;
+  border-radius: 8px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.icon {
+  font-size: 32px;
+  color: #1890ff;
+  margin-right: 16px;
+}
+
+.title {
+  margin: 0 !important;
+  color: #262626;
+}
+
+.description {
+  color: #8c8c8c;
+  font-size: 16px;
+  margin-bottom: 24px;
+}
+
+.controlsBlock {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding: 16px;
+  background: transparent;
+  border: none;
+}
+
+.searchInput {
+  flex: 1;
+  margin-right: 16px;
+}
+
+.controlButton {
+  height: 32px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.createButtonBlock {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 16px;
+}
+
+.createButton {
+  height: 36px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.table {
+  margin-top: 24px;
+}
+
+.table .ant-table-thead > tr > th {
+  background: #fafafa;
+  font-weight: 600;
+  color: #262626;
+}
+
+.table .ant-table-tbody > tr:hover > td {
+  background: #f5f5f5;
+}
+
+.table .ant-table-tbody > tr > td {
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.actionsColumn {
+  text-align: center;
+}
+
+.actionsColumn .ant-btn {
+  margin: 0 2px;
+}
+
+.actionsColumn .ant-btn-sm {
+  height: 24px;
+  padding: 0 8px;
+  font-size: 12px;
+}
