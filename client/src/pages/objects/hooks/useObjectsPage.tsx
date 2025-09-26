@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import type { ColumnsType } from 'antd/es/table';
 import { Tag, Progress, Button, Space } from 'antd';
 import {
@@ -8,16 +9,15 @@ import {
 } from '@ant-design/icons';
 import { mockObjects } from '@shared/api/mockData';
 import { ObjectData } from '../model/types';
-import { useCreateObjectModal } from '@features/create-object-modal';
 import styles from '../ui/ObjectsPage.module.css';
 
 export const useObjectsPage = () => {
   const [searchText, setSearchText] = useState('');
-  const createObjectModal = useCreateObjectModal();
+  const navigate = useNavigate();
 
   const handleEdit = (objectId: string) => {
     console.log('Edit object:', objectId);
-    // TODO: Реализовать редирект на страницу редактирования
+    navigate(`/objects/${objectId}/edit`);
   };
 
   const handleChat = (objectId: string) => {
@@ -42,7 +42,7 @@ export const useObjectsPage = () => {
   };
 
   const handleCreateObject = () => {
-    createObjectModal.openModal();
+    navigate('/objects/create');
   };
 
   const columns: ColumnsType<ObjectData> = [
@@ -137,6 +137,5 @@ export const useObjectsPage = () => {
     handleFilter,
     handleSort,
     handleCreateObject,
-    createObjectModal,
   };
 };

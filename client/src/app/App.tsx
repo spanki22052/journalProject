@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
-import { Layout } from 'antd';
+import { Layout, Spin } from 'antd';
 import { Navigation } from '@widgets/navigation';
 import { ObjectsPage } from '@pages/objects';
 import { MainPage } from '@pages/main';
+import { ObjectEditPage } from '@pages/object-edit';
+import { ObjectCreatePage } from '@pages/object-create';
 import { useServiceWorker } from '@shared/lib/useServiceWorker';
 import { withRouter, withAntd } from './providers';
 import '../App.css';
@@ -12,17 +14,36 @@ const AppComponent: React.FC = () => {
   // Регистрируем Service Worker для PWA
   useServiceWorker();
 
+  const LoadingFallback = () => (
+    <div
+      style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        minHeight: '200px',
+      }}
+    >
+      <Spin size='large' />
+    </div>
+  );
+
   return (
     <div className='App'>
       <Layout style={{ minHeight: '100vh' }}>
-        <Navigation />
+        <Suspense fallback={<LoadingFallback />}>
+          <Navigation />
+        </Suspense>
         <Layout.Content>
-          <Routes>
-            <Route path='/' element={<MainPage />} />
-            <Route path='/main' element={<MainPage />} />
-            <Route path='/objects' element={<ObjectsPage />} />
-            <Route path='*' element={<Navigate to='/' replace />} />
-          </Routes>
+          <Suspense fallback={<LoadingFallback />}>
+            <Routes>
+              <Route path='/' element={<MainPage />} />
+              <Route path='/main' element={<MainPage />} />
+              <Route path='/objects' element={<ObjectsPage />} />
+              <Route path='/objects/create' element={<ObjectCreatePage />} />
+              <Route path='/objects/:id/edit' element={<ObjectEditPage />} />
+              <Route path='*' element={<Navigate to='/' replace />} />
+            </Routes>
+          </Suspense>
         </Layout.Content>
       </Layout>
     </div>

@@ -8,7 +8,6 @@ import {
   PlusOutlined,
 } from '@ant-design/icons';
 import { useObjectsPage } from '../hooks/useObjectsPage';
-import { CreateObjectModal } from '@features/create-object-modal';
 import styles from './ObjectsPage.module.css';
 const { Title, Paragraph } = Typography;
 
@@ -21,7 +20,6 @@ export const ObjectsPage: React.FC = () => {
     handleFilter,
     handleSort,
     handleCreateObject,
-    createObjectModal,
   } = useObjectsPage();
 
   return (
@@ -91,13 +89,6 @@ export const ObjectsPage: React.FC = () => {
           />
         </div>
       </div>
-
-      <CreateObjectModal
-        visible={createObjectModal.visible}
-        onCancel={createObjectModal.closeModal}
-        onOk={createObjectModal.handleCreateObject}
-        loading={createObjectModal.loading}
-      />
     </div>
   );
 };

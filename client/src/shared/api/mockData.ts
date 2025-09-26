@@ -1,3 +1,5 @@
+import type { ObjectChecklistType } from '@features/object-checklist';
+
 export interface Organization {
   id: string;
   name: string;
@@ -305,4 +307,123 @@ export const mockWorks = [
   'Электромонтажные работы',
   'Установка окон',
   'Штукатурные работы',
+];
+
+// Моковые данные чеклистов для объектов
+export const mockChecklists: ObjectChecklistType[] = [
+  {
+    id: 'checklist-1',
+    objectId: '1',
+    title: 'Основные задачи проекта',
+    createdAt: new Date('2021-10-01'),
+    updatedAt: new Date('2023-01-15'),
+    items: [
+      {
+        id: 'item-1-1',
+        text: 'Получить разрешение на строительство',
+        completed: true,
+        createdAt: new Date('2021-10-01'),
+        completedAt: new Date('2021-11-15'),
+      },
+      {
+        id: 'item-1-2',
+        text: 'Завершить проектирование здания',
+        completed: true,
+        createdAt: new Date('2021-10-01'),
+        completedAt: new Date('2022-01-30'),
+      },
+      {
+        id: 'item-1-3',
+        text: 'Подготовить строительную площадку',
+        completed: true,
+        createdAt: new Date('2021-10-01'),
+        completedAt: new Date('2022-03-15'),
+      },
+      {
+        id: 'item-1-4',
+        text: 'Завершить фундаментные работы',
+        completed: true,
+        createdAt: new Date('2021-10-01'),
+        completedAt: new Date('2022-06-30'),
+      },
+      {
+        id: 'item-1-5',
+        text: 'Возвести основные конструкции',
+        completed: false,
+        createdAt: new Date('2021-10-01'),
+      },
+      {
+        id: 'item-1-6',
+        text: 'Провести внутренние коммуникации',
+        completed: false,
+        createdAt: new Date('2021-10-01'),
+      },
+      {
+        id: 'item-1-7',
+        text: 'Выполнить отделочные работы',
+        completed: false,
+        createdAt: new Date('2021-10-01'),
+      },
+      {
+        id: 'item-1-8',
+        text: 'Сдать объект в эксплуатацию',
+        completed: false,
+        createdAt: new Date('2021-10-01'),
+      },
+    ],
+  },
+  {
+    id: 'checklist-2',
+    objectId: '2',
+    title: 'Задачи ремонтного проекта',
+    createdAt: new Date('2021-11-01'),
+    updatedAt: new Date('2023-02-10'),
+    items: [
+      {
+        id: 'item-2-1',
+        text: 'Провести техническое обследование',
+        completed: true,
+        createdAt: new Date('2021-11-01'),
+        completedAt: new Date('2021-12-15'),
+      },
+      {
+        id: 'item-2-2',
+        text: 'Разработать проект реконструкции',
+        completed: true,
+        createdAt: new Date('2021-11-01'),
+        completedAt: new Date('2022-02-28'),
+      },
+      {
+        id: 'item-2-3',
+        text: 'Получить согласования',
+        completed: true,
+        createdAt: new Date('2021-11-01'),
+        completedAt: new Date('2022-04-15'),
+      },
+      {
+        id: 'item-2-4',
+        text: 'Демонтировать старые конструкции',
+        completed: false,
+        createdAt: new Date('2021-11-01'),
+      },
+      {
+        id: 'item-2-5',
+        text: 'Выполнить ремонтные работы',
+        completed: false,
+        createdAt: new Date('2021-11-01'),
+      },
+      {
+        id: 'item-2-6',
+        text: 'Провести отделочные работы',
+        completed: false,
+        createdAt: new Date('2021-11-01'),
+      },
+      {
+        id: 'item-2-7',
+        text: 'Сдать объект заказчику',
+        completed: false,
+        createdAt: new Date('2021-11-01'),
+      },
+    ],
+  },
 ];
