@@ -1,27 +1,11 @@
 import React from 'react';
 import { Modal, Form, Input, Select, DatePicker, Space } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
-import type { Dayjs } from 'dayjs';
 import { ObjectData } from '@pages/objects/model/types';
+import { CreateObjectModalProps, FormValues } from '../model/types';
 
 const { Option } = Select;
 const { TextArea } = Input;
-
-interface CreateObjectModalProps {
-  visible: boolean;
-  onCancel: () => void;
-  onOk: (values: Partial<ObjectData>) => void;
-  loading?: boolean;
-}
-
-interface FormValues {
-  name: string;
-  type: 'project';
-  assignee: string;
-  description?: string;
-  startDate: Dayjs;
-  endDate: Dayjs;
-}
 
 export const CreateObjectModal: React.FC<CreateObjectModalProps> = ({
   visible,
