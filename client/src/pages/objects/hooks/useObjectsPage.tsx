@@ -13,6 +13,8 @@ import styles from '../ui/ObjectsPage.module.css';
 
 export const useObjectsPage = () => {
   const [searchText, setSearchText] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
   const navigate = useNavigate();
 
   const handleEdit = (objectId: string) => {
@@ -31,11 +33,6 @@ export const useObjectsPage = () => {
     // TODO: Реализовать поиск по объектам
   };
 
-  const handleFilter = () => {
-    console.log('Open filter modal');
-    // TODO: Реализовать открытие модального окна фильтров
-  };
-
   const handleSort = () => {
     console.log('Open sort options');
     // TODO: Реализовать открытие опций сортировки
@@ -43,6 +40,18 @@ export const useObjectsPage = () => {
 
   const handleCreateObject = () => {
     navigate('/objects/create');
+  };
+
+  const handlePageChange = (page: number, size?: number) => {
+    setCurrentPage(page);
+    if (size) {
+      setPageSize(size);
+    }
+  };
+
+  const handlePageSizeChange = (_: number, size: number) => {
+    setCurrentPage(1);
+    setPageSize(size);
   };
 
   const columns: ColumnsType<ObjectData> = [
@@ -133,9 +142,12 @@ export const useObjectsPage = () => {
     searchText,
     columns,
     dataSource: mockObjects,
+    currentPage,
+    pageSize,
     handleSearch,
-    handleFilter,
     handleSort,
     handleCreateObject,
+    handlePageChange,
+    handlePageSizeChange,
   };
 };
