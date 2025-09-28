@@ -1,22 +1,34 @@
-# Многоэтапная сборка для Object Journal PWA
+# Многоэтапная сборка для Object Journal PWA с Vite
 
 # Этап 1: Сборка приложения
-FROM node:18-alpine AS builder
+FROM node:22-alpine AS builder
 
 # Устанавливаем рабочую директорию
 WORKDIR /app
 
+# Устанавливаем дополнительные пакеты для сборки
+RUN apk add --no-cache \
+    python3 \
+    make \
+    g++
+
 # Копируем package.json и package-lock.json
 COPY package*.json ./
 
-# Устанавливаем все зависимости (включая dev)
-RUN npm ci --silent
+# Устанавливаем зависимости с кэшированием
+RUN npm ci --silent --only=production --no-audit --no-fund
+
+# Устанавливаем dev зависимости для сборки
+RUN npm ci --silent --only=development --no-audit --no-fund
 
 # Копируем исходный код
 COPY . .
 
-# Собираем приложение для production
+# Собираем приложение для production с Vite
 RUN npm run build
+
+# Проверяем, что сборка прошла успешно
+RUN ls -la dist/
 
 # Этап 2: Production сервер с nginx
 FROM nginx:alpine AS production
@@ -24,20 +36,24 @@ FROM nginx:alpine AS production
 # Устанавливаем дополнительные пакеты
 RUN apk add --no-cache \
     curl \
-    tzdata
+    tzdata \
+    ca-certificates
 
 # Устанавливаем временную зону
 ENV TZ=Europe/Moscow
 
-# Копируем собранное приложение
+# Копируем собранное приложение из Vite
 COPY --from=builder /app/dist /usr/share/nginx/html
 
 # Копируем nginx конфигурацию для Docker
 COPY public/nginx-docker.conf /etc/nginx/conf.d/default.conf
 
-# Копируем robots.txt и sitemap.xml
+# Копируем статические файлы
 COPY public/robots.txt /usr/share/nginx/html/
 COPY public/sitemap.xml /usr/share/nginx/html/
+
+# Создаем директории для PWA файлов
+RUN mkdir -p /usr/share/nginx/html/icons
 
 # Создаем пользователя для безопасности
 RUN addgroup -g 1001 -S nginx 2>/dev/null || true && \
@@ -61,8 +77,10 @@ RUN mkdir -p /var/log/nginx && \
 EXPOSE 8080
 
 # Проверка здоровья контейнера
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:8080/ || exit 1
+HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
+    CMD curl -f http://localhost:8080/ && \
+    curl -f http://localhost:8080/manifest.webmanifest && \
+    curl -f http://localhost:8080/sw.js || exit 1
 
 # Запускаем nginx
 CMD ["nginx", "-g", "daemon off;"]
