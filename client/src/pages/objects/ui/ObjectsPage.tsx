@@ -1,9 +1,8 @@
 import React from 'react';
-import { Typography, Table, Input, Button, Space } from 'antd';
+import { Typography, Table, Input, Button, Space, Pagination } from 'antd';
 import {
   AppstoreOutlined,
   SearchOutlined,
-  FilterOutlined,
   SortAscendingOutlined,
   PlusOutlined,
 } from '@ant-design/icons';
@@ -16,10 +15,13 @@ export const ObjectsPage: React.FC = () => {
     searchText,
     columns,
     dataSource,
+    currentPage,
+    pageSize,
     handleSearch,
-    handleFilter,
     handleSort,
     handleCreateObject,
+    handlePageChange,
+    handlePageSizeChange,
   } = useObjectsPage();
 
   return (
@@ -47,13 +49,6 @@ export const ObjectsPage: React.FC = () => {
             />
             <Space>
               <Button
-                icon={<FilterOutlined />}
-                onClick={handleFilter}
-                className={styles.controlButton}
-              >
-                Фильтр
-              </Button>
-              <Button
                 icon={<SortAscendingOutlined />}
                 onClick={handleSort}
                 className={styles.controlButton}
@@ -74,19 +69,31 @@ export const ObjectsPage: React.FC = () => {
             </Button>
           </div>
 
-          <Table
-            columns={columns}
-            dataSource={dataSource}
-            rowKey='id'
-            pagination={{
-              pageSize: 10,
-              showSizeChanger: true,
-              showQuickJumper: true,
-              showTotal: (total, range) =>
-                `${range[0]}-${range[1]} из ${total} объектов`,
-            }}
-            className={styles.table}
-          />
+          <div className={styles.tableContainer}>
+            <Table
+              columns={columns}
+              dataSource={dataSource}
+              rowKey='id'
+              pagination={false}
+              className={styles.table}
+            />
+          </div>
+
+          <div className={styles.paginationContainer}>
+            <Pagination
+              current={currentPage}
+              pageSize={pageSize}
+              total={dataSource.length}
+              showSizeChanger
+              showQuickJumper
+              showTotal={(total, range) =>
+                `${range[0]}-${range[1]} из ${total} объектов`
+              }
+              onChange={handlePageChange}
+              onShowSizeChange={handlePageSizeChange}
+              className={styles.pagination}
+            />
+          </div>
         </div>
       </div>
     </div>

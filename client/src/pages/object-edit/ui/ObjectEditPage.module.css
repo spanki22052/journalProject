@@ -94,7 +94,46 @@
 }
 
 .actions {
-  border-top: 1px solid #f0f0f0;
-  padding-top: 24px;
   margin-top: 24px;
+  padding: 24px;
+  border-top: 1px solid #f0f0f0;
+  background: #fafafa;
+  display: flex;
+  justify-content: flex-end;
+}
+
+@media (max-width: 768px) {
+  .editContent {
+    flex-direction: column;
+  }
+  
+  .editForm {
+    flex: none;
+    width: 100%;
+    padding: 16px;
+  }
+  
+  .checklistSection {
+    flex: none;
+    width: 100%;
+    padding: 16px;
+  }
+  
+  .content {
+    padding: 16px;
+  }
+  
+  .header {
+    padding: 16px;
+  }
+  
+  .actions {
+    padding: 16px;
+    justify-content: center;
+  }
+  
+  .actions .ant-space {
+    width: 100%;
+    justify-content: center;
+  }
 }
