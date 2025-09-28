@@ -14,3 +14,11 @@ export interface ObjectChecklist {
   createdAt: Date;
   updatedAt: Date;
 }
+
+export interface ObjectChecklistProps {
+  checklist: ObjectChecklist;
+  onToggleItem: (itemId: string) => void;
+  onAddItem: () => void;
+  onEditItem: (itemId: string) => void;
+  onDeleteItem: (itemId: string) => void;
+}

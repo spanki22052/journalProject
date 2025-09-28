@@ -1,21 +1,11 @@
 import React from 'react';
 import { Card, Checkbox, Button, Typography, Progress, Divider } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
-import {
-  ChecklistItem,
-  ObjectChecklist as ChecklistType,
-} from '../model/types';
+import { ChecklistItem, ObjectChecklistProps } from '../model/types';
+import { useObjectChecklist } from '../hooks/useObjectChecklist';
 import styles from './ObjectChecklist.module.css';
 
 const { Title, Text } = Typography;
-
-interface ObjectChecklistProps {
-  checklist: ChecklistType;
-  onToggleItem: (itemId: string) => void;
-  onAddItem: () => void;
-  onEditItem: (itemId: string) => void;
-  onDeleteItem: (itemId: string) => void;
-}
 
 export const ObjectChecklist: React.FC<ObjectChecklistProps> = ({
   checklist,
@@ -24,10 +14,8 @@ export const ObjectChecklist: React.FC<ObjectChecklistProps> = ({
   onEditItem,
   onDeleteItem,
 }) => {
-  const completedCount = checklist.items.filter(item => item.completed).length;
-  const totalCount = checklist.items.length;
-  const progressPercent =
-    totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
+  const { progressInfo } = useObjectChecklist({ checklist });
+  const { completedCount, totalCount, progressPercent } = progressInfo;
 
   return (
     <Card className={styles.checklistCard}>

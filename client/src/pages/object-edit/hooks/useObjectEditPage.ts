@@ -57,8 +57,8 @@ export const useObjectEditPage = () => {
     setName(value);
   };
 
-  const handleAssigneeChange = (value: string) => {
-    setAssignee(value);
+  const handleAssigneeChange = (value: string | undefined) => {
+    setAssignee(value || '');
   };
 
   const handleSave = async () => {

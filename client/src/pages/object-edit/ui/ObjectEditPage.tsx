@@ -1,11 +1,13 @@
 import React from 'react';
-import { Typography, Card, Button, Space, Spin } from 'antd';
+import { Typography, Card, Button, Space, Spin, Select } from 'antd';
 import { ArrowLeftOutlined, SaveOutlined } from '@ant-design/icons';
 import { useObjectEditPage } from '../hooks/useObjectEditPage';
 import { ObjectChecklist } from '@features/object-checklist';
+import { mockAssignees } from '@shared/api/mockData';
 import styles from './ObjectEditPage.module.css';
 
 const { Title, Paragraph } = Typography;
+const { Option } = Select;
 
 export const ObjectEditPage: React.FC = () => {
   const {
@@ -86,12 +88,20 @@ export const ObjectEditPage: React.FC = () => {
                     </div>
                     <div className={styles.formItem}>
                       <label>Ответственный:</label>
-                      <input
-                        type='text'
+                      <Select
                         value={assignee}
-                        onChange={e => handleAssigneeChange(e.target.value)}
-                        className={styles.input}
-                      />
+                        onChange={handleAssigneeChange}
+                        className={styles.select}
+                        placeholder='Выберите ответственного'
+                        allowClear
+                        style={{ minWidth: '300px' }}
+                      >
+                        {mockAssignees.map(assignee => (
+                          <Option key={assignee} value={assignee}>
+                            {assignee}
+                          </Option>
+                        ))}
+                      </Select>
                     </div>
                     <div className={styles.formItem}>
                       <label>Прогресс:</label>

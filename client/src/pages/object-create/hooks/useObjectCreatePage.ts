@@ -20,8 +20,8 @@ export const useObjectCreatePage = () => {
     setName(value);
   };
 
-  const handleAssigneeChange = (value: string) => {
-    setAssignee(value);
+  const handleAssigneeChange = (value: string | undefined) => {
+    setAssignee(value || '');
   };
 
   const handleTypeChange = (value: 'project' | 'task' | 'subtask') => {
