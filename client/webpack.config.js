@@ -1,6 +1,7 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const { GenerateSW } = require('workbox-webpack-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 module.exports = (env, argv) => {
   const isProduction = argv.mode === 'production';
@@ -12,6 +13,8 @@ module.exports = (env, argv) => {
       path: path.resolve(__dirname, 'dist'),
       filename: 'bundle.[contenthash].js',
       clean: true,
+      publicPath: '/',
+      assetModuleFilename: 'assets/[name].[contenthash][ext]',
     },
     resolve: {
       extensions: ['.tsx', '.ts', '.js', '.jsx'],
@@ -67,6 +70,18 @@ module.exports = (env, argv) => {
       new HtmlWebpackPlugin({
         template: './public/index.html',
         filename: 'index.html',
+      }),
+      // Копируем статические файлы из public в dist
+      new CopyWebpackPlugin({
+        patterns: [
+          {
+            from: 'public',
+            to: '.',
+            globOptions: {
+              ignore: ['**/index.html'], // index.html обрабатывается HtmlWebpackPlugin
+            },
+          },
+        ],
       }),
       // Добавляем Workbox только для production сборки
       ...(isProduction
@@ -199,5 +214,25 @@ module.exports = (env, argv) => {
       },
     },
     devtool: isProduction ? 'source-map' : 'eval-source-map',
+    optimization: isProduction
+      ? {
+          splitChunks: {
+            chunks: 'all',
+            cacheGroups: {
+              vendor: {
+                test: /[\\/]node_modules[\\/]/,
+                name: 'vendors',
+                chunks: 'all',
+              },
+            },
+          },
+          minimize: true,
+        }
+      : {},
+    performance: {
+      hints: isProduction ? 'warning' : false,
+      maxEntrypointSize: 512000,
+      maxAssetSize: 512000,
+    },
   };
 };
