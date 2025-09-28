@@ -16,9 +16,9 @@ model Object {
   name        String
   description String?
   type        ObjectType @default(PROJECT)
-  assignee    String?
-  startDate   DateTime?
-  endDate     DateTime?
+  assignee    String
+  startDate   DateTime
+  endDate     DateTime
   progress    Int        @default(0)
   isExpanded  Boolean    @default(false)
   createdAt   DateTime   @default(now())
