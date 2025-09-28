@@ -30,7 +30,7 @@ services:
       - MINIO_SECRET_KEY=minioadmin123
       - MINIO_BUCKET_NAME=chat-files
     depends_on:
-      - postgres
+      - db-migrate
       - minio
     networks:
       - app-network
@@ -79,6 +79,27 @@ services:
     networks:
       - app-network
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U hakaton_user -d hakaton_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # Database Migrations
+  db-migrate:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://hakaton_user:hakaton_password@postgres:5432/hakaton_db
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: npx prisma migrate deploy
+    networks:
+      - app-network
+    restart: "no"
 
   # MinIO Object Storage
   minio:
