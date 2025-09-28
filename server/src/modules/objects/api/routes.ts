@@ -6,17 +6,15 @@ const createObjectSchema = z.object({
   name: z.string().min(1, "Название обязательно"),
   description: z.string().optional(),
   type: z.enum(["PROJECT", "TASK", "SUBTASK"]).optional().default("PROJECT"),
-  assignee: z.string().optional(),
+  assignee: z.string().min(1, "Ответственный обязателен"),
   startDate: z
     .string()
     .datetime()
-    .optional()
-    .transform((str) => (str ? new Date(str) : undefined)),
+    .transform((str) => new Date(str)),
   endDate: z
     .string()
     .datetime()
-    .optional()
-    .transform((str) => (str ? new Date(str) : undefined)),
+    .transform((str) => new Date(str)),
   progress: z.number().min(0).max(100).optional().default(0),
   isExpanded: z.boolean().optional().default(false),
 });

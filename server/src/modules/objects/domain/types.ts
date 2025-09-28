@@ -3,9 +3,9 @@ export interface ObjectData {
   name: string;
   description?: string;
   type: "PROJECT" | "TASK" | "SUBTASK";
-  assignee?: string;
-  startDate?: Date;
-  endDate?: Date;
+  assignee: string;
+  startDate: Date;
+  endDate: Date;
   progress: number;
   isExpanded: boolean;
   createdAt: Date;
@@ -16,9 +16,9 @@ export interface CreateObjectData {
   name: string;
   description?: string;
   type?: "PROJECT" | "TASK" | "SUBTASK";
-  assignee?: string;
-  startDate?: Date;
-  endDate?: Date;
+  assignee: string;
+  startDate: Date;
+  endDate: Date;
   progress?: number;
   isExpanded?: boolean;
 }
