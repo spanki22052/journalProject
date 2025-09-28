@@ -1,5 +1,5 @@
 import React from 'react';
-import { Typography, Card, Button, Space, Spin, Select, Input } from 'antd';
+import { Typography, Card, Button, Space, Spin, Select, Input, Divider } from 'antd';
 import {
   ArrowLeftOutlined,
   SaveOutlined,
@@ -8,6 +8,7 @@ import {
 } from '@ant-design/icons';
 import { useObjectCreatePage } from '../hooks/useObjectCreatePage';
 import { ObjectChecklist } from '@features/object-checklist';
+import { MapDrawer } from '@features/map-drawer/MapDrawer';
 import { mockAssignees } from '@shared/api/mockData';
 import styles from './ObjectCreatePage.module.css';
 
@@ -23,6 +24,7 @@ export const ObjectCreatePage: React.FC = () => {
     type,
     description,
     checklist,
+    polygonCoords,
     handleNameChange,
     handleAssigneeChange,
     handleTypeChange,
@@ -34,6 +36,7 @@ export const ObjectCreatePage: React.FC = () => {
     handleEditChecklistItem,
     handleDeleteChecklistItem,
     handleCreateChecklist,
+    setPolygonCoords,
   } = useObjectCreatePage();
 
   if (loading) {
@@ -119,6 +122,16 @@ export const ObjectCreatePage: React.FC = () => {
                         rows={4}
                       />
                     </div>
+                  </div>
+
+                  <Divider />
+
+                   <div className={styles.formItem}>
+                    <label>Географическая область объекта *</label>
+                    <MapDrawer
+                      polygonCoords={polygonCoords}
+                      setPolygonCoords={setPolygonCoords}
+                    />
                   </div>
 
                   <div className={styles.actions}>

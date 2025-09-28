@@ -3,4 +3,5 @@ export interface CreateObjectData {
   assignee: string;
   type: 'project' | 'task' | 'subtask';
   description?: string;
+  polygonCoords: number[][];
 }

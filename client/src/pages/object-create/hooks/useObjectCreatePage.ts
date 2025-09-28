@@ -15,6 +15,7 @@ export const useObjectCreatePage = () => {
   const [type, setType] = useState<'project' | 'task' | 'subtask'>('project');
   const [description, setDescription] = useState('');
   const [checklist, setChecklist] = useState<ObjectChecklistType | null>(null);
+  const [polygonCoords, setPolygonCoords] = useState<number[][]>([]);
 
   const handleNameChange = (value: string) => {
     setName(value);
@@ -38,6 +39,11 @@ export const useObjectCreatePage = () => {
       return;
     }
 
+    if (polygonCoords.length === 0) {
+      message.error('Необходимо указать географическую область объекта');
+      return;
+    }
+
     setLoading(true);
     try {
       // В реальном приложении здесь был бы API запрос для создания объекта
@@ -48,6 +54,7 @@ export const useObjectCreatePage = () => {
         assignee: assignee.trim(),
         type,
         description: description.trim(),
+        polygonCoords,
       };
 
       console.log('Создание объекта:', objectData);
@@ -184,6 +191,7 @@ export const useObjectCreatePage = () => {
     type,
     description,
     checklist,
+    polygonCoords,
     handleNameChange,
     handleAssigneeChange,
     handleTypeChange,
@@ -195,5 +203,6 @@ export const useObjectCreatePage = () => {
     handleEditChecklistItem,
     handleDeleteChecklistItem,
     handleCreateChecklist,
+    setPolygonCoords,
   };
 };
