@@ -12,7 +12,7 @@ const upload = multer({ storage: multer.memoryStorage() });
 
 const SendMessageSchema = z.object({
   roomId: z.string(),
-  senderId: z.string().uuid(),
+  senderId: z.string(),
   senderName: z.string(),
   senderRole: z.enum(["contractor", "customer"]),
   content: z.string().min(1),

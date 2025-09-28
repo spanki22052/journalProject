@@ -1,9 +1,9 @@
 import { z } from "zod";
 
 export const MessageSchema = z.object({
-  id: z.string().uuid(),
+  id: z.string(),
   roomId: z.string(),
-  senderId: z.string().uuid(),
+  senderId: z.string(),
   senderName: z.string(),
   senderRole: z.enum(["contractor", "customer"]),
   content: z.string(),

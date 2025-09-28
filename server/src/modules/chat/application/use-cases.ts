@@ -1,4 +1,3 @@
-import { v4 as uuidv4 } from "uuid";
 import { Message } from "../domain/entities";
 import {
   MessageRepository,
@@ -58,7 +57,7 @@ export class UploadFileUseCase {
     originalName: string,
     contentType: string
   ): Promise<string> {
-    const objectName = `chat/${uuidv4()}_${originalName}`;
+    const objectName = `chat/${crypto.randomUUID()}_${originalName}`;
     return await this.fileStorage.uploadFile(
       objectName,
       fileBuffer,
