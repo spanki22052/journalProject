@@ -2,15 +2,33 @@ import { useEffect } from 'react';
 
 export const useServiceWorker = () => {
   useEffect(() => {
-    if ('serviceWorker' in navigator) {
+    if ('serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
       window.addEventListener('load', () => {
         navigator.serviceWorker
-          .register('/sw.js')
+          .register('/service-worker.js')
           .then(registration => {
-            console.log('SW registered: ', registration);
+            console.log('Workbox SW registered: ', registration);
+
+            // Обработка обновлений service worker
+            registration.addEventListener('updatefound', () => {
+              const newWorker = registration.installing;
+              if (newWorker) {
+                newWorker.addEventListener('statechange', () => {
+                  if (
+                    newWorker.state === 'installed' &&
+                    navigator.serviceWorker.controller
+                  ) {
+                    // Новый service worker доступен, можно показать уведомление пользователю
+                    console.log(
+                      'New service worker available. Reload to update.'
+                    );
+                  }
+                });
+              }
+            });
           })
           .catch(registrationError => {
-            console.log('SW registration failed: ', registrationError);
+            console.log('Workbox SW registration failed: ', registrationError);
           });
       });
     }

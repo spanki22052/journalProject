@@ -1,5 +1,6 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const { GenerateSW } = require('workbox-webpack-plugin');
 
 module.exports = (env, argv) => {
   const isProduction = argv.mode === 'production';
@@ -67,6 +68,100 @@ module.exports = (env, argv) => {
         template: './public/index.html',
         filename: 'index.html',
       }),
+      // Добавляем Workbox только для production сборки
+      ...(isProduction
+        ? [
+            new GenerateSW({
+              // Исключаем service worker из кэширования
+              exclude: [/sw\.js$/],
+              // Максимальный размер кэша
+              maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // 5MB
+              // Стратегии кэширования
+              runtimeCaching: [
+                {
+                  urlPattern: /^https:\/\/fonts\.googleapis\.com\//,
+                  handler: 'StaleWhileRevalidate',
+                  options: {
+                    cacheName: 'google-fonts-stylesheets',
+                  },
+                },
+                {
+                  urlPattern: /^https:\/\/fonts\.gstatic\.com\//,
+                  handler: 'CacheFirst',
+                  options: {
+                    cacheName: 'google-fonts-webfonts',
+                    expiration: {
+                      maxEntries: 30,
+                      maxAgeSeconds: 60 * 60 * 24 * 365, // 1 год
+                    },
+                  },
+                },
+                {
+                  urlPattern: /\.(?:png|jpg|jpeg|svg|gif|webp)$/,
+                  handler: 'CacheFirst',
+                  options: {
+                    cacheName: 'images',
+                    expiration: {
+                      maxEntries: 100,
+                      maxAgeSeconds: 60 * 60 * 24 * 30, // 30 дней
+                    },
+                  },
+                },
+                {
+                  urlPattern: /\.(?:js|css)$/,
+                  handler: 'StaleWhileRevalidate',
+                  options: {
+                    cacheName: 'static-resources',
+                  },
+                },
+                {
+                  urlPattern: /^https:\/\/api\./,
+                  handler: 'NetworkFirst',
+                  options: {
+                    cacheName: 'api-cache',
+                    networkTimeoutSeconds: 10,
+                    expiration: {
+                      maxEntries: 50,
+                      maxAgeSeconds: 60 * 60 * 24, // 1 день
+                    },
+                  },
+                },
+              ],
+              // Настройки для манифеста
+              manifestTransforms: [
+                manifestEntries => {
+                  // Добавляем манифест в список кэшируемых файлов
+                  manifestEntries.push({
+                    url: '/manifest.json',
+                    revision: null,
+                  });
+                  return { manifest: manifestEntries, warnings: [] };
+                },
+              ],
+              // Дополнительные файлы для кэширования
+              additionalManifestEntries: [
+                {
+                  url: '/manifest.json',
+                  revision: null,
+                },
+                {
+                  url: '/icons/icon-192x192.png',
+                  revision: null,
+                },
+                {
+                  url: '/icons/icon-512x512.png',
+                  revision: null,
+                },
+              ],
+              // Настройки для offline fallback
+              navigateFallback: '/index.html',
+              navigateFallbackDenylist: [/^\/api\//, /^\/_/, /^\/admin\//],
+              // Настройки для skip waiting
+              skipWaiting: true,
+              clientsClaim: true,
+            }),
+          ]
+        : []),
     ],
     devServer: {
       static: {

@@ -1,0 +1,43 @@
+<svg width="384" height="384" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Фон -->
+  <rect width="512" height="512" rx="60" fill="#1890ff"/>
+  
+  <!-- Документ/журнал -->
+  <rect x="75" y="60" width="210" height="270" rx="15" fill="white" stroke="#e6f7ff" stroke-width="3"/>
+  
+  <!-- Строки текста в журнале -->
+  <rect x="97.5" y="90" width="150" height="6" rx="3" fill="#1890ff" opacity="0.7"/>
+  <rect x="97.5" y="105" width="135" height="6" rx="3" fill="#1890ff" opacity="0.5"/>
+  <rect x="97.5" y="120" width="165" height="6" rx="3" fill="#1890ff" opacity="0.7"/>
+  <rect x="97.5" y="135" width="120" height="6" rx="3" fill="#1890ff" opacity="0.5"/>
+  <rect x="97.5" y="150" width="142.5" height="6" rx="3" fill="#1890ff" opacity="0.7"/>
+  
+  <!-- Камера/фото иконка -->
+  <circle cx="240" cy="150" r="30" fill="#52c41a" stroke="white" stroke-width="4.5"/>
+  <circle cx="240" cy="150" r="18.75" fill="white"/>
+  <circle cx="240" cy="150" r="11.25" fill="#52c41a"/>
+  
+  <!-- Календарь -->
+  <rect x="97.5" y="187.5" width="135" height="90" rx="6" fill="#f0f0f0" stroke="#d9d9d9" stroke-width="1.5"/>
+  <rect x="97.5" y="187.5" width="135" height="22.5" rx="6" fill="#1890ff"/>
+  <rect x="105" y="195" width="120" height="7.5" rx="1.5" fill="white"/>
+  
+  <!-- Сетка календаря -->
+  <line x1="112.5" y1="217.5" x2="217.5" y2="217.5" stroke="#d9d9d9" stroke-width="0.75"/>
+  <line x1="112.5" y1="232.5" x2="217.5" y2="232.5" stroke="#d9d9d9" stroke-width="0.75"/>
+  <line x1="112.5" y1="247.5" x2="217.5" y2="247.5" stroke="#d9d9d9" stroke-width="0.75"/>
+  <line x1="112.5" y1="262.5" x2="217.5" y2="262.5" stroke="#d9d9d9" stroke-width="0.75"/>
+  
+  <line x1="135" y1="217.5" x2="135" y2="270" stroke="#d9d9d9" stroke-width="0.75"/>
+  <line x1="157.5" y1="217.5" x2="157.5" y2="270" stroke="#d9d9d9" stroke-width="0.75"/>
+  <line x1="180" y1="217.5" x2="180" y2="270" stroke="#d9d9d9" stroke-width="0.75"/>
+  <line x1="202.5" y1="217.5" x2="202.5" y2="270" stroke="#d9d9d9" stroke-width="0.75"/>
+  
+  <!-- Точки в календаре (события) -->
+  <circle cx="123.75" cy="225" r="2.25" fill="#52c41a"/>
+  <circle cx="146.25" cy="240" r="2.25" fill="#faad14"/>
+  <circle cx="168.75" cy="255" r="2.25" fill="#f5222d"/>
+  
+  <!-- Заголовок "OJ" -->
+  <text x="192" y="37.5" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="white" text-anchor="middle">OJ</text>
+</svg>

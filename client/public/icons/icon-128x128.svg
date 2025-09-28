@@ -1,0 +1,43 @@
+<svg width="128" height="128" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Фон -->
+  <rect width="512" height="512" rx="20" fill="#1890ff"/>
+  
+  <!-- Документ/журнал -->
+  <rect x="25" y="20" width="70" height="90" rx="5" fill="white" stroke="#e6f7ff" stroke-width="2"/>
+  
+  <!-- Строки текста в журнале -->
+  <rect x="32.5" y="30" width="50" height="2" rx="1" fill="#1890ff" opacity="0.7"/>
+  <rect x="32.5" y="35" width="45" height="2" rx="1" fill="#1890ff" opacity="0.5"/>
+  <rect x="32.5" y="40" width="55" height="2" rx="1" fill="#1890ff" opacity="0.7"/>
+  <rect x="32.5" y="45" width="40" height="2" rx="1" fill="#1890ff" opacity="0.5"/>
+  <rect x="32.5" y="50" width="47.5" height="2" rx="1" fill="#1890ff" opacity="0.7"/>
+  
+  <!-- Камера/фото иконка -->
+  <circle cx="80" cy="50" r="10" fill="#52c41a" stroke="white" stroke-width="1.5"/>
+  <circle cx="80" cy="50" r="6.25" fill="white"/>
+  <circle cx="80" cy="50" r="3.75" fill="#52c41a"/>
+  
+  <!-- Календарь -->
+  <rect x="32.5" y="62.5" width="45" height="30" rx="2" fill="#f0f0f0" stroke="#d9d9d9" stroke-width="0.5"/>
+  <rect x="32.5" y="62.5" width="45" height="7.5" rx="2" fill="#1890ff"/>
+  <rect x="35" y="65" width="40" height="2.5" rx="0.5" fill="white"/>
+  
+  <!-- Сетка календаря -->
+  <line x1="37.5" y1="72.5" x2="72.5" y2="72.5" stroke="#d9d9d9" stroke-width="0.25"/>
+  <line x1="37.5" y1="77.5" x2="72.5" y2="77.5" stroke="#d9d9d9" stroke-width="0.25"/>
+  <line x1="37.5" y1="82.5" x2="72.5" y2="82.5" stroke="#d9d9d9" stroke-width="0.25"/>
+  <line x1="37.5" y1="87.5" x2="72.5" y2="87.5" stroke="#d9d9d9" stroke-width="0.25"/>
+  
+  <line x1="45" y1="72.5" x2="45" y2="90" stroke="#d9d9d9" stroke-width="0.25"/>
+  <line x1="52.5" y1="72.5" x2="52.5" y2="90" stroke="#d9d9d9" stroke-width="0.25"/>
+  <line x1="60" y1="72.5" x2="60" y2="90" stroke="#d9d9d9" stroke-width="0.25"/>
+  <line x1="67.5" y1="72.5" x2="67.5" y2="90" stroke="#d9d9d9" stroke-width="0.25"/>
+  
+  <!-- Точки в календаре (события) -->
+  <circle cx="41.25" cy="75" r="0.75" fill="#52c41a"/>
+  <circle cx="48.75" cy="80" r="0.75" fill="#faad14"/>
+  <circle cx="56.25" cy="85" r="0.75" fill="#f5222d"/>
+  
+  <!-- Заголовок "OJ" -->
+  <text x="64" y="12.5" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="white" text-anchor="middle">OJ</text>
+</svg>
