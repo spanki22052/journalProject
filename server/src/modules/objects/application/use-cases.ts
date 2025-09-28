@@ -1,10 +1,10 @@
-import type { ObjectRepository } from "../domain/repository.js";
+import type { ObjectRepository } from "../domain/repository";
 import type {
   ObjectData,
   CreateObjectData,
   UpdateObjectData,
   ObjectFilters,
-} from "../domain/types.js";
+} from "../domain/types";
 
 export class ObjectUseCases {
   constructor(private objectRepository: ObjectRepository) {}

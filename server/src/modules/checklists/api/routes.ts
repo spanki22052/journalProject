@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { z } from "zod";
-import type { ChecklistUseCases } from "../application/use-cases.js";
+import type { ChecklistUseCases } from "../application/use-cases";
 
 const createChecklistSchema = z.object({
   objectId: z.string().min(1, "ID объекта обязателен"),

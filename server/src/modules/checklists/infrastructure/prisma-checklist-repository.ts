@@ -2,7 +2,7 @@ import { PrismaClient } from "@prisma/client";
 import type {
   ChecklistRepository,
   ChecklistItemRepository,
-} from "../domain/repository.js";
+} from "../domain/repository";
 import type {
   ChecklistData,
   CreateChecklistData,
@@ -10,7 +10,7 @@ import type {
   ChecklistItemData,
   CreateChecklistItemData,
   UpdateChecklistItemData,
-} from "../domain/types.js";
+} from "../domain/types";
 
 export class PrismaChecklistRepository implements ChecklistRepository {
   constructor(private prisma: PrismaClient) {}
