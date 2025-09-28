@@ -7,6 +7,11 @@ yarn-error.log*
 # Сборка
 dist
 build
+dev-dist
+
+# Vite
+.vite
+vite.config.ts.timestamp-*
 
 # Логи
 logs

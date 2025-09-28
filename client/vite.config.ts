@@ -140,22 +140,6 @@ export default defineConfig({
             },
           },
         ],
-        permissions: [
-          'camera',
-          'microphone',
-          'geolocation',
-          'notifications',
-          'storage',
-          'background-sync',
-        ],
-        features: [
-          'camera',
-          'microphone',
-          'geolocation',
-          'notifications',
-          'background-sync',
-          'file-system-access',
-        ],
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
