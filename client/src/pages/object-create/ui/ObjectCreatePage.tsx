@@ -1,5 +1,14 @@
 import React from 'react';
-import { Typography, Card, Button, Space, Spin, Select, Input, Divider } from 'antd';
+import {
+  Typography,
+  Card,
+  Button,
+  Space,
+  Spin,
+  Select,
+  Input,
+  Divider,
+} from 'antd';
 import {
   ArrowLeftOutlined,
   SaveOutlined,
@@ -21,13 +30,11 @@ export const ObjectCreatePage: React.FC = () => {
     loading,
     name,
     assignee,
-    type,
     description,
     checklist,
     polygonCoords,
     handleNameChange,
     handleAssigneeChange,
-    handleTypeChange,
     handleDescriptionChange,
     handleSave,
     handleBack,
@@ -101,18 +108,6 @@ export const ObjectCreatePage: React.FC = () => {
                       </Select>
                     </div>
                     <div className={styles.formItem}>
-                      <label>Тип объекта</label>
-                      <Select
-                        value={type}
-                        onChange={handleTypeChange}
-                        className={styles.select}
-                      >
-                        <Option value='project'>Проект</Option>
-                        <Option value='task'>Задача</Option>
-                        <Option value='subtask'>Подзадача</Option>
-                      </Select>
-                    </div>
-                    <div className={styles.formItem}>
                       <label>Описание</label>
                       <TextArea
                         value={description}
@@ -126,26 +121,12 @@ export const ObjectCreatePage: React.FC = () => {
 
                   <Divider />
 
-                   <div className={styles.formItem}>
+                  <div className={styles.formItem}>
                     <label>Географическая область объекта *</label>
                     <MapDrawer
                       polygonCoords={polygonCoords}
                       setPolygonCoords={setPolygonCoords}
                     />
-                  </div>
-
-                  <div className={styles.actions}>
-                    <Space>
-                      <Button
-                        type='primary'
-                        icon={<SaveOutlined />}
-                        onClick={handleSave}
-                        loading={loading}
-                      >
-                        Создать объект
-                      </Button>
-                      <Button onClick={handleBack}>Отмена</Button>
-                    </Space>
                   </div>
                 </Space>
               </div>
@@ -176,6 +157,20 @@ export const ObjectCreatePage: React.FC = () => {
                   />
                 )}
               </div>
+            </div>
+
+            <div className={styles.actions}>
+              <Space>
+                <Button
+                  type='primary'
+                  icon={<SaveOutlined />}
+                  onClick={handleSave}
+                  loading={loading}
+                >
+                  Создать объект
+                </Button>
+                <Button onClick={handleBack}>Отмена</Button>
+              </Space>
             </div>
           </Card>
         </div>

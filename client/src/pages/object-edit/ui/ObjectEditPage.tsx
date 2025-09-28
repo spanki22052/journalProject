@@ -74,10 +74,6 @@ export const ObjectEditPage: React.FC = () => {
                   <div>
                     <Title level={4}>Основная информация</Title>
                     <div className={styles.formItem}>
-                      <label>ID объекта:</label>
-                      <Paragraph code>{objectData.id}</Paragraph>
-                    </div>
-                    <div className={styles.formItem}>
                       <label>Название:</label>
                       <input
                         type='text'
@@ -103,31 +99,6 @@ export const ObjectEditPage: React.FC = () => {
                         ))}
                       </Select>
                     </div>
-                    <div className={styles.formItem}>
-                      <label>Прогресс:</label>
-                      <Paragraph>{objectData.progress}%</Paragraph>
-                    </div>
-                    <div className={styles.formItem}>
-                      <label>Тип:</label>
-                      <Paragraph>
-                        {objectData.type === 'project'
-                          ? 'Проект'
-                          : objectData.type}
-                      </Paragraph>
-                    </div>
-                  </div>
-
-                  <div className={styles.actions}>
-                    <Space>
-                      <Button
-                        type='primary'
-                        icon={<SaveOutlined />}
-                        onClick={handleSave}
-                      >
-                        Сохранить изменения
-                      </Button>
-                      <Button onClick={handleBack}>Отмена</Button>
-                    </Space>
                   </div>
                 </Space>
               </div>
@@ -143,6 +114,19 @@ export const ObjectEditPage: React.FC = () => {
                   />
                 )}
               </div>
+            </div>
+
+            <div className={styles.actions}>
+              <Space>
+                <Button
+                  type='primary'
+                  icon={<SaveOutlined />}
+                  onClick={handleSave}
+                >
+                  Сохранить изменения
+                </Button>
+                <Button onClick={handleBack}>Отмена</Button>
+              </Space>
             </div>
           </Card>
         </div>

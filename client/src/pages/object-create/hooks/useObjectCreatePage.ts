@@ -12,7 +12,6 @@ export const useObjectCreatePage = () => {
   const [loading, setLoading] = useState(false);
   const [name, setName] = useState('');
   const [assignee, setAssignee] = useState('');
-  const [type, setType] = useState<'project' | 'task' | 'subtask'>('project');
   const [description, setDescription] = useState('');
   const [checklist, setChecklist] = useState<ObjectChecklistType | null>(null);
   const [polygonCoords, setPolygonCoords] = useState<number[][]>([]);
@@ -23,10 +22,6 @@ export const useObjectCreatePage = () => {
 
   const handleAssigneeChange = (value: string | undefined) => {
     setAssignee(value || '');
-  };
-
-  const handleTypeChange = (value: 'project' | 'task' | 'subtask') => {
-    setType(value);
   };
 
   const handleDescriptionChange = (value: string) => {
@@ -52,7 +47,6 @@ export const useObjectCreatePage = () => {
       const objectData: CreateObjectData = {
         name: name.trim(),
         assignee: assignee.trim(),
-        type,
         description: description.trim(),
         polygonCoords,
       };
@@ -188,13 +182,11 @@ export const useObjectCreatePage = () => {
     loading,
     name,
     assignee,
-    type,
     description,
     checklist,
     polygonCoords,
     handleNameChange,
     handleAssigneeChange,
-    handleTypeChange,
     handleDescriptionChange,
     handleSave,
     handleBack,
