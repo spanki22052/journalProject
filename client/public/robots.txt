@@ -10,11 +10,27 @@ Disallow: /api/
 Disallow: /_/
 Disallow: /private/
 
-# Allow all other content
+# Allow PWA resources
 Allow: /icons/
 Allow: /manifest.json
 Allow: /sw.js
-Allow: /service-worker.js
+Allow: /workbox-*.js
+Allow: /workbox-*.js.map
+
+# Allow static assets
+Allow: /assets/
+Allow: /*.js
+Allow: /*.css
+Allow: /*.png
+Allow: /*.jpg
+Allow: /*.jpeg
+Allow: /*.gif
+Allow: /*.svg
+Allow: /*.ico
+Allow: /*.woff
+Allow: /*.woff2
+Allow: /*.ttf
+Allow: /*.eot
 
 # Crawl delay (optional)
 Crawl-delay: 1

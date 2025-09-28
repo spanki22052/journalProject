@@ -2,12 +2,12 @@ import { useEffect } from 'react';
 
 export const useServiceWorker = () => {
   useEffect(() => {
-    if ('serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
+    if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker
-          .register('/service-worker.js')
+          .register('/sw.js')
           .then(registration => {
-            console.log('Workbox SW registered: ', registration);
+            console.log('PWA SW registered: ', registration);
 
             // Обработка обновлений service worker
             registration.addEventListener('updatefound', () => {
@@ -22,13 +22,15 @@ export const useServiceWorker = () => {
                     console.log(
                       'New service worker available. Reload to update.'
                     );
+                    // Автоматическое обновление
+                    window.location.reload();
                   }
                 });
               }
             });
           })
           .catch(registrationError => {
-            console.log('Workbox SW registration failed: ', registrationError);
+            console.log('PWA SW registration failed: ', registrationError);
           });
       });
     }
