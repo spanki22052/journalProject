@@ -7,10 +7,30 @@ export const useServiceWorker = () => {
         navigator.serviceWorker
           .register('/sw.js')
           .then(registration => {
-            console.log('SW registered: ', registration);
+            console.log('PWA SW registered: ', registration);
+
+            // Обработка обновлений service worker
+            registration.addEventListener('updatefound', () => {
+              const newWorker = registration.installing;
+              if (newWorker) {
+                newWorker.addEventListener('statechange', () => {
+                  if (
+                    newWorker.state === 'installed' &&
+                    navigator.serviceWorker.controller
+                  ) {
+                    // Новый service worker доступен, можно показать уведомление пользователю
+                    console.log(
+                      'New service worker available. Reload to update.'
+                    );
+                    // Автоматическое обновление
+                    window.location.reload();
+                  }
+                });
+              }
+            });
           })
           .catch(registrationError => {
-            console.log('SW registration failed: ', registrationError);
+            console.log('PWA SW registration failed: ', registrationError);
           });
       });
     }
