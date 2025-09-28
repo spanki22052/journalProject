@@ -105,7 +105,8 @@ npm run build
 | **Frontend** | 3001 | React приложение |
 | **Backend** | 3000 | API сервер |
 | **Backend Dev** | 3002 | API сервер (режим разработки) |
-| **PostgreSQL** | 5432 | База данных |
+| **PostgreSQL** | 5432 | База данных (hakaton-postgres) |
+
 | **MinIO** | 9000 | Файловое хранилище |
 | **MinIO Console** | 9001 | Веб-интерфейс MinIO |
 
@@ -271,7 +272,8 @@ docker-compose build [service_name]
 
 ### Сервисы
 
-- **postgres**: PostgreSQL база данных
+- **postgres**: PostgreSQL база данных (hakaton-postgres)
+
 - **minio**: MinIO файловое хранилище
 - **minio-setup**: Инициализация MinIO bucket
 - **frontend**: React приложение
@@ -335,7 +337,8 @@ modules/
 
 ```bash
 # Проверка подключения к базе
-docker exec coffee-postgres psql -U postgres -d hakaton_db -c "\l"
+docker exec hakaton_backend-postgres-1 psql -U hakaton_user -d hakaton_db -c "\l"
+
 
 # Сброс миграций
 npx prisma migrate reset
@@ -371,6 +374,7 @@ docker-compose build --no-cache
 - [Express.js Guide](https://expressjs.com/)
 - [PostgreSQL Documentation](https://www.postgresql.org/docs/)
 - [Docker Compose Reference](https://docs.docker.com/compose/)
+
 
 ## 🤝 Вклад в проект
 
