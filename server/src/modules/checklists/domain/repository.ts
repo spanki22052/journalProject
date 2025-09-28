@@ -5,7 +5,7 @@ import type {
   ChecklistItemData,
   CreateChecklistItemData,
   UpdateChecklistItemData,
-} from "./types.js";
+} from "./types";
 
 export interface ChecklistRepository {
   create(data: CreateChecklistData): Promise<ChecklistData>;

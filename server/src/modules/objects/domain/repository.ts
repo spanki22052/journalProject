@@ -3,7 +3,7 @@ import type {
   CreateObjectData,
   UpdateObjectData,
   ObjectFilters,
-} from "./types.js";
+} from "./types";
 
 export interface ObjectRepository {
   create(data: CreateObjectData): Promise<ObjectData>;

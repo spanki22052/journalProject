@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { z } from "zod";
-import type { ObjectUseCases } from "../application/use-cases.js";
+import type { ObjectUseCases } from "../application/use-cases";
 
 const createObjectSchema = z.object({
   name: z.string().min(1, "Название обязательно"),

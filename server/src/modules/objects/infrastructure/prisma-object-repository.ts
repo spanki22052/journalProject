@@ -1,11 +1,11 @@
 import { PrismaClient } from "@prisma/client";
-import type { ObjectRepository } from "../domain/repository.js";
+import type { ObjectRepository } from "../domain/repository";
 import type {
   ObjectData,
   CreateObjectData,
   UpdateObjectData,
   ObjectFilters,
-} from "../domain/types.js";
+} from "../domain/types";
 
 export class PrismaObjectRepository implements ObjectRepository {
   constructor(private prisma: PrismaClient) {}
