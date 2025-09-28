@@ -8,6 +8,7 @@ import {
 } from '@ant-design/icons';
 import { useObjectCreatePage } from '../hooks/useObjectCreatePage';
 import { ObjectChecklist } from '@features/object-checklist';
+import { mockAssignees } from '@shared/api/mockData';
 import styles from './ObjectCreatePage.module.css';
 
 const { Title, Paragraph } = Typography;
@@ -82,13 +83,19 @@ export const ObjectCreatePage: React.FC = () => {
                     </div>
                     <div className={styles.formItem}>
                       <label>Ответственный</label>
-                      <input
-                        type='text'
+                      <Select
                         value={assignee}
-                        onChange={e => handleAssigneeChange(e.target.value)}
-                        className={styles.input}
-                        placeholder='Введите имя ответственного'
-                      />
+                        onChange={handleAssigneeChange}
+                        className={styles.select}
+                        placeholder='Выберите ответственного'
+                        allowClear
+                      >
+                        {mockAssignees.map(assignee => (
+                          <Option key={assignee} value={assignee}>
+                            {assignee}
+                          </Option>
+                        ))}
+                      </Select>
                     </div>
                     <div className={styles.formItem}>
                       <label>Тип объекта</label>
