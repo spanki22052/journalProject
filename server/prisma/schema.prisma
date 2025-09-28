@@ -1,0 +1,96 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Модель объекта (проекта/задачи)
+model Object {
+  id          String     @id @default(cuid())
+  name        String
+  description String?
+  type        ObjectType @default(PROJECT)
+  assignee    String?
+  startDate   DateTime?
+  endDate     DateTime?
+  progress    Int        @default(0)
+  isExpanded  Boolean    @default(false)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  // Связи
+  checklists Checklist[]
+  works      Work[]
+
+  @@map("objects")
+}
+
+// Модель чеклиста
+model Checklist {
+  id        String   @id @default(cuid())
+  objectId  String
+  title     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Связи
+  object Object          @relation(fields: [objectId], references: [id], onDelete: Cascade)
+  items  ChecklistItem[]
+
+  @@map("checklists")
+}
+
+// Модель элемента чеклиста
+model ChecklistItem {
+  id          String    @id @default(cuid())
+  checklistId String
+  text        String
+  completed   Boolean   @default(false)
+  completedAt DateTime?
+  createdAt   DateTime  @default(now())
+
+  // Связи
+  checklist Checklist @relation(fields: [checklistId], references: [id], onDelete: Cascade)
+
+  @@map("checklist_items")
+}
+
+// Модель работы/задачи (для Gantt диаграммы)
+model Work {
+  id           String   @id @default(cuid())
+  objectId     String
+  name         String
+  startDate    DateTime
+  endDate      DateTime
+  progress     Int      @default(0)
+  type         WorkType @default(TASK)
+  assignee     String?
+  parent       String? // ID родительской задачи
+  dependencies String[] // Массив ID зависимых задач
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Связи
+  object Object @relation(fields: [objectId], references: [id], onDelete: Cascade)
+
+  @@map("works")
+}
+
+// Енумы
+enum ObjectType {
+  PROJECT
+  TASK
+  SUBTASK
+}
+
+enum WorkType {
+  TASK
+  MILESTONE
+  PROJECT
+}

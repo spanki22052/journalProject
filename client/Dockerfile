@@ -1,7 +1,7 @@
 # Многоэтапная сборка для Object Journal PWA с Vite
 
 # Этап 1: Сборка приложения
-FROM node:22-alpine AS builder
+FROM node:20.19.2-alpine AS builder
 
 # Устанавливаем рабочую директорию
 WORKDIR /app
@@ -15,11 +15,8 @@ RUN apk add --no-cache \
 # Копируем package.json и package-lock.json
 COPY package*.json ./
 
-# Устанавливаем зависимости с кэшированием
-RUN npm ci --silent --only=production --no-audit --no-fund
-
-# Устанавливаем dev зависимости для сборки
-RUN npm ci --silent --only=development --no-audit --no-fund
+# Устанавливаем все зависимости (production + dev) для сборки
+RUN npm ci --silent --no-audit --no-fund
 
 # Копируем исходный код
 COPY . .

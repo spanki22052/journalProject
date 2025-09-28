@@ -4,12 +4,12 @@ import { z } from "zod";
 
 const JoinRoomSchema = z.object({
   roomId: z.string(),
-  userId: z.string().uuid(),
+  userId: z.string(),
 });
 
 const SendMessageSchema = z.object({
   roomId: z.string(),
-  senderId: z.string().uuid(),
+  senderId: z.string(),
   senderName: z.string(),
   senderRole: z.enum(["contractor", "customer"]),
   content: z.string().min(1),
