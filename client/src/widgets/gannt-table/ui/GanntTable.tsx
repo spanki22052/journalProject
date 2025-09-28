@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Gantt } from 'gantt-task-react';
 import 'gantt-task-react/dist/index.css';
-import { Card, Typography, Button, Space, Tag } from 'antd';
+import { Card, Typography, Button, Space, Tag, Modal, Tooltip } from 'antd';
 import {
   CalendarOutlined,
   ClockCircleOutlined,
@@ -10,6 +10,7 @@ import {
   DownOutlined,
   RightOutlined,
   BarChartOutlined,
+  EyeOutlined,
 } from '@ant-design/icons';
 import { useGanntTable } from '../hooks/useGanntTable';
 import {
@@ -27,6 +28,23 @@ export const GanntTable: React.FC<GanntTableProps> = ({
   headerType = 'custom',
   onOpenFilters,
 }) => {
+  const [isMobile, setIsMobile] = useState(false);
+  const [isVerySmall, setIsVerySmall] = useState(false);
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+
+  useEffect(() => {
+    const checkScreenSize = () => {
+      const width = window.innerWidth;
+      setIsMobile(width < 750);
+      setIsVerySmall(width < 500);
+    };
+
+    checkScreenSize();
+    window.addEventListener('resize', checkScreenSize);
+    return () => window.removeEventListener('resize', checkScreenSize);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [window.innerWidth]);
+
   const {
     viewMode,
     expandedObjects,
@@ -42,6 +60,67 @@ export const GanntTable: React.FC<GanntTableProps> = ({
     onOpenFilters,
   });
 
+  // Компонент кнопок видов
+  const ViewButtons = ({ onViewSelect }: { onViewSelect?: () => void }) => (
+    <Space
+      direction={isMobile ? 'vertical' : 'horizontal'}
+      size='small'
+      style={{ width: isMobile ? '100%' : 'auto' }}
+    >
+      <Button
+        type={viewMode === ExtendedViewMode.Day ? 'primary' : 'default'}
+        icon={<ClockCircleOutlined />}
+        onClick={() => {
+          setViewMode(ExtendedViewMode.Day);
+          onViewSelect?.();
+        }}
+        size='small'
+        block={isMobile}
+      >
+        День
+      </Button>
+      <Button
+        type={viewMode === ExtendedViewMode.Month ? 'primary' : 'default'}
+        icon={<CalendarOutlined />}
+        onClick={() => {
+          setViewMode(ExtendedViewMode.Month);
+          onViewSelect?.();
+        }}
+        size='small'
+        block={isMobile}
+      >
+        Месяц
+      </Button>
+      <Button
+        type={viewMode === ExtendedViewMode.Quarter ? 'primary' : 'default'}
+        icon={<BarChartOutlined />}
+        onClick={() => {
+          setViewMode(ExtendedViewMode.Quarter);
+          onViewSelect?.();
+        }}
+        size='small'
+        className={
+          viewMode === ExtendedViewMode.Quarter ? styles.quarterButton : ''
+        }
+        block={isMobile}
+      >
+        Квартал
+      </Button>
+      <Button
+        type={viewMode === ExtendedViewMode.Year ? 'primary' : 'default'}
+        icon={<AppstoreOutlined />}
+        onClick={() => {
+          setViewMode(ExtendedViewMode.Year);
+          onViewSelect?.();
+        }}
+        size='small'
+        block={isMobile}
+      >
+        Год
+      </Button>
+    </Space>
+  );
+
   return (
     <Card
       className={`${styles.card} ${
@@ -53,49 +132,30 @@ export const GanntTable: React.FC<GanntTableProps> = ({
           Диаграмма Ганта
         </Title>
         <Space className={styles.viewControls}>
-          <Button
-            type='default'
-            icon={<FilterOutlined />}
-            onClick={onOpenFilters}
-            size='small'
-          >
-            Фильтры
-          </Button>
-          <Button
-            type={viewMode === ExtendedViewMode.Day ? 'primary' : 'default'}
-            icon={<ClockCircleOutlined />}
-            onClick={() => setViewMode(ExtendedViewMode.Day)}
-            size='small'
-          >
-            День
-          </Button>
-          <Button
-            type={viewMode === ExtendedViewMode.Month ? 'primary' : 'default'}
-            icon={<CalendarOutlined />}
-            onClick={() => setViewMode(ExtendedViewMode.Month)}
-            size='small'
-          >
-            Месяц
-          </Button>
-          <Button
-            type={viewMode === ExtendedViewMode.Quarter ? 'primary' : 'default'}
-            icon={<BarChartOutlined />}
-            onClick={() => setViewMode(ExtendedViewMode.Quarter)}
-            size='small'
-            className={
-              viewMode === ExtendedViewMode.Quarter ? styles.quarterButton : ''
-            }
-          >
-            Квартал
-          </Button>
-          <Button
-            type={viewMode === ExtendedViewMode.Year ? 'primary' : 'default'}
-            icon={<AppstoreOutlined />}
-            onClick={() => setViewMode(ExtendedViewMode.Year)}
-            size='small'
-          >
-            Год
-          </Button>
+          <Tooltip title='Фильтры' placement='bottom'>
+            <Button
+              type='default'
+              icon={<FilterOutlined />}
+              onClick={onOpenFilters}
+              size='small'
+            >
+              {!isVerySmall && 'Фильтры'}
+            </Button>
+          </Tooltip>
+          {isMobile ? (
+            <Tooltip title='Вид отображения' placement='bottom'>
+              <Button
+                type='default'
+                icon={<EyeOutlined />}
+                onClick={() => setIsViewModalOpen(true)}
+                size='small'
+              >
+                {!isVerySmall && 'Вид'}
+              </Button>
+            </Tooltip>
+          ) : (
+            <ViewButtons />
+          )}
         </Space>
       </div>
 
@@ -133,7 +193,7 @@ export const GanntTable: React.FC<GanntTableProps> = ({
                         className={`${styles.taskCell} ${
                           isObject ? styles.objectCell : ''
                         }`}
-                        style={{ width: 250 }}
+                        style={{ width: isMobile ? 100 : 250 }}
                       >
                         <div className={styles.taskNameContainer}>
                           {isObject && (
@@ -159,7 +219,10 @@ export const GanntTable: React.FC<GanntTableProps> = ({
                       </div>
 
                       {/* Колонка исполнителей */}
-                      <div className={styles.taskCell} style={{ width: 150 }}>
+                      <div
+                        className={styles.taskCell}
+                        style={{ width: isMobile ? 100 : 150 }}
+                      >
                         {!isObject && extendedTask.assignee && (
                           <Tag color='blue' className={styles.assigneeTag}>
                             {extendedTask.assignee}
@@ -187,6 +250,18 @@ export const GanntTable: React.FC<GanntTableProps> = ({
           <p>Нет данных для отображения</p>
         </div>
       )}
+
+      {/* Модальное окно для выбора вида на мобильных устройствах */}
+      <Modal
+        title='Выберите вид отображения'
+        open={isViewModalOpen}
+        onCancel={() => setIsViewModalOpen(false)}
+        footer={null}
+        width={300}
+        centered
+      >
+        <ViewButtons onViewSelect={() => setIsViewModalOpen(false)} />
+      </Modal>
     </Card>
   );
 };

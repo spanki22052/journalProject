@@ -220,3 +220,45 @@
   background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
   border-color: #5a6fd8;
 }
+
+/* Мобильные стили для таблицы задач */
+@media (max-width: 768px) {
+  .taskCell:nth-child(1) {
+    width: 100px !important;
+    max-width: 100px !important;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  
+  .taskCell:nth-child(2) {
+    width: 100px !important;
+    max-width: 100px !important;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  
+  .customHeaderCell:nth-child(1) {
+    width: 100px !important;
+    max-width: 100px !important;
+  }
+  
+  .customHeaderCell:nth-child(2) {
+    width: 100px !important;
+    max-width: 100px !important;
+  }
+  
+  .taskName {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  
+  .assigneeTag {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 80px;
+  }
+}

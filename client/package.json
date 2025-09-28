@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@pbe/react-yandex-maps": "^1.2.5",
     "@types/react": "^18.2.0",
     "@types/react-dom": "^18.2.0",
     "antd": "^5.12.0",

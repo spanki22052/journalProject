@@ -76,8 +76,24 @@
   gap: 6px;
 }
 
-.table {
+.tableContainer {
   margin-top: 24px;
+  overflow-x: auto;
+}
+
+.table {
+  margin: 0;
+}
+
+.paginationContainer {
+  display: flex;
+  justify-content: center;
+  margin-top: 16px;
+  padding: 16px 0;
+}
+
+.pagination {
+  margin: 0;
 }
 
 .table .ant-table-thead > tr > th {
@@ -106,4 +122,34 @@
   height: 24px;
   padding: 0 8px;
   font-size: 12px;
+}
+
+/* Мобильные стили для таблицы */
+@media (max-width: 768px) {
+  .table .ant-table-thead > tr > th:nth-child(1),
+  .table .ant-table-tbody > tr > td:nth-child(1) {
+    width: 100px !important;
+    max-width: 100px !important;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  
+  .table .ant-table-thead > tr > th:nth-child(4),
+  .table .ant-table-tbody > tr > td:nth-child(4) {
+    width: 100px !important;
+    max-width: 100px !important;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  
+  .table .ant-table-thead > tr > th:nth-child(2),
+  .table .ant-table-tbody > tr > td:nth-child(2),
+  .table .ant-table-thead > tr > th:nth-child(3),
+  .table .ant-table-tbody > tr > td:nth-child(3),
+  .table .ant-table-thead > tr > th:nth-child(5),
+  .table .ant-table-tbody > tr > td:nth-child(5) {
+    display: none;
+  }
 }

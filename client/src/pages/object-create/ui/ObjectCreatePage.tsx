@@ -1,5 +1,14 @@
 import React from 'react';
-import { Typography, Card, Button, Space, Spin, Select, Input } from 'antd';
+import {
+  Typography,
+  Card,
+  Button,
+  Space,
+  Spin,
+  Select,
+  Input,
+  Divider,
+} from 'antd';
 import {
   ArrowLeftOutlined,
   SaveOutlined,
@@ -8,6 +17,7 @@ import {
 } from '@ant-design/icons';
 import { useObjectCreatePage } from '../hooks/useObjectCreatePage';
 import { ObjectChecklist } from '@features/object-checklist';
+import { MapDrawer } from '@features/map-drawer/MapDrawer';
 import { mockAssignees } from '@shared/api/mockData';
 import styles from './ObjectCreatePage.module.css';
 
@@ -20,12 +30,11 @@ export const ObjectCreatePage: React.FC = () => {
     loading,
     name,
     assignee,
-    type,
     description,
     checklist,
+    polygonCoords,
     handleNameChange,
     handleAssigneeChange,
-    handleTypeChange,
     handleDescriptionChange,
     handleSave,
     handleBack,
@@ -34,6 +43,7 @@ export const ObjectCreatePage: React.FC = () => {
     handleEditChecklistItem,
     handleDeleteChecklistItem,
     handleCreateChecklist,
+    setPolygonCoords,
   } = useObjectCreatePage();
 
   if (loading) {
@@ -98,18 +108,6 @@ export const ObjectCreatePage: React.FC = () => {
                       </Select>
                     </div>
                     <div className={styles.formItem}>
-                      <label>Тип объекта</label>
-                      <Select
-                        value={type}
-                        onChange={handleTypeChange}
-                        className={styles.select}
-                      >
-                        <Option value='project'>Проект</Option>
-                        <Option value='task'>Задача</Option>
-                        <Option value='subtask'>Подзадача</Option>
-                      </Select>
-                    </div>
-                    <div className={styles.formItem}>
                       <label>Описание</label>
                       <TextArea
                         value={description}
@@ -121,18 +119,14 @@ export const ObjectCreatePage: React.FC = () => {
                     </div>
                   </div>
 
-                  <div className={styles.actions}>
-                    <Space>
-                      <Button
-                        type='primary'
-                        icon={<SaveOutlined />}
-                        onClick={handleSave}
-                        loading={loading}
-                      >
-                        Создать объект
-                      </Button>
-                      <Button onClick={handleBack}>Отмена</Button>
-                    </Space>
+                  <Divider />
+
+                  <div className={styles.formItem}>
+                    <label>Географическая область объекта *</label>
+                    <MapDrawer
+                      polygonCoords={polygonCoords}
+                      setPolygonCoords={setPolygonCoords}
+                    />
                   </div>
                 </Space>
               </div>
@@ -163,6 +157,20 @@ export const ObjectCreatePage: React.FC = () => {
                   />
                 )}
               </div>
+            </div>
+
+            <div className={styles.actions}>
+              <Space>
+                <Button
+                  type='primary'
+                  icon={<SaveOutlined />}
+                  onClick={handleSave}
+                  loading={loading}
+                >
+                  Создать объект
+                </Button>
+                <Button onClick={handleBack}>Отмена</Button>
+              </Space>
             </div>
           </Card>
         </div>

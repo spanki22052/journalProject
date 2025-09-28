@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import styles from './GanntTable.module.css';
 
 interface CustomTaskListHeaderProps {
@@ -14,6 +14,18 @@ export const CustomTaskListHeader: React.FC<CustomTaskListHeaderProps> = ({
   fontFamily,
   fontSize,
 }) => {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkIsMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+
+    checkIsMobile();
+    window.addEventListener('resize', checkIsMobile);
+    return () => window.removeEventListener('resize', checkIsMobile);
+  }, []);
+
   return (
     <div
       className={styles.customTaskListHeader}
@@ -23,10 +35,16 @@ export const CustomTaskListHeader: React.FC<CustomTaskListHeaderProps> = ({
         fontSize: fontSize,
       }}
     >
-      <div className={styles.customHeaderCell} style={{ width: 275 }}>
+      <div
+        className={styles.customHeaderCell}
+        style={{ width: isMobile ? 100 : 275 }}
+      >
         Объект
       </div>
-      <div className={styles.customHeaderCell} style={{ width: 200 }}>
+      <div
+        className={styles.customHeaderCell}
+        style={{ width: isMobile ? 100 : 200 }}
+      >
         Исполнитель
       </div>
     </div>
