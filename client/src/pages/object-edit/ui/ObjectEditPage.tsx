@@ -1,5 +1,5 @@
 import React from 'react';
-import { Typography, Card, Button, Space, Spin, Select } from 'antd';
+import { Typography, Card, Button, Space, Spin, Select, Alert } from 'antd';
 import { ArrowLeftOutlined, SaveOutlined } from '@ant-design/icons';
 import { useObjectEditPage } from '../hooks/useObjectEditPage';
 import { ObjectChecklist } from '@features/object-checklist';
@@ -13,6 +13,7 @@ export const ObjectEditPage: React.FC = () => {
   const {
     objectData,
     loading,
+    error,
     handleSave,
     handleBack,
     handleNameChange,
@@ -30,6 +31,26 @@ export const ObjectEditPage: React.FC = () => {
     return (
       <div className={styles.loadingContainer}>
         <Spin size='large' />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className={styles.errorContainer}>
+        <Alert
+          message='Ошибка загрузки объекта'
+          description={
+            error.message || 'Произошла ошибка при загрузке данных объекта'
+          }
+          type='error'
+          showIcon
+          action={
+            <Button size='small' onClick={handleBack}>
+              Вернуться к списку
+            </Button>
+          }
+        />
       </div>
     );
   }
@@ -104,15 +125,13 @@ export const ObjectEditPage: React.FC = () => {
               </div>
 
               <div className={styles.checklistSection}>
-                {checklist && (
-                  <ObjectChecklist
-                    checklist={checklist}
-                    onToggleItem={handleToggleChecklistItem}
-                    onAddItem={handleAddChecklistItem}
-                    onEditItem={handleEditChecklistItem}
-                    onDeleteItem={handleDeleteChecklistItem}
-                  />
-                )}
+                <ObjectChecklist
+                  checklist={checklist}
+                  onToggleItem={handleToggleChecklistItem}
+                  onAddItem={handleAddChecklistItem}
+                  onEditItem={handleEditChecklistItem}
+                  onDeleteItem={handleDeleteChecklistItem}
+                />
               </div>
             </div>
 
@@ -122,6 +141,7 @@ export const ObjectEditPage: React.FC = () => {
                   type='primary'
                   icon={<SaveOutlined />}
                   onClick={handleSave}
+                  loading={loading}
                 >
                   Сохранить изменения
                 </Button>

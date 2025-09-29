@@ -1,3 +1,4 @@
+import React from 'react';
 import { Task } from 'gantt-task-react';
 
 export interface ExtendedTask extends Task {
@@ -17,13 +18,25 @@ export enum ExtendedViewMode {
 export interface GanntTableState {
   viewMode: ExtendedViewMode;
   expandedObjects: Set<string>;
+  loading: boolean;
+  error: string | null;
 }
 
 export interface GanntTableActions {
   setViewMode: (mode: ExtendedViewMode) => void;
   toggleObjectExpansion: (objectId: string) => void;
-  getGanttViewMode: (mode: ExtendedViewMode) => any;
-  getTaskListHeader: () => any;
+  getGanttViewMode: (
+    mode: ExtendedViewMode
+  ) => import('gantt-task-react').ViewMode;
+  getTaskListHeader: () =>
+    | React.ComponentType<{
+        headerHeight: number;
+        rowWidth: string;
+        fontFamily: string;
+        fontSize: string;
+      }>
+    | undefined;
+  loadData: () => Promise<void>;
 }
 
 export interface GanntTableProps {

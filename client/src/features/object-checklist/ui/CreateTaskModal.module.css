@@ -1,0 +1,120 @@
+.modal {
+  border-radius: 8px;
+}
+
+.modalTitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 18px;
+  font-weight: 600;
+  color: #1890ff;
+}
+
+.titleIcon {
+  font-size: 20px;
+}
+
+.form {
+  margin-top: 16px;
+}
+
+.input {
+  border-radius: 6px;
+}
+
+.textArea {
+  border-radius: 6px;
+  resize: none;
+}
+
+.dateRow {
+  width: 100%;
+  gap: 16px;
+}
+
+.dateField {
+  flex: 1;
+  margin-bottom: 0;
+}
+
+.datePicker {
+  width: 100%;
+  border-radius: 6px;
+}
+
+.select {
+  border-radius: 6px;
+}
+
+.priorityOption {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.priorityDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.priorityDot.low {
+  background-color: #52c41a;
+}
+
+.priorityDot.medium {
+  background-color: #faad14;
+}
+
+.priorityDot.high {
+  background-color: #ff4d4f;
+}
+
+/* Стили для модального окна */
+:global(.ant-modal-content) {
+  border-radius: 8px;
+}
+
+:global(.ant-modal-header) {
+  border-radius: 8px 8px 0 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+:global(.ant-modal-body) {
+  padding: 24px;
+}
+
+:global(.ant-modal-footer) {
+  border-radius: 0 0 8px 8px;
+  border-top: 1px solid #f0f0f0;
+  padding: 16px 24px;
+}
+
+/* Стили для полей формы */
+:global(.ant-form-item-label > label) {
+  font-weight: 500;
+  color: #262626;
+}
+
+:global(.ant-input:focus),
+:global(.ant-input-focused) {
+  border-color: #1890ff;
+  box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+}
+
+:global(.ant-picker:focus),
+:global(.ant-picker-focused) {
+  border-color: #1890ff;
+  box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+}
+
+:global(.ant-select:not(.ant-select-disabled):hover .ant-select-selector) {
+  border-color: #1890ff;
+}
+
+:global(.ant-select-focused:not(.ant-select-disabled) .ant-select-selector) {
+  border-color: #1890ff;
+  box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+}

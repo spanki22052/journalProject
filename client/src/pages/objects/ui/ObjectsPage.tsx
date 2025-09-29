@@ -1,10 +1,20 @@
 import React from 'react';
-import { Typography, Table, Input, Button, Space, Pagination } from 'antd';
+import {
+  Typography,
+  Table,
+  Input,
+  Button,
+  Space,
+  Pagination,
+  Spin,
+  Alert,
+} from 'antd';
 import {
   AppstoreOutlined,
   SearchOutlined,
   SortAscendingOutlined,
   PlusOutlined,
+  ReloadOutlined,
 } from '@ant-design/icons';
 import { useObjectsPage } from '../hooks/useObjectsPage';
 import styles from './ObjectsPage.module.css';
@@ -17,11 +27,15 @@ export const ObjectsPage: React.FC = () => {
     dataSource,
     currentPage,
     pageSize,
+    totalObjects,
+    isLoading,
+    error,
     handleSearch,
     handleSort,
     handleCreateObject,
     handlePageChange,
     handlePageSizeChange,
+    refetch,
   } = useObjectsPage();
 
   return (
@@ -46,14 +60,24 @@ export const ObjectsPage: React.FC = () => {
               value={searchText}
               onChange={e => handleSearch(e.target.value)}
               className={styles.searchInput}
+              disabled={isLoading}
             />
             <Space>
               <Button
                 icon={<SortAscendingOutlined />}
                 onClick={handleSort}
                 className={styles.controlButton}
+                disabled={isLoading}
               >
                 Сортировка
+              </Button>
+              <Button
+                icon={<ReloadOutlined />}
+                onClick={() => refetch()}
+                className={styles.controlButton}
+                loading={isLoading}
+              >
+                Обновить
               </Button>
             </Space>
           </div>
@@ -69,21 +93,43 @@ export const ObjectsPage: React.FC = () => {
             </Button>
           </div>
 
-          <div className={styles.tableContainer}>
-            <Table
-              columns={columns}
-              dataSource={dataSource}
-              rowKey='id'
-              pagination={false}
-              className={styles.table}
+          {error && (
+            <Alert
+              message='Ошибка загрузки объектов'
+              description={
+                error.message || 'Произошла ошибка при загрузке данных'
+              }
+              type='error'
+              showIcon
+              action={
+                <Button size='small' onClick={() => refetch()}>
+                  Повторить
+                </Button>
+              }
+              style={{ marginBottom: 16 }}
             />
+          )}
+
+          <div className={styles.tableContainer}>
+            <Spin spinning={isLoading} tip='Загрузка объектов...'>
+              <Table
+                columns={columns}
+                dataSource={dataSource}
+                rowKey='id'
+                pagination={false}
+                className={styles.table}
+                locale={{
+                  emptyText: isLoading ? 'Загрузка...' : 'Объекты не найдены',
+                }}
+              />
+            </Spin>
           </div>
 
           <div className={styles.paginationContainer}>
             <Pagination
               current={currentPage}
               pageSize={pageSize}
-              total={dataSource.length}
+              total={totalObjects}
               showSizeChanger
               showQuickJumper
               showTotal={(total, range) =>
@@ -92,6 +138,7 @@ export const ObjectsPage: React.FC = () => {
               onChange={handlePageChange}
               onShowSizeChange={handlePageSizeChange}
               className={styles.pagination}
+              disabled={isLoading}
             />
           </div>
         </div>

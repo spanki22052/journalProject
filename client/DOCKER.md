@@ -149,7 +149,7 @@ DOMAIN=your-domain.com
 netstat -tulpn | grep :8080
 
 # Изменение порта
-docker run -p 3000:8080 object-journal:latest
+docker run -p 3001:8080 object-journal:latest
 ```
 
 ### Проблемы с памятью
