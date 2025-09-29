@@ -253,33 +253,33 @@
   .editContent {
     flex-direction: column;
   }
-  
+
   .editForm {
     flex: none;
     width: 100%;
     padding: 16px;
   }
-  
+
   .checklistSection {
     width: 100%;
     border-left: none;
     border-top: 1px solid #f0f0f0;
     padding: 16px;
   }
-  
+
   .content {
     padding: 16px;
   }
-  
+
   .header {
     padding: 16px;
   }
-  
+
   .actions {
     padding: 16px;
     justify-content: center;
   }
-  
+
   .actions .ant-space {
     width: 100%;
     justify-content: center;

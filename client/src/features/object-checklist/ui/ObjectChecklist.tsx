@@ -1,8 +1,23 @@
-import React from 'react';
-import { Card, Checkbox, Button, Typography, Progress, Divider } from 'antd';
-import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
+import React, { useState } from 'react';
+import {
+  Card,
+  Checkbox,
+  Button,
+  Typography,
+  Progress,
+  Divider,
+  Input,
+} from 'antd';
+import {
+  PlusOutlined,
+  EditOutlined,
+  DeleteOutlined,
+  CheckOutlined,
+  CloseOutlined,
+} from '@ant-design/icons';
 import { ChecklistItem, ObjectChecklistProps } from '../model/types';
 import { useObjectChecklist } from '../hooks/useObjectChecklist';
+import { CreateTaskModal, CreateTaskFormData } from './CreateTaskModal';
 import styles from './ObjectChecklist.module.css';
 
 const { Title, Text } = Typography;
@@ -16,6 +31,61 @@ export const ObjectChecklist: React.FC<ObjectChecklistProps> = ({
 }) => {
   const { progressInfo } = useObjectChecklist({ checklist });
   const { completedCount, totalCount, progressPercent } = progressInfo;
+
+  // Состояние для редактирования
+  const [editingItemId, setEditingItemId] = useState<string | null>(null);
+  const [editingText, setEditingText] = useState('');
+
+  // Состояние для модального окна создания задачи
+  const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
+
+  const handleStartEdit = (item: ChecklistItem) => {
+    setEditingItemId(item.id);
+    setEditingText(item.text);
+  };
+
+  const handleSaveEdit = () => {
+    if (editingItemId && editingText.trim()) {
+      onEditItem(editingItemId, editingText.trim());
+      setEditingItemId(null);
+      setEditingText('');
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setEditingItemId(null);
+    setEditingText('');
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleSaveEdit();
+    } else if (e.key === 'Escape') {
+      handleCancelEdit();
+    }
+  };
+
+  const handleOpenCreateModal = () => {
+    setIsCreateModalVisible(true);
+  };
+
+  const handleCloseCreateModal = () => {
+    setIsCreateModalVisible(false);
+  };
+
+  const handleCreateTask = async (taskData: CreateTaskFormData) => {
+    // Преобразуем данные формы в формат, ожидаемый родительским компонентом
+    const taskDataForParent = {
+      title: taskData.title,
+      description: taskData.description,
+      startDate: taskData.startDate?.format('YYYY-MM-DD'),
+      endDate: taskData.endDate?.format('YYYY-MM-DD'),
+      priority: taskData.priority,
+    };
+
+    await onAddItem(taskDataForParent);
+    setIsCreateModalVisible(false);
+  };
 
   return (
     <Card className={styles.checklistCard}>
@@ -46,37 +116,73 @@ export const ObjectChecklist: React.FC<ObjectChecklistProps> = ({
                 checked={item.completed}
                 onChange={() => onToggleItem(item.id)}
                 className={styles.checkbox}
+                disabled={editingItemId === item.id}
               >
-                <span
-                  className={`${styles.itemText} ${
-                    item.completed ? styles.completedText : ''
-                  }`}
-                >
-                  {item.text}
-                </span>
+                {editingItemId === item.id ? (
+                  <Input
+                    value={editingText}
+                    onChange={e => setEditingText(e.target.value)}
+                    onKeyDown={handleKeyPress}
+                    onBlur={handleSaveEdit}
+                    autoFocus
+                    className={styles.editInput}
+                    size='small'
+                  />
+                ) : (
+                  <span
+                    className={`${styles.itemText} ${
+                      item.completed ? styles.completedText : ''
+                    }`}
+                  >
+                    {item.text}
+                  </span>
+                )}
               </Checkbox>
-              {item.completed && item.completedAt && (
-                <Text type='secondary' className={styles.completedDate}>
-                  Выполнено: {item.completedAt.toLocaleDateString('ru-RU')}
-                </Text>
-              )}
+              {item.completed &&
+                item.completedAt &&
+                editingItemId !== item.id && (
+                  <Text type='secondary' className={styles.completedDate}>
+                    Выполнено: {item.completedAt.toLocaleDateString('ru-RU')}
+                  </Text>
+                )}
             </div>
             <div className={styles.itemActions}>
-              <Button
-                type='text'
-                size='small'
-                icon={<EditOutlined />}
-                onClick={() => onEditItem(item.id)}
-                className={styles.actionButton}
-              />
-              <Button
-                type='text'
-                size='small'
-                icon={<DeleteOutlined />}
-                onClick={() => onDeleteItem(item.id)}
-                className={styles.actionButton}
-                danger
-              />
+              {editingItemId === item.id ? (
+                <>
+                  <Button
+                    type='text'
+                    size='small'
+                    icon={<CheckOutlined />}
+                    onClick={handleSaveEdit}
+                    className={styles.actionButton}
+                  />
+                  <Button
+                    type='text'
+                    size='small'
+                    icon={<CloseOutlined />}
+                    onClick={handleCancelEdit}
+                    className={styles.actionButton}
+                  />
+                </>
+              ) : (
+                <>
+                  <Button
+                    type='text'
+                    size='small'
+                    icon={<EditOutlined />}
+                    onClick={() => handleStartEdit(item)}
+                    className={styles.actionButton}
+                  />
+                  <Button
+                    type='text'
+                    size='small'
+                    icon={<DeleteOutlined />}
+                    onClick={() => onDeleteItem(item.id)}
+                    className={styles.actionButton}
+                    danger
+                  />
+                </>
+              )}
             </div>
           </div>
         ))}
@@ -88,13 +194,19 @@ export const ObjectChecklist: React.FC<ObjectChecklistProps> = ({
         <Button
           type='dashed'
           icon={<PlusOutlined />}
-          onClick={onAddItem}
+          onClick={handleOpenCreateModal}
           className={styles.addButton}
           block
         >
           Добавить задачу
         </Button>
       </div>
+
+      <CreateTaskModal
+        visible={isCreateModalVisible}
+        onCancel={handleCloseCreateModal}
+        onConfirm={handleCreateTask}
+      />
     </Card>
   );
 };

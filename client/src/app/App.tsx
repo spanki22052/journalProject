@@ -7,7 +7,7 @@ import { MainPage } from '@pages/main';
 import { ObjectEditPage } from '@pages/object-edit';
 import { ObjectCreatePage } from '@pages/object-create';
 import { useServiceWorker } from '@shared/lib/useServiceWorker';
-import { withRouter, withAntd } from './providers';
+import { withRouter, withAntd, withQuery } from './providers';
 import '../App.css';
 
 const AppComponent: React.FC = () => {
@@ -50,4 +50,4 @@ const AppComponent: React.FC = () => {
   );
 };
 
-export const App = withAntd(withRouter(() => <AppComponent />));
+export const App = withQuery(withAntd(withRouter(() => <AppComponent />)));

@@ -4,7 +4,7 @@ export interface ObjectData {
   startDate: Date;
   endDate: Date;
   progress: number;
-  type: 'project';
+  type: 'project' | 'task' | 'subtask';
   assignee: string;
   isExpanded: boolean;
 }

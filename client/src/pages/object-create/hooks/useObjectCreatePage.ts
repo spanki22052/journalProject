@@ -1,20 +1,28 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { message } from 'antd';
+import { useCreateObject } from '@entities/object/api/objectApi';
+import {
+  useCreateChecklist,
+  useCreateChecklistItem,
+} from '@entities/checklist/api/checklistApi';
 import type {
   ObjectChecklistType,
   ChecklistItem,
 } from '@features/object-checklist';
-import { CreateObjectData } from '../model/types';
 
 export const useObjectCreatePage = () => {
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
   const [name, setName] = useState('');
   const [assignee, setAssignee] = useState('');
   const [description, setDescription] = useState('');
   const [checklist, setChecklist] = useState<ObjectChecklistType | null>(null);
   const [polygonCoords, setPolygonCoords] = useState<number[][]>([]);
+
+  // Мутации для создания объекта и чеклиста
+  const createObjectMutation = useCreateObject();
+  const createChecklistMutation = useCreateChecklist();
+  const createChecklistItemMutation = useCreateChecklistItem();
 
   const handleNameChange = (value: string) => {
     setName(value);
@@ -39,42 +47,54 @@ export const useObjectCreatePage = () => {
       return;
     }
 
-    setLoading(true);
     try {
-      // В реальном приложении здесь был бы API запрос для создания объекта
-      const newObjectId = `obj-${Date.now()}`;
-
-      const objectData: CreateObjectData = {
+      // Подготавливаем данные для API
+      const objectData = {
         name: name.trim(),
+        description: description.trim() || undefined,
+        type: 'PROJECT' as const,
         assignee: assignee.trim(),
-        description: description.trim(),
-        polygonCoords,
+        startDate: new Date().toISOString(),
+        endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // +30 дней
+        progress: 0,
+        isExpanded: true,
       };
 
-      console.log('Создание объекта:', objectData);
-
-      // Имитация задержки API
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Создаем объект через API
+      const createdObject = await createObjectMutation.mutateAsync(objectData);
 
       // Создаем чеклист для нового объекта, если он есть
-      if (checklist) {
-        const newChecklist: ObjectChecklistType = {
-          ...checklist,
-          id: `checklist-${Date.now()}`,
-          objectId: newObjectId,
-        };
-        console.log('Создание чеклиста:', newChecklist);
+      if (checklist && checklist.items.length > 0) {
+        try {
+          // Создаем чеклист через API
+          const createdChecklist = await createChecklistMutation.mutateAsync({
+            objectId: createdObject.id,
+            title: checklist.title,
+          });
+
+          // Создаем элементы чеклиста через API
+          for (const item of checklist.items) {
+            await createChecklistItemMutation.mutateAsync({
+              checklistId: createdChecklist.id,
+              text: item.text,
+              completed: item.completed,
+            });
+          }
+
+          console.log('Чеклист успешно создан:', createdChecklist);
+        } catch (checklistError) {
+          console.error('Ошибка при создании чеклиста:', checklistError);
+          message.warning(
+            'Объект создан, но произошла ошибка при создании чеклиста'
+          );
+        }
       }
 
       message.success('Объект успешно создан');
-
-      // Переходим к списку объектов
       navigate('/objects');
     } catch (error) {
       console.error('Ошибка при создании объекта:', error);
       message.error('Ошибка при создании объекта');
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -179,7 +199,10 @@ export const useObjectCreatePage = () => {
   };
 
   return {
-    loading,
+    loading:
+      createObjectMutation.isPending ||
+      createChecklistMutation.isPending ||
+      createChecklistItemMutation.isPending,
     name,
     assignee,
     description,

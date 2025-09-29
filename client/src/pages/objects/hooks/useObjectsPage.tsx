@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { ColumnsType } from 'antd/es/table';
 import { Tag, Progress, Button, Space } from 'antd';
@@ -7,7 +7,7 @@ import {
   EditOutlined,
   MessageOutlined,
 } from '@ant-design/icons';
-import { mockObjects } from '@shared/api/mockData';
+import { useObjects } from '@entities/object/api/objectApi';
 import { ObjectData } from '../model/types';
 import styles from '../ui/ObjectsPage.module.css';
 
@@ -16,6 +16,24 @@ export const useObjectsPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const navigate = useNavigate();
+
+  // Параметры для API запроса
+  const searchParams = useMemo(
+    () => ({
+      search: searchText || undefined,
+      limit: pageSize,
+      offset: (currentPage - 1) * pageSize,
+    }),
+    [searchText, pageSize, currentPage]
+  );
+
+  // Получаем данные через API
+  const {
+    data: objectsResponse,
+    isLoading,
+    error,
+    refetch,
+  } = useObjects(searchParams);
 
   const handleEdit = (objectId: string) => {
     console.log('Edit object:', objectId);
@@ -29,8 +47,7 @@ export const useObjectsPage = () => {
 
   const handleSearch = (value: string) => {
     setSearchText(value);
-    console.log('Search:', value);
-    // TODO: Реализовать поиск по объектам
+    setCurrentPage(1); // Сбрасываем на первую страницу при поиске
   };
 
   const handleSort = () => {
@@ -53,6 +70,25 @@ export const useObjectsPage = () => {
     setCurrentPage(1);
     setPageSize(size);
   };
+
+  // Преобразуем данные API в формат, ожидаемый компонентом
+  const dataSource: ObjectData[] = useMemo(() => {
+    if (!objectsResponse?.data) return [];
+
+    return objectsResponse.data.map(apiObject => ({
+      id: apiObject.id,
+      name: apiObject.name,
+      startDate: new Date(apiObject.startDate),
+      endDate: new Date(apiObject.endDate),
+      progress: apiObject.progress,
+      type: apiObject.type.toLowerCase() as 'project' | 'task' | 'subtask',
+      assignee: apiObject.assignee,
+      isExpanded: apiObject.isExpanded,
+    }));
+  }, [objectsResponse?.data]);
+
+  // Общее количество объектов для пагинации
+  const totalObjects = objectsResponse?.total || 0;
 
   const columns: ColumnsType<ObjectData> = [
     {
@@ -141,13 +177,17 @@ export const useObjectsPage = () => {
   return {
     searchText,
     columns,
-    dataSource: mockObjects,
+    dataSource,
     currentPage,
     pageSize,
+    totalObjects,
+    isLoading,
+    error,
     handleSearch,
     handleSort,
     handleCreateObject,
     handlePageChange,
     handlePageSizeChange,
+    refetch,
   };
 };
