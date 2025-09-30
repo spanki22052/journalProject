@@ -121,3 +121,28 @@ export interface ObjectFilters {
 }
 
 export type SearchParams = ObjectFilters;
+
+// Типы для чата
+export interface UserType {
+  id: string | number;
+  name: string;
+  avatar?: string;
+}
+
+export interface MessageType {
+  id: string | number;
+  title: string;
+  sender: UserType;
+  timestamp: Date;
+  taskId: string;
+  taskName: string;
+  recognizedInfo: string;
+  files: string[];
+}
+
+// Типы для общего чек-листа
+export interface CheckListType {
+  id: string | number;
+  text: string;
+  status: 'open' | 'underApproval' | 'approved';
+}

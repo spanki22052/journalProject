@@ -1,5 +1,9 @@
 import { useNavigate, useLocation } from 'react-router-dom';
-import { CalendarOutlined, AppstoreOutlined } from '@ant-design/icons';
+import {
+  AppstoreOutlined,
+  CalendarOutlined,
+  MessageOutlined,
+} from '@ant-design/icons';
 
 export const useNavigation = () => {
   const navigate = useNavigate();
@@ -14,12 +18,19 @@ export const useNavigation = () => {
       case 'objects':
         navigate('/objects');
         break;
+      case 'chats':
+        navigate('/chats');
+        break;
       default:
         break;
     }
   };
 
   const getSelectedKeys = () => {
+    // Подсветка для списка и детальных страниц чатов
+    if (location.pathname.startsWith('/chats')) {
+      return ['chats'];
+    }
     switch (location.pathname) {
       case '/':
       case '/main':
@@ -41,6 +52,11 @@ export const useNavigation = () => {
       key: 'objects',
       icon: <AppstoreOutlined />,
       label: 'Объекты',
+    },
+    {
+      key: 'chats',
+      icon: <MessageOutlined />,
+      label: 'Чаты',
     },
   ];
 
