@@ -12,4 +12,5 @@ export interface ObjectRepository {
   update(id: string, data: UpdateObjectData): Promise<ObjectData | null>;
   delete(id: string): Promise<boolean>;
   count(filters?: ObjectFilters): Promise<number>;
+  getObjectTasks(objectId: string): Promise<Array<{ id: string; text: string; completed: boolean }>>;
 }

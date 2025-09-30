@@ -35,4 +35,8 @@ export class ObjectUseCases {
   async getObjectsCount(filters?: ObjectFilters): Promise<number> {
     return this.objectRepository.count(filters);
   }
+
+  async getObjectTasks(objectId: string): Promise<Array<{ id: string; text: string; completed: boolean }>> {
+    return this.objectRepository.getObjectTasks(objectId);
+  }
 }
