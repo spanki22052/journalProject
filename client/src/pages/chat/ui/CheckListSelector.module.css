@@ -1,0 +1,108 @@
+.selectorModal :global(.ant-modal-header) {
+    background: #f8f9fa;
+    border-bottom: 1px solid #e1e5e9;
+}
+
+.selectorModal :global(.ant-modal-body) {
+    padding: 0;
+    max-height: 60vh;
+    overflow-y: auto;
+}
+
+.selectorContent {
+    padding: 16px;
+}
+
+.selectorItem {
+    padding: 12px 0;
+    border-bottom: 1px solid #f0f0f0;
+    transition: background-color 0.2s ease;
+    border-radius: 8px;
+    margin: 4px 0;
+}
+
+.selectorItem:hover {
+    background-color: #f8f9fa;
+}
+
+.selectorItem:last-child {
+    border-bottom: none;
+}
+
+.itemContent {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    width: 100%;
+}
+
+.checkbox {
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.itemDetails {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.itemText {
+    font-size: 14px;
+    line-height: 1.4;
+    color: #333;
+    font-weight: 500;
+}
+
+.statusTag {
+    align-self: flex-start;
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-weight: 500;
+}
+
+.modalFooter {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+/* Скроллбар для модального окна */
+.selectorModal :global(.ant-modal-body)::-webkit-scrollbar {
+    width: 6px;
+}
+
+.selectorModal :global(.ant-modal-body)::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.selectorModal :global(.ant-modal-body)::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 3px;
+}
+
+.selectorModal :global(.ant-modal-body)::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.3);
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .selectorModal {
+        width: 95% !important;
+        margin: 0 auto;
+    }
+
+    .selectorContent {
+        padding: 12px;
+    }
+
+    .selectorItem {
+        padding: 10px 0;
+    }
+
+    .itemText {
+        font-size: 13px;
+    }
+}
