@@ -28,6 +28,7 @@ model Object {
   // Связи
   checklists Checklist[]
   works      Work[]
+  chat       Chat?
 
   @@map("objects")
 }
@@ -94,4 +95,47 @@ enum WorkType {
   TASK
   MILESTONE
   PROJECT
+}
+
+// Модель чата для объекта
+model Chat {
+  id        String   @id @default(cuid())
+  objectId  String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Связи
+  object   Object        @relation(fields: [objectId], references: [id], onDelete: Cascade)
+  messages ChatMessage[]
+
+  @@map("chats")
+}
+
+// Модель сообщения в чате
+model ChatMessage {
+  id                       String      @id @default(cuid())
+  chatId                   String
+  content                  String
+  type                     MessageType @default(TEXT)
+  author                   String // Имя автора сообщения
+  taskId                   String? // ID задачи, к которой относится сообщение (для предложений правок)
+  isEditSuggestion         Boolean     @default(false) // Является ли сообщение предложением правки
+  isCompletionConfirmation Boolean     @default(false) // Является ли сообщение подтверждением выполнения
+  fileUrl                  String? // URL файла в MinIO
+  fileName                 String? // Оригинальное имя файла
+  fileSize                 Int? // Размер файла в байтах
+  createdAt                DateTime    @default(now())
+
+  // Связи
+  chat Chat @relation(fields: [chatId], references: [id], onDelete: Cascade)
+
+  @@map("chat_messages")
+}
+
+// Типы сообщений
+enum MessageType {
+  TEXT
+  IMAGE
+  FILE
+  SYSTEM
 }

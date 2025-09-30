@@ -167,5 +167,17 @@ export function createObjectRoutes(objectUseCases: ObjectUseCases): Router {
     }
   });
 
+  // GET /api/objects/:id/tasks - Получить задачи объекта
+  router.get("/:id/tasks", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const tasks = await objectUseCases.getObjectTasks(id);
+      res.json(tasks);
+    } catch (error) {
+      console.error("Ошибка при получении задач объекта:", error);
+      res.status(500).json({ error: "Внутренняя ошибка сервера" });
+    }
+  });
+
   return router;
 }

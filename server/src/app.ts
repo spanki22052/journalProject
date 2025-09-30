@@ -3,7 +3,7 @@ import { createServer } from "http";
 import { Server as SocketIOServer } from "socket.io";
 import cors from "cors";
 import { loadConfig } from "./config/env.js";
-import { ChatModule } from "./modules/chat/index.js";
+import { ChatsModule } from "./modules/chats/index.js";
 import { prisma } from "./infra/prisma.js";
 import { PrismaObjectRepository } from "./modules/objects/infrastructure/prisma-object-repository.js";
 import { ObjectUseCases } from "./modules/objects/application/use-cases.js";
@@ -14,6 +14,7 @@ import {
 } from "./modules/checklists/infrastructure/prisma-checklist-repository.js";
 import { ChecklistUseCases } from "./modules/checklists/application/use-cases.js";
 import { createChecklistRoutes } from "./modules/checklists/api/routes.js";
+import { minioService } from "./infra/minio.js";
 
 const app = express();
 const server = createServer(app);
@@ -39,41 +40,47 @@ const checklistUseCases = new ChecklistUseCases(
   checklistRepository,
   checklistItemRepository
 );
-// Инициализация модуля чата (временно отключен)
-// const chatModule = new ChatModule({
-//   minio: {
-//     endPoint: process.env.MINIO_ENDPOINT || "localhost",
-//     port: parseInt(process.env.MINIO_PORT || "9000"),
-//     useSSL: process.env.MINIO_USE_SSL === "true",
-//     accessKey: process.env.MINIO_ACCESS_KEY || "minioadmin",
-//     secretKey: process.env.MINIO_SECRET_KEY || "minioadmin",
-//     bucketName: process.env.MINIO_BUCKET_NAME || "chat-files",
-//   },
-// });
 
-// Инициализация модуля
-// chatModule
-//   .initialize()
-//   .then(() => {
-//     console.log("Chat module initialized");
-//   })
-//   .catch(console.error);
+// Инициализация модуля чатов с WebSocket поддержкой
+const chatsModule = new ChatsModule({ prisma });
 
-// Настройка WebSocket
-// chatModule.setupWebSocket(io);
+// Инициализация модулей
+chatsModule
+  .initialize()
+  .then(() => {
+    console.log("Chats module initialized");
+  })
+  .catch(console.error);
+
+// Настройка WebSocket для модуля чатов
+chatsModule.setupWebSocket(io);
 
 // API роуты
-// app.use("/api/chat", chatModule.createRoutes());
 app.use("/api/objects", createObjectRoutes(objectUseCases));
 app.use("/api/checklists", createChecklistRoutes(checklistUseCases));
+app.use("/api/chats", chatsModule.createRoutes());
 
 // Health check
 app.get("/api/health", (req, res) => {
   res.json({ status: "ok", timestamp: new Date().toISOString() });
 });
 
+// Инициализация MinIO
+async function initializeMinIO() {
+  try {
+    await minioService.initialize();
+    console.log("✅ MinIO инициализирован");
+  } catch (error) {
+    console.error("❌ Ошибка инициализации MinIO:", error);
+    // Не останавливаем приложение, если MinIO недоступен
+  }
+}
+
 const config = loadConfig();
 const PORT = config.PORT;
+
+// Инициализируем MinIO при запуске
+initializeMinIO();
 
 server.listen(PORT, () => {
   console.log(`Server listening on port ${PORT}`);

@@ -27,6 +27,13 @@ export class PrismaObjectRepository implements ObjectRepository {
         },
       });
 
+      // Создаём чат для объекта
+      await tx.chat.create({
+        data: {
+          objectId: object.id,
+        },
+      });
+
       // Создаём чеклисты с пунктами, если они переданы
       if (data.checklists && data.checklists.length > 0) {
         for (const checklistData of data.checklists) {
@@ -148,6 +155,25 @@ export class PrismaObjectRepository implements ObjectRepository {
     }
 
     return this.prisma.object.count({ where });
+  }
+
+  async getObjectTasks(
+    objectId: string
+  ): Promise<Array<{ id: string; text: string; completed: boolean }>> {
+    const tasks = await this.prisma.checklistItem.findMany({
+      where: {
+        checklist: {
+          objectId: objectId,
+        },
+      },
+      select: {
+        id: true,
+        text: true,
+        completed: true,
+      },
+    });
+
+    return tasks;
   }
 
   private mapToObjectData(object: any): ObjectData {
