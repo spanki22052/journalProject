@@ -8,6 +8,7 @@ export interface ObjectData {
   endDate: Date;
   progress: number;
   isExpanded: boolean;
+  checkerBlockId?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -21,6 +22,13 @@ export interface CreateObjectData {
   endDate: Date;
   progress?: number;
   isExpanded?: boolean;
+  checkerBlockId?: string;
+  checklists?: Array<{
+    title: string;
+    items?: Array<{
+      text: string;
+    }>;
+  }>;
 }
 
 export interface UpdateObjectData {
@@ -32,6 +40,7 @@ export interface UpdateObjectData {
   endDate?: Date;
   progress?: number;
   isExpanded?: boolean;
+  checkerBlockId?: string;
 }
 
 export interface ObjectFilters {

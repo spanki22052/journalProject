@@ -42,10 +42,11 @@ export const useObjectCreatePage = () => {
       return;
     }
 
-    if (polygonCoords.length === 0) {
-      message.error('Необходимо указать географическую область объекта');
-      return;
-    }
+    // Географическая область временно необязательна
+    // if (polygonCoords.length === 0) {
+    //   message.error('Необходимо указать географическую область объекта');
+    //   return;
+    // }
 
     try {
       // Подготавливаем данные для API
@@ -123,10 +124,16 @@ export const useObjectCreatePage = () => {
     });
   };
 
-  const handleAddChecklistItem = () => {
+  const handleAddChecklistItem = (taskData: {
+    title: string;
+    description?: string;
+    startDate?: string;
+    endDate?: string;
+    priority: 'low' | 'medium' | 'high';
+  }) => {
     const newItem: ChecklistItem = {
       id: `item-${Date.now()}`,
-      text: 'Новая задача',
+      text: taskData.title,
       completed: false,
       createdAt: new Date(),
     };
@@ -151,24 +158,34 @@ export const useObjectCreatePage = () => {
     }
   };
 
-  const handleEditChecklistItem = (itemId: string) => {
+  const handleEditChecklistItem = (
+    itemId: string,
+    taskData: {
+      title: string;
+      description?: string;
+      startDate?: string;
+      endDate?: string;
+      priority: 'low' | 'medium' | 'high';
+    }
+  ) => {
     if (!checklist) return;
 
-    const newText = prompt('Введите новый текст задачи:');
-    if (newText && newText.trim()) {
-      const updatedItems = checklist.items.map(item => {
-        if (item.id === itemId) {
-          return { ...item, text: newText.trim() };
-        }
-        return item;
-      });
+    const updatedItems = checklist.items.map(item => {
+      if (item.id === itemId) {
+        return {
+          ...item,
+          text: taskData.title,
+          updatedAt: new Date(),
+        };
+      }
+      return item;
+    });
 
-      setChecklist({
-        ...checklist,
-        items: updatedItems,
-        updatedAt: new Date(),
-      });
-    }
+    setChecklist({
+      ...checklist,
+      items: updatedItems,
+      updatedAt: new Date(),
+    });
   };
 
   const handleDeleteChecklistItem = (itemId: string) => {

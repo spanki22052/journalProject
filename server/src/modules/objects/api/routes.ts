@@ -7,6 +7,7 @@ const createObjectSchema = z.object({
   description: z.string().optional(),
   type: z.enum(["PROJECT", "TASK", "SUBTASK"]).optional().default("PROJECT"),
   assignee: z.string().min(1, "Ответственный обязателен"),
+  checkerBlockId: z.string().optional(),
   startDate: z
     .string()
     .datetime()
@@ -17,6 +18,23 @@ const createObjectSchema = z.object({
     .transform((str) => new Date(str)),
   progress: z.number().min(0).max(100).optional().default(0),
   isExpanded: z.boolean().optional().default(false),
+  // Опциональные чеклисты с пунктами для создания вместе с объектом
+  checklists: z
+    .array(
+      z.object({
+        title: z.string().min(1, "Название чеклиста обязательно"),
+        items: z
+          .array(
+            z.object({
+              text: z.string().min(1, "Текст пункта обязателен"),
+            })
+          )
+          .optional()
+          .default([]),
+      })
+    )
+    .optional()
+    .default([]),
 });
 
 const updateObjectSchema = z.object({
@@ -24,6 +42,7 @@ const updateObjectSchema = z.object({
   description: z.string().optional(),
   type: z.enum(["PROJECT", "TASK", "SUBTASK"]).optional(),
   assignee: z.string().optional(),
+  checkerBlockId: z.string().optional(),
   startDate: z
     .string()
     .datetime()

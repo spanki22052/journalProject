@@ -25,6 +25,15 @@ export interface ObjectChecklistProps {
     endDate?: string;
     priority: 'low' | 'medium' | 'high';
   }) => void;
-  onEditItem: (itemId: string, newText: string) => void;
+  onEditItem: (
+    itemId: string,
+    taskData: {
+      title: string;
+      description?: string;
+      startDate?: string;
+      endDate?: string;
+      priority: 'low' | 'medium' | 'high';
+    }
+  ) => void;
   onDeleteItem: (itemId: string) => void;
 }

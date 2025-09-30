@@ -122,7 +122,7 @@ export const ObjectCreatePage: React.FC = () => {
                   <Divider />
 
                   <div className={styles.formItem}>
-                    <label>Географическая область объекта *</label>
+                    <label>Географическая область объекта</label>
                     <MapDrawer
                       polygonCoords={polygonCoords}
                       setPolygonCoords={setPolygonCoords}

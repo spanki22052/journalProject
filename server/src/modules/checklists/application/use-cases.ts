@@ -10,6 +10,7 @@ import type {
   CreateChecklistItemData,
   UpdateChecklistItemData,
 } from "../domain/types";
+import { prisma } from "../../../infra/prisma.js";
 
 export class ChecklistUseCases {
   constructor(
@@ -44,7 +45,9 @@ export class ChecklistUseCases {
   async createChecklistItem(
     data: CreateChecklistItemData
   ): Promise<ChecklistItemData> {
-    return this.checklistItemRepository.create(data);
+    const item = await this.checklistItemRepository.create(data);
+    await this.updateObjectProgressByChecklistId(data.checklistId);
+    return item;
   }
 
   async getChecklistItemById(id: string): Promise<ChecklistItemData | null> {
@@ -61,7 +64,10 @@ export class ChecklistUseCases {
     id: string,
     data: UpdateChecklistItemData
   ): Promise<ChecklistItemData | null> {
-    const updateData = { ...data };
+    const existing = await this.checklistItemRepository.findById(id);
+    if (!existing) return null;
+
+    const updateData = { ...data } as UpdateChecklistItemData;
 
     // Если отмечаем как выполненное, устанавливаем completedAt
     if (data.completed === true) {
@@ -72,10 +78,39 @@ export class ChecklistUseCases {
       updateData.completedAt = undefined;
     }
 
-    return this.checklistItemRepository.update(id, updateData);
+    const updated = await this.checklistItemRepository.update(id, updateData);
+    await this.updateObjectProgressByChecklistId(existing.checklistId);
+    return updated;
   }
 
   async deleteChecklistItem(id: string): Promise<boolean> {
-    return this.checklistItemRepository.delete(id);
+    const existing = await this.checklistItemRepository.findById(id);
+    const result = await this.checklistItemRepository.delete(id);
+    if (existing) {
+      await this.updateObjectProgressByChecklistId(existing.checklistId);
+    }
+    return result;
+  }
+
+  private async updateObjectProgressByChecklistId(
+    checklistId: string
+  ): Promise<void> {
+    const checklist = await prisma.checklist.findUnique({
+      where: { id: checklistId },
+      select: { objectId: true },
+    });
+    if (!checklist) return;
+
+    const [total, completed] = await Promise.all([
+      prisma.checklistItem.count({ where: { checklistId } }),
+      prisma.checklistItem.count({ where: { checklistId, completed: true } }),
+    ]);
+
+    const progress = total > 0 ? Math.round((completed / total) * 100) : 0;
+
+    await prisma.object.update({
+      where: { id: checklist.objectId },
+      data: { progress },
+    });
   }
 }
