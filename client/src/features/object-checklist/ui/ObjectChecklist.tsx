@@ -1,23 +1,10 @@
 import React, { useState } from 'react';
-import {
-  Card,
-  Checkbox,
-  Button,
-  Typography,
-  Progress,
-  Divider,
-  Input,
-} from 'antd';
-import {
-  PlusOutlined,
-  EditOutlined,
-  DeleteOutlined,
-  CheckOutlined,
-  CloseOutlined,
-} from '@ant-design/icons';
+import { Card, Checkbox, Button, Typography, Progress, Divider } from 'antd';
+import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { ChecklistItem, ObjectChecklistProps } from '../model/types';
 import { useObjectChecklist } from '../hooks/useObjectChecklist';
 import { CreateTaskModal, CreateTaskFormData } from './CreateTaskModal';
+import { EditTaskModal, EditTaskFormData } from './EditTaskModal';
 import styles from './ObjectChecklist.module.css';
 
 const { Title, Text } = Typography;
@@ -32,38 +19,34 @@ export const ObjectChecklist: React.FC<ObjectChecklistProps> = ({
   const { progressInfo } = useObjectChecklist({ checklist });
   const { completedCount, totalCount, progressPercent } = progressInfo;
 
-  // Состояние для редактирования
-  const [editingItemId, setEditingItemId] = useState<string | null>(null);
-  const [editingText, setEditingText] = useState('');
+  // Убрали inline-редактирование, теперь используем модальное окно
 
   // Состояние для модального окна создания задачи
   const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
 
+  // Состояние для модального окна редактирования задачи
+  const [isEditModalVisible, setIsEditModalVisible] = useState(false);
+  const [editingTaskData, setEditingTaskData] = useState<{
+    id: string;
+    title: string;
+    description?: string;
+    startDate?: string;
+    endDate?: string;
+    priority: 'low' | 'medium' | 'high';
+  } | null>(null);
+
   const handleStartEdit = (item: ChecklistItem) => {
-    setEditingItemId(item.id);
-    setEditingText(item.text);
+    // Открываем модальное окно редактирования вместо inline-редактирования
+    setEditingTaskData({
+      id: item.id,
+      title: item.text,
+      description: '', // ChecklistItem не содержит description, но можем добавить
+      priority: 'medium', // По умолчанию
+    });
+    setIsEditModalVisible(true);
   };
 
-  const handleSaveEdit = () => {
-    if (editingItemId && editingText.trim()) {
-      onEditItem(editingItemId, editingText.trim());
-      setEditingItemId(null);
-      setEditingText('');
-    }
-  };
-
-  const handleCancelEdit = () => {
-    setEditingItemId(null);
-    setEditingText('');
-  };
-
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      handleSaveEdit();
-    } else if (e.key === 'Escape') {
-      handleCancelEdit();
-    }
-  };
+  // Убрали старые обработчики inline-редактирования
 
   const handleOpenCreateModal = () => {
     setIsCreateModalVisible(true);
@@ -85,6 +68,28 @@ export const ObjectChecklist: React.FC<ObjectChecklistProps> = ({
 
     await onAddItem(taskDataForParent);
     setIsCreateModalVisible(false);
+  };
+
+  const handleEditTask = async (taskData: EditTaskFormData) => {
+    if (!editingTaskData) return;
+
+    // Преобразуем данные формы в формат, ожидаемый родительским компонентом
+    const taskDataForParent = {
+      title: taskData.title,
+      description: taskData.description,
+      startDate: taskData.startDate?.format('YYYY-MM-DD'),
+      endDate: taskData.endDate?.format('YYYY-MM-DD'),
+      priority: taskData.priority,
+    };
+
+    await onEditItem(editingTaskData.id, taskDataForParent);
+    setIsEditModalVisible(false);
+    setEditingTaskData(null);
+  };
+
+  const handleCloseEditModal = () => {
+    setIsEditModalVisible(false);
+    setEditingTaskData(null);
   };
 
   return (
@@ -116,73 +121,37 @@ export const ObjectChecklist: React.FC<ObjectChecklistProps> = ({
                 checked={item.completed}
                 onChange={() => onToggleItem(item.id)}
                 className={styles.checkbox}
-                disabled={editingItemId === item.id}
               >
-                {editingItemId === item.id ? (
-                  <Input
-                    value={editingText}
-                    onChange={e => setEditingText(e.target.value)}
-                    onKeyDown={handleKeyPress}
-                    onBlur={handleSaveEdit}
-                    autoFocus
-                    className={styles.editInput}
-                    size='small'
-                  />
-                ) : (
-                  <span
-                    className={`${styles.itemText} ${
-                      item.completed ? styles.completedText : ''
-                    }`}
-                  >
-                    {item.text}
-                  </span>
-                )}
+                <span
+                  className={`${styles.itemText} ${
+                    item.completed ? styles.completedText : ''
+                  }`}
+                >
+                  {item.text}
+                </span>
               </Checkbox>
-              {item.completed &&
-                item.completedAt &&
-                editingItemId !== item.id && (
-                  <Text type='secondary' className={styles.completedDate}>
-                    Выполнено: {item.completedAt.toLocaleDateString('ru-RU')}
-                  </Text>
-                )}
+              {item.completed && item.completedAt && (
+                <Text type='secondary' className={styles.completedDate}>
+                  Выполнено: {item.completedAt.toLocaleDateString('ru-RU')}
+                </Text>
+              )}
             </div>
             <div className={styles.itemActions}>
-              {editingItemId === item.id ? (
-                <>
-                  <Button
-                    type='text'
-                    size='small'
-                    icon={<CheckOutlined />}
-                    onClick={handleSaveEdit}
-                    className={styles.actionButton}
-                  />
-                  <Button
-                    type='text'
-                    size='small'
-                    icon={<CloseOutlined />}
-                    onClick={handleCancelEdit}
-                    className={styles.actionButton}
-                  />
-                </>
-              ) : (
-                <>
-                  <Button
-                    type='text'
-                    size='small'
-                    icon={<EditOutlined />}
-                    onClick={() => handleStartEdit(item)}
-                    className={styles.actionButton}
-                  />
-                  <Button
-                    type='text'
-                    size='small'
-                    icon={<DeleteOutlined />}
-                    onClick={() => onDeleteItem(item.id)}
-                    className={styles.actionButton}
-                    danger
-                  />
-                </>
-              )}
+              <Button
+                type='text'
+                size='small'
+                icon={<EditOutlined />}
+                onClick={() => handleStartEdit(item)}
+                className={styles.actionButton}
+              />
+              <Button
+                type='text'
+                size='small'
+                icon={<DeleteOutlined />}
+                onClick={() => onDeleteItem(item.id)}
+                className={styles.actionButton}
+                danger
+              />
             </div>
           </div>
         ))}
@@ -206,6 +175,13 @@ export const ObjectChecklist: React.FC<ObjectChecklistProps> = ({
         visible={isCreateModalVisible}
         onCancel={handleCloseCreateModal}
         onConfirm={handleCreateTask}
+      />
+
+      <EditTaskModal
+        visible={isEditModalVisible}
+        onCancel={handleCloseEditModal}
+        onConfirm={handleEditTask}
+        initialData={editingTaskData ?? undefined}
       />
     </Card>
   );

@@ -29,8 +29,9 @@ services:
       - MINIO_ACCESS_KEY=minioadmin
       - MINIO_SECRET_KEY=minioadmin123
       - MINIO_BUCKET_NAME=chat-files
+    command: sh -c "npx prisma migrate deploy && npm start"
     depends_on:
-      - db-migrate
+      - postgres
       - minio
     networks:
       - app-network
@@ -84,22 +85,6 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
-
-  # Database Migrations
-  db-migrate:
-    build:
-      context: ./server
-      dockerfile: Dockerfile
-    environment:
-      - NODE_ENV=production
-      - DATABASE_URL=postgresql://hakaton_user:hakaton_password@postgres:5432/hakaton_db
-    depends_on:
-      postgres:
-        condition: service_healthy
-    command: npx prisma migrate deploy
-    networks:
-      - app-network
-    restart: "no"
 
   # MinIO Object Storage
   minio:

@@ -1,7 +1,11 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { message } from 'antd';
-import { useObject, useUpdateObject } from '@entities/object/api/objectApi';
+import {
+  useObject,
+  useUpdateObject,
+  objectQueryKeys,
+} from '@entities/object/api/objectApi';
 import {
   useChecklistsByObject,
   useCreateChecklist,
@@ -71,7 +75,7 @@ export const useObjectEditPage = () => {
       title: firstChecklist.title,
       createdAt: new Date(firstChecklist.createdAt),
       updatedAt: new Date(firstChecklist.updatedAt),
-      items: firstChecklist.items.map(item => ({
+      items: firstChecklist.items.map((item: any) => ({
         id: item.id,
         text: item.text,
         completed: item.completed,
@@ -148,6 +152,13 @@ export const useObjectEditPage = () => {
       await queryClient.invalidateQueries({
         queryKey: checklistQueryKeys.byObject(id),
       });
+      // Прогресс объекта обновляется на бэкенде → обновим кэш объекта и списков
+      await queryClient.invalidateQueries({
+        queryKey: objectQueryKeys.detail(id),
+      });
+      await queryClient.invalidateQueries({
+        queryKey: objectQueryKeys.lists(),
+      });
     } catch (error) {
       console.error('Ошибка при обновлении элемента чеклиста:', error);
       message.error('Ошибка при обновлении задачи');
@@ -195,6 +206,13 @@ export const useObjectEditPage = () => {
       await queryClient.invalidateQueries({
         queryKey: checklistQueryKeys.byObject(id),
       });
+      // Прогресс объекта обновляется на бэкенде → обновим кэш объекта и списков
+      await queryClient.invalidateQueries({
+        queryKey: objectQueryKeys.detail(id),
+      });
+      await queryClient.invalidateQueries({
+        queryKey: objectQueryKeys.lists(),
+      });
 
       // Показываем информацию о созданной задаче
       const priorityText = {
@@ -219,14 +237,23 @@ export const useObjectEditPage = () => {
     }
   };
 
-  const handleEditChecklistItem = async (itemId: string, newText: string) => {
+  const handleEditChecklistItem = async (
+    itemId: string,
+    taskData: {
+      title: string;
+      description?: string;
+      startDate?: string;
+      endDate?: string;
+      priority: 'low' | 'medium' | 'high';
+    }
+  ) => {
     if (!checklistData || !id) return;
 
     try {
       await updateChecklistItemMutation.mutateAsync({
         itemId,
         data: {
-          text: newText,
+          text: taskData.title,
         },
       });
 
@@ -234,6 +261,31 @@ export const useObjectEditPage = () => {
       await queryClient.invalidateQueries({
         queryKey: checklistQueryKeys.byObject(id),
       });
+      // Прогресс объекта обновляется на бэкенде → обновим кэш объекта и списков
+      await queryClient.invalidateQueries({
+        queryKey: objectQueryKeys.detail(id),
+      });
+      await queryClient.invalidateQueries({
+        queryKey: objectQueryKeys.lists(),
+      });
+
+      // Показываем уведомление об обновлении задачи
+      const priorityText = {
+        low: 'низкий',
+        medium: 'средний',
+        high: 'высокий',
+      }[taskData.priority];
+
+      let taskInfo = `Задача "${taskData.title}" обновлена с приоритетом ${priorityText}`;
+      if (taskData.startDate && taskData.endDate) {
+        taskInfo += ` (${taskData.startDate} - ${taskData.endDate})`;
+      } else if (taskData.startDate) {
+        taskInfo += ` (с ${taskData.startDate})`;
+      } else if (taskData.endDate) {
+        taskInfo += ` (до ${taskData.endDate})`;
+      }
+
+      message.success(taskInfo);
     } catch (error) {
       console.error('Ошибка при редактировании элемента чеклиста:', error);
       message.error('Ошибка при редактировании задачи');

@@ -14,6 +14,9 @@ COPY . .
 # Генерируем Prisma клиент
 RUN npx prisma generate
 
+# Применяем миграции
+# Миграции выполняются при запуске контейнера, чтобы БД была доступна
+
 # Собираем TypeScript
 RUN npm run build
 
@@ -30,4 +33,4 @@ USER nextjs
 
 EXPOSE 3000
 
-CMD ["npm", "start"]
+CMD ["sh", "-c", "npx prisma migrate deploy && npm start"]
