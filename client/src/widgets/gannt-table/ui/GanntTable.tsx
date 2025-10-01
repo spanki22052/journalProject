@@ -49,10 +49,13 @@ export const GanntTable: React.FC<GanntTableProps> = ({
     viewMode,
     expandedObjects,
     tasks,
+    loading,
+    error,
     setViewMode,
     toggleObjectExpansion,
     getGanttViewMode,
     getTaskListHeader,
+    loadData,
   } = useGanntTable({
     selectedOrganization,
     selectedWorks,
@@ -159,7 +162,25 @@ export const GanntTable: React.FC<GanntTableProps> = ({
         </Space>
       </div>
 
-      {tasks.length > 0 ? (
+      {loading ? (
+        <div className={styles.ganttContainer}>
+          <div style={{ textAlign: 'center', padding: '50px' }}>
+            <Typography.Text>Загрузка данных...</Typography.Text>
+          </div>
+        </div>
+      ) : error ? (
+        <div className={styles.ganttContainer}>
+          <div style={{ textAlign: 'center', padding: '50px' }}>
+            <Typography.Text type='danger'>
+              Ошибка загрузки: {error}
+            </Typography.Text>
+            <br />
+            <Button onClick={loadData} style={{ marginTop: '16px' }}>
+              Попробовать снова
+            </Button>
+          </div>
+        </div>
+      ) : tasks.length > 0 ? (
         <div className={styles.ganttContainer}>
           <Gantt
             tasks={tasks}
@@ -172,7 +193,7 @@ export const GanntTable: React.FC<GanntTableProps> = ({
             barBackgroundColor='#1890ff'
             barProgressColor='#40a9ff'
             barProgressSelectedColor='#096dd9'
-            TaskListHeader={getTaskListHeader()}
+            TaskListHeader={getTaskListHeader() as any}
             TaskListTable={({ rowHeight, tasks }) => (
               <div className={styles.taskList}>
                 {tasks.map(task => {

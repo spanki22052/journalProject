@@ -6,8 +6,10 @@ import { ObjectsPage } from '@pages/objects';
 import { MainPage } from '@pages/main';
 import { ObjectEditPage } from '@pages/object-edit';
 import { ObjectCreatePage } from '@pages/object-create';
+import { ChatPageContainer } from '@pages/chat';
+import { ChatsListPage } from '@pages/chats';
 import { useServiceWorker } from '@shared/lib/useServiceWorker';
-import { withRouter, withAntd } from './providers';
+import { withRouter, withAntd, withQuery } from './providers';
 import '../App.css';
 
 const AppComponent: React.FC = () => {
@@ -41,6 +43,8 @@ const AppComponent: React.FC = () => {
               <Route path='/objects' element={<ObjectsPage />} />
               <Route path='/objects/create' element={<ObjectCreatePage />} />
               <Route path='/objects/:id/edit' element={<ObjectEditPage />} />
+              <Route path='/chats' element={<ChatsListPage />} />
+              <Route path='/chats/:id' element={<ChatPageContainer />} />
               <Route path='*' element={<Navigate to='/' replace />} />
             </Routes>
           </Suspense>
@@ -50,4 +54,4 @@ const AppComponent: React.FC = () => {
   );
 };
 
-export const App = withAntd(withRouter(() => <AppComponent />));
+export const App = withQuery(withAntd(withRouter(() => <AppComponent />)));

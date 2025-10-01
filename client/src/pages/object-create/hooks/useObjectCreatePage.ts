@@ -1,23 +1,28 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { message } from 'antd';
+import { useCreateObject } from '@entities/object/api/objectApi';
+import {
+  useCreateChecklist,
+  useCreateChecklistItem,
+} from '@entities/checklist/api/checklistApi';
 import type {
   ObjectChecklistType,
   ChecklistItem,
 } from '@features/object-checklist';
-import { CreateObjectData } from '../model/types';
-import { apiClient, ApiError } from '@shared/api/client';
 
 export const useObjectCreatePage = () => {
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
   const [name, setName] = useState('');
   const [assignee, setAssignee] = useState('');
   const [description, setDescription] = useState('');
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
   const [checklist, setChecklist] = useState<ObjectChecklistType | null>(null);
   const [polygonCoords, setPolygonCoords] = useState<number[][]>([]);
+
+  // Мутации для создания объекта и чеклиста
+  const createObjectMutation = useCreateObject();
+  const createChecklistMutation = useCreateChecklist();
+  const createChecklistItemMutation = useCreateChecklistItem();
 
   const handleNameChange = (value: string) => {
     setName(value);
@@ -31,85 +36,66 @@ export const useObjectCreatePage = () => {
     setDescription(value);
   };
 
-  const handleStartDateChange = (value: string) => {
-    setStartDate(value);
-  };
-
-  const handleEndDateChange = (value: string) => {
-    setEndDate(value);
-  };
-
   const handleSave = async () => {
     if (!name.trim()) {
       message.error('Название объекта обязательно для заполнения');
       return;
     }
 
-    if (polygonCoords.length === 0) {
-      message.error('Необходимо указать географическую область объекта');
-      return;
-    }
+    // Географическая область временно необязательна
+    // if (polygonCoords.length === 0) {
+    //   message.error('Необходимо указать географическую область объекта');
+    //   return;
+    // }
 
-    if (!startDate) {
-      message.error('Дата начала обязательна для заполнения');
-      return;
-    }
-
-    if (!endDate) {
-      message.error('Дата окончания обязательна для заполнения');
-      return;
-    }
-
-    if (new Date(startDate) >= new Date(endDate)) {
-      message.error('Дата окончания должна быть позже даты начала');
-      return;
-    }
-
-    setLoading(true);
     try {
-      const objectData: CreateObjectData = {
+      // Подготавливаем данные для API
+      const objectData = {
         name: name.trim(),
+        description: description.trim() || undefined,
+        type: 'PROJECT' as const,
         assignee: assignee.trim(),
-        description: description.trim(),
-        startDate: new Date(startDate).toISOString(),
-        endDate: new Date(endDate).toISOString(),
-        polygonCoords,
+        startDate: new Date().toISOString(),
+        endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // +30 дней
+        progress: 0,
+        isExpanded: true,
       };
 
-      console.log('Создание объекта:', objectData);
-
-      // Отправляем запрос на бэкенд
-      const createdObject = await apiClient.createObject(objectData);
-      console.log('Объект создан:', createdObject);
+      // Создаем объект через API
+      const createdObject = await createObjectMutation.mutateAsync(objectData);
 
       // Создаем чеклист для нового объекта, если он есть
-      if (checklist) {
-        const newChecklist: ObjectChecklistType = {
-          ...checklist,
-          id: `checklist-${Date.now()}`,
-          objectId: createdObject.id,
-        };
-        console.log('Создание чеклиста:', newChecklist);
-        // TODO: Добавить API для создания чеклиста
+      if (checklist && checklist.items.length > 0) {
+        try {
+          // Создаем чеклист через API
+          const createdChecklist = await createChecklistMutation.mutateAsync({
+            objectId: createdObject.id,
+            title: checklist.title,
+          });
+
+          // Создаем элементы чеклиста через API
+          for (const item of checklist.items) {
+            await createChecklistItemMutation.mutateAsync({
+              checklistId: createdChecklist.id,
+              text: item.text,
+              completed: item.completed,
+            });
+          }
+
+          console.log('Чеклист успешно создан:', createdChecklist);
+        } catch (checklistError) {
+          console.error('Ошибка при создании чеклиста:', checklistError);
+          message.warning(
+            'Объект создан, но произошла ошибка при создании чеклиста'
+          );
+        }
       }
 
       message.success('Объект успешно создан');
-
-      // Переходим к списку объектов
       navigate('/objects');
     } catch (error) {
       console.error('Ошибка при создании объекта:', error);
-
-      if (error instanceof ApiError) {
-        message.error(`Ошибка: ${error.message}`);
-        if (error.details) {
-          console.error('Детали ошибки:', error.details);
-        }
-      } else {
-        message.error('Ошибка при создании объекта');
-      }
-    } finally {
-      setLoading(false);
+      message.error('Ошибка при создании объекта');
     }
   };
 
@@ -138,10 +124,16 @@ export const useObjectCreatePage = () => {
     });
   };
 
-  const handleAddChecklistItem = () => {
+  const handleAddChecklistItem = (taskData: {
+    title: string;
+    description?: string;
+    startDate?: string;
+    endDate?: string;
+    priority: 'low' | 'medium' | 'high';
+  }) => {
     const newItem: ChecklistItem = {
       id: `item-${Date.now()}`,
-      text: 'Новая задача',
+      text: taskData.title,
       completed: false,
       createdAt: new Date(),
     };
@@ -166,24 +158,34 @@ export const useObjectCreatePage = () => {
     }
   };
 
-  const handleEditChecklistItem = (itemId: string) => {
+  const handleEditChecklistItem = (
+    itemId: string,
+    taskData: {
+      title: string;
+      description?: string;
+      startDate?: string;
+      endDate?: string;
+      priority: 'low' | 'medium' | 'high';
+    }
+  ) => {
     if (!checklist) return;
 
-    const newText = prompt('Введите новый текст задачи:');
-    if (newText && newText.trim()) {
-      const updatedItems = checklist.items.map(item => {
-        if (item.id === itemId) {
-          return { ...item, text: newText.trim() };
-        }
-        return item;
-      });
+    const updatedItems = checklist.items.map(item => {
+      if (item.id === itemId) {
+        return {
+          ...item,
+          text: taskData.title,
+          updatedAt: new Date(),
+        };
+      }
+      return item;
+    });
 
-      setChecklist({
-        ...checklist,
-        items: updatedItems,
-        updatedAt: new Date(),
-      });
-    }
+    setChecklist({
+      ...checklist,
+      items: updatedItems,
+      updatedAt: new Date(),
+    });
   };
 
   const handleDeleteChecklistItem = (itemId: string) => {
@@ -214,19 +216,18 @@ export const useObjectCreatePage = () => {
   };
 
   return {
-    loading,
+    loading:
+      createObjectMutation.isPending ||
+      createChecklistMutation.isPending ||
+      createChecklistItemMutation.isPending,
     name,
     assignee,
     description,
-    startDate,
-    endDate,
     checklist,
     polygonCoords,
     handleNameChange,
     handleAssigneeChange,
     handleDescriptionChange,
-    handleStartDateChange,
-    handleEndDateChange,
     handleSave,
     handleBack,
     handleToggleChecklistItem,

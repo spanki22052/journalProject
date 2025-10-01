@@ -29,8 +29,10 @@ services:
       - MINIO_ACCESS_KEY=minioadmin
       - MINIO_SECRET_KEY=minioadmin123
       - MINIO_BUCKET_NAME=chat-files
+    command: sh -c "npx prisma migrate deploy && npm start"
     depends_on:
       - db-migrate
+      - postgres
       - minio
     networks:
       - app-network
@@ -69,7 +71,7 @@ services:
   postgres:
     image: postgis/postgis:16-3.4-alpine
     ports:
-      - "5433:5432"
+      - "5432:5432"
     environment:
       - POSTGRES_DB=hakaton_db
       - POSTGRES_USER=hakaton_user

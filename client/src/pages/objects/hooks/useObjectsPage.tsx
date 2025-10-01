@@ -1,53 +1,39 @@
-import { useState, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { ColumnsType } from 'antd/es/table';
-import { Tag, Progress, Button, Space, message } from 'antd';
+import { Tag, Progress, Button, Space } from 'antd';
 import {
   AppstoreOutlined,
   EditOutlined,
   MessageOutlined,
 } from '@ant-design/icons';
-import { apiClient, ApiError, ObjectData } from '@shared/api/client';
+import { useObjects } from '@entities/object/api/objectApi';
+import { ObjectData } from '../model/types';
 import styles from '../ui/ObjectsPage.module.css';
 
 export const useObjectsPage = () => {
   const [searchText, setSearchText] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-  const [objects, setObjects] = useState<ObjectData[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [total, setTotal] = useState(0);
   const navigate = useNavigate();
 
-  // Загрузка объектов с бэкенда
-  const loadObjects = async () => {
-    setLoading(true);
-    try {
-      const response = await apiClient.getObjects({
-        search: searchText || undefined,
-        limit: pageSize,
-        offset: (currentPage - 1) * pageSize,
-      });
+  // Параметры для API запроса
+  const searchParams = useMemo(
+    () => ({
+      search: searchText || undefined,
+      limit: pageSize,
+      offset: (currentPage - 1) * pageSize,
+    }),
+    [searchText, pageSize, currentPage]
+  );
 
-      setObjects(response.data);
-      setTotal(response.total);
-    } catch (error) {
-      console.error('Ошибка при загрузке объектов:', error);
-
-      if (error instanceof ApiError) {
-        message.error(`Ошибка: ${error.message}`);
-      } else {
-        message.error('Ошибка при загрузке объектов');
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Загружаем объекты при монтировании и изменении параметров
-  useEffect(() => {
-    loadObjects();
-  }, [currentPage, pageSize, searchText]);
+  // Получаем данные через API
+  const {
+    data: objectsResponse,
+    isLoading,
+    error,
+    refetch,
+  } = useObjects(searchParams);
 
   const handleEdit = (objectId: string) => {
     console.log('Edit object:', objectId);
@@ -84,6 +70,25 @@ export const useObjectsPage = () => {
     setCurrentPage(1);
     setPageSize(size);
   };
+
+  // Преобразуем данные API в формат, ожидаемый компонентом
+  const dataSource: ObjectData[] = useMemo(() => {
+    if (!objectsResponse?.data) return [];
+
+    return objectsResponse.data.map(apiObject => ({
+      id: apiObject.id,
+      name: apiObject.name,
+      startDate: new Date(apiObject.startDate),
+      endDate: new Date(apiObject.endDate),
+      progress: apiObject.progress,
+      type: apiObject.type.toLowerCase() as 'project' | 'task' | 'subtask',
+      assignee: apiObject.assignee,
+      isExpanded: apiObject.isExpanded,
+    }));
+  }, [objectsResponse?.data]);
+
+  // Общее количество объектов для пагинации
+  const totalObjects = objectsResponse?.total || 0;
 
   const columns: ColumnsType<ObjectData> = [
     {
@@ -172,15 +177,17 @@ export const useObjectsPage = () => {
   return {
     searchText,
     columns,
-    dataSource: objects,
+    dataSource,
     currentPage,
     pageSize,
-    loading,
-    total,
+    totalObjects,
+    isLoading,
+    error,
     handleSearch,
     handleSort,
     handleCreateObject,
     handlePageChange,
     handlePageSizeChange,
+    refetch,
   };
 };

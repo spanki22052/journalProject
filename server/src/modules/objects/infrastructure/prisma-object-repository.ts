@@ -20,21 +20,54 @@ export class PrismaObjectRepository implements ObjectRepository {
   }
 
   async create(data: CreateObjectData): Promise<ObjectData> {
-    const object = await this.prisma.object.create({
-      data: {
-        name: data.name,
-        description: data.description,
-        type: data.type || "PROJECT",
-        assignee: data.assignee,
-        startDate: data.startDate,
-        endDate: data.endDate,
-        progress: data.progress || 0,
-        isExpanded: data.isExpanded || false,
-        ...(data.polygon && { polygon: data.polygon }),
-      },
-    });
+    return await this.prisma.$transaction(async (tx) => {
+      // Создаём объект
+      const object = await tx.object.create({
+        data: {
+          name: data.name,
+          description: data.description,
+          type: data.type || "PROJECT",
+          assignee: data.assignee,
+          startDate: data.startDate,
+          endDate: data.endDate,
+          progress: data.progress || 0,
+          isExpanded: data.isExpanded || false,
+          checkerBlockId: data.checkerBlockId,
+          ...(data.polygon && { polygon: data.polygon }),
+        },
+      });
 
-    return this.mapToObjectData(object);
+      // Создаём чат для объекта
+      await tx.chat.create({
+        data: {
+          objectId: object.id,
+        },
+      });
+
+      // Создаём чеклисты с пунктами, если они переданы
+      if (data.checklists && data.checklists.length > 0) {
+        for (const checklistData of data.checklists) {
+          const checklist = await tx.checklist.create({
+            data: {
+              objectId: object.id,
+              title: checklistData.title,
+            },
+          });
+
+          // Создаём пункты чеклиста, если они переданы
+          if (checklistData.items && checklistData.items.length > 0) {
+            await tx.checklistItem.createMany({
+              data: checklistData.items.map((item) => ({
+                checklistId: checklist.id,
+                text: item.text,
+              })),
+            });
+          }
+        }
+      }
+
+      return this.mapToObjectData(object);
+    });
   }
 
   async findById(id: string): Promise<ObjectData | null> {
@@ -90,7 +123,10 @@ export class PrismaObjectRepository implements ObjectRepository {
         ...(data.endDate !== undefined && { endDate: data.endDate }),
         ...(data.progress !== undefined && { progress: data.progress }),
         ...(data.isExpanded !== undefined && { isExpanded: data.isExpanded }),
+        ...(data.checkerBlockId !== undefined && {
+          checkerBlockId: data.checkerBlockId,
         ...(data.polygon !== undefined && { polygon: data.polygon }),
+        }),
       },
     });
 
@@ -132,6 +168,25 @@ export class PrismaObjectRepository implements ObjectRepository {
     return this.prisma.object.count({ where });
   }
 
+  async getObjectTasks(
+    objectId: string
+  ): Promise<Array<{ id: string; text: string; completed: boolean }>> {
+    const tasks = await this.prisma.checklistItem.findMany({
+      where: {
+        checklist: {
+          objectId: objectId,
+        },
+      },
+      select: {
+        id: true,
+        text: true,
+        completed: true,
+      },
+    });
+
+    return tasks;
+  }
+
   private mapToObjectData(object: any): ObjectData {
     return {
       id: object.id,
@@ -143,6 +198,7 @@ export class PrismaObjectRepository implements ObjectRepository {
       endDate: object.endDate,
       progress: object.progress,
       isExpanded: object.isExpanded,
+      checkerBlockId: object.checkerBlockId || undefined,
       polygon: object.polygon,
       polygonCoords: object.polygon ? this.fromWKTPolygon(object.polygon) : undefined,
       createdAt: object.createdAt,

@@ -7,34 +7,36 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = "postgresql://postgres:123@localhost:5432/hakaton_db" //env("DATABASE_URL")
+  url      = env("DATABASE_URL")
 }
 
 // Модель объекта (проекта/задачи)
 model Object {
-  id          String    @id @default(uuid())
-  name        String
-  description String?
-  type        ObjectType @default(PROJECT)
-  assignee    String
-  startDate   DateTime
-  endDate     DateTime
-  progress    Int        @default(0)
-  isExpanded  Boolean    @default(false)
+  id             String     @id @default(cuid())
+  name           String
+  description    String?
+  type           ObjectType @default(PROJECT)
+  assignee       String
+  startDate      DateTime
+  endDate        DateTime
+  progress       Int        @default(0)
+  isExpanded     Boolean    @default(false)
+  checkerBlockId String? // Идентификатор блока чекеров (внешняя интеграция/привязка)
   polygon     String?
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
 
   // Связи
   checklists Checklist[]
   works      Work[]
+  chat       Chat?
 
   @@map("objects")
 }
 
 // Модель чеклиста
 model Checklist {
-  id        String   @id @default(uuid())
+  id        String   @id @default(cuid())
   objectId  String
   title     String
   createdAt DateTime @default(now())
@@ -49,7 +51,7 @@ model Checklist {
 
 // Модель элемента чеклиста
 model ChecklistItem {
-  id          String    @id @default(uuid())
+  id          String    @id @default(cuid())
   checklistId String
   text        String
   completed   Boolean   @default(false)
@@ -64,7 +66,7 @@ model ChecklistItem {
 
 // Модель работы/задачи (для Gantt диаграммы)
 model Work {
-  id           String   @id @default(uuid())
+  id           String   @id @default(cuid())
   objectId     String
   name         String
   startDate    DateTime
@@ -125,6 +127,49 @@ enum WorkType {
   TASK
   MILESTONE
   PROJECT
+}
+
+// Модель чата для объекта
+model Chat {
+  id        String   @id @default(cuid())
+  objectId  String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Связи
+  object   Object        @relation(fields: [objectId], references: [id], onDelete: Cascade)
+  messages ChatMessage[]
+
+  @@map("chats")
+}
+
+// Модель сообщения в чате
+model ChatMessage {
+  id                       String      @id @default(cuid())
+  chatId                   String
+  content                  String
+  type                     MessageType @default(TEXT)
+  author                   String // Имя автора сообщения
+  taskId                   String? // ID задачи, к которой относится сообщение (для предложений правок)
+  isEditSuggestion         Boolean     @default(false) // Является ли сообщение предложением правки
+  isCompletionConfirmation Boolean     @default(false) // Является ли сообщение подтверждением выполнения
+  fileUrl                  String? // URL файла в MinIO
+  fileName                 String? // Оригинальное имя файла
+  fileSize                 Int? // Размер файла в байтах
+  createdAt                DateTime    @default(now())
+
+  // Связи
+  chat Chat @relation(fields: [chatId], references: [id], onDelete: Cascade)
+
+  @@map("chat_messages")
+}
+
+// Типы сообщений
+enum MessageType {
+  TEXT
+  IMAGE
+  FILE
+  SYSTEM
 }
 
 enum UserRole {

@@ -9,6 +9,7 @@ const createObjectSchema = z.object({
   description: z.string().optional(),
   type: z.enum(["PROJECT", "TASK", "SUBTASK"]).optional().default("PROJECT"),
   assignee: z.string().min(1, "Ответственный обязателен"),
+  checkerBlockId: z.string().optional(),
   startDate: z
     .string()
     .datetime()
@@ -19,6 +20,23 @@ const createObjectSchema = z.object({
     .transform((str) => new Date(str)),
   progress: z.number().min(0).max(100).optional().default(0),
   isExpanded: z.boolean().optional().default(false),
+  // Опциональные чеклисты с пунктами для создания вместе с объектом
+  checklists: z
+    .array(
+      z.object({
+        title: z.string().min(1, "Название чеклиста обязательно"),
+        items: z
+          .array(
+            z.object({
+              text: z.string().min(1, "Текст пункта обязателен"),
+            })
+          )
+          .optional()
+          .default([]),
+      })
+    )
+    .optional()
+    .default([]),
   polygonCoords: z
     .array(z.array(z.number()).length(2))
     .min(3, "Полигон должен содержать минимум 3 точки")
@@ -35,6 +53,7 @@ const updateObjectSchema = z.object({
   description: z.string().optional(),
   type: z.enum(["PROJECT", "TASK", "SUBTASK"]).optional(),
   assignee: z.string().optional(),
+  checkerBlockId: z.string().optional(),
   startDate: z
     .string()
     .datetime()
@@ -72,21 +91,11 @@ export function createObjectRoutes(objectUseCases: ObjectUseCases, authRepositor
   // Создать объект (только админ и подрядчик)
   router.post("/", sessionAuth(authRepository), requireAnyRole(authRepository)('ADMIN', 'CONTRACTOR'), async (req, res) => {
     try {
-      console.log("=== POST /api/objects ===");
-      console.log("Request body:", JSON.stringify(req.body, null, 2));
-      
       const data = createObjectSchema.parse(req.body);
-      console.log("Validated data:", JSON.stringify(data, null, 2));
-      
       const object = await objectUseCases.createObject(data);
-      console.log("Created object:", JSON.stringify(object, null, 2));
-      
       res.status(201).json(object);
     } catch (error) {
-      console.error("Error creating object:", error);
-      
       if (error instanceof z.ZodError) {
-        console.error("Validation errors:", error.errors);
         res
           .status(400)
           .json({ error: "Неверные данные", details: error.errors });
@@ -174,6 +183,18 @@ export function createObjectRoutes(objectUseCases: ObjectUseCases, authRepositor
 
       res.status(204).send();
     } catch (error) {
+      res.status(500).json({ error: "Внутренняя ошибка сервера" });
+    }
+  });
+
+  // GET /api/objects/:id/tasks - Получить задачи объекта
+  router.get("/:id/tasks", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const tasks = await objectUseCases.getObjectTasks(id);
+      res.json(tasks);
+    } catch (error) {
+      console.error("Ошибка при получении задач объекта:", error);
       res.status(500).json({ error: "Внутренняя ошибка сервера" });
     }
   });

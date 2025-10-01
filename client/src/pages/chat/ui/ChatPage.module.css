@@ -1,0 +1,38 @@
+.chatPage {
+    padding: 24px;
+    height: calc(100vh - 64px);
+    /* Вычитаем высоту навигации */
+    overflow: hidden;
+}
+
+.pageRow {
+    height: 100%;
+}
+
+.chatColumn {
+    height: 100%;
+}
+
+.checkListColumn {
+    height: 100%;
+}
+
+@media (max-width: 992px) {
+    .chatPage {
+        padding: 16px;
+    }
+
+    .pageRow {
+        flex-direction: column;
+    }
+
+    .chatColumn,
+    .checkListColumn {
+        height: 50%;
+        margin-bottom: 16px;
+    }
+
+    .checkListColumn {
+        margin-bottom: 0;
+    }
+}

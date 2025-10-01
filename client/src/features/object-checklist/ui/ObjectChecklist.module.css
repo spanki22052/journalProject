@@ -116,3 +116,13 @@
   border-color: #1890ff;
   color: #1890ff;
 }
+
+.editInput {
+  width: 100%;
+  margin-left: 8px;
+}
+
+.editInput .ant-input {
+  border: 1px solid #1890ff;
+  box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+}
