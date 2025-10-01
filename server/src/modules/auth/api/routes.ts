@@ -4,8 +4,7 @@ import type {
   UserUseCases,
   AuthUseCases,
 } from "../application/use-cases";
-import { adminAuth, systemAuth } from "../middleware/admin-auth";
-import { jwtAuth, requireAdmin, requireAnyRole } from "../middleware/jwt-auth";
+import { sessionAuth, requireAdmin, requireContractor, requireInspector, requireAnyRole, adminAuth, systemAuth } from "../middleware/session-auth";
 import { SYSTEM_ROLES } from "../constants/roles";
 import type { AuthRepository } from "../domain/repository";
 
@@ -14,14 +13,14 @@ const createUserSchema = z.object({
   email: z.string().email("Некорректный email"),
   password: z.string().min(6, "Пароль должен содержать минимум 6 символов"),
   fullName: z.string().min(1, "Полное имя обязательно"),
-  role: z.enum(["ADMIN", "CONTRACTOR", "ORGAN_CONTROL"]).optional(),
+  role: z.enum(["CONTRACTOR", "INSPECTOR"]).optional(), // Убираем ADMIN из обычной регистрации
 });
 
 const updateUserSchema = z.object({
   email: z.string().email("Некорректный email").optional(),
   password: z.string().min(6, "Пароль должен содержать минимум 6 символов").optional(),
   fullName: z.string().min(1, "Полное имя обязательно").optional(),
-  role: z.enum(["ADMIN", "CONTRACTOR", "ORGAN_CONTROL"]).optional(),
+  role: z.enum(["ADMIN", "CONTRACTOR", "INSPECTOR"]).optional(),
 });
 
 // Схема валидации для входа
@@ -40,10 +39,17 @@ const passwordResetSchema = z.object({
   newPassword: z.string().min(6, "Пароль должен содержать минимум 6 символов"),
 });
 
+const changePasswordSchema = z.object({
+  currentPassword: z.string().min(1, "Текущий пароль обязателен"),
+  newPassword: z.string().min(6, "Новый пароль должен содержать минимум 6 символов"),
+});
+
 export function createAuthRoutes(
   userUseCases: UserUseCases,
   authUseCases: AuthUseCases,
-  authRepository: AuthRepository
+  authRepository: AuthRepository,
+  req: any,
+  res: any
 ): Router {
   const router = Router();
 
@@ -54,14 +60,14 @@ export function createAuthRoutes(
     res.json([
       { value: "ADMIN", label: "Администратор" },
       { value: "CONTRACTOR", label: "Подрядчик" },
-      { value: "ORGAN_CONTROL", label: "Орган контроля" },
+      { value: "INSPECTOR", label: "Инспектор" },
     ]);
   });
 
   // === ПОЛЬЗОВАТЕЛИ ===
 
-  // Создать пользователя
-  router.post("/users", async (req, res) => {
+  // Создать пользователя (только админом)
+  router.post("/users", sessionAuth(authRepository), requireAdmin(authRepository), async (req, res) => {
     try {
       const data = createUserSchema.parse(req.body);
       const user = await userUseCases.createUser(data);
@@ -79,12 +85,12 @@ export function createAuthRoutes(
     }
   });
 
-  // Получить всех пользователей
-  router.get("/users", async (req, res) => {
+  // Получить всех пользователей (только админом)
+  router.get("/users", sessionAuth(authRepository), requireAdmin(authRepository), async (req, res) => {
     try {
       const { role, email, fullName } = req.query;
       const filters = {
-        ...(role && { role: role as "ADMIN" | "CONTRACTOR" | "ORGAN_CONTROL" }),
+        ...(role && { role: role as "ADMIN" | "CONTRACTOR" | "INSPECTOR" }),
         ...(email && { email: email as string }),
         ...(fullName && { fullName: fullName as string }),
       };
@@ -95,8 +101,8 @@ export function createAuthRoutes(
     }
   });
 
-  // Получить пользователя по ID
-  router.get("/users/:id", async (req, res) => {
+  // Получить пользователя по ID (только админом)
+  router.get("/users/:id", sessionAuth(authRepository), requireAdmin(authRepository), async (req, res) => {
     try {
       const { id } = req.params;
       const user = await userUseCases.getUserById(id);
@@ -110,8 +116,8 @@ export function createAuthRoutes(
     }
   });
 
-  // Обновить пользователя
-  router.put("/users/:id", async (req, res) => {
+  // Обновить пользователя (только админом)
+  router.put("/users/:id", sessionAuth(authRepository), requireAdmin(authRepository), async (req, res) => {
     try {
       const { id } = req.params;
       const data = updateUserSchema.parse(req.body);
@@ -134,8 +140,8 @@ export function createAuthRoutes(
     }
   });
 
-  // Удалить пользователя
-  router.delete("/users/:id", async (req, res) => {
+  // Удалить пользователя (только админом)
+  router.delete("/users/:id", sessionAuth(authRepository), requireAdmin(authRepository), async (req, res) => {
     try {
       const { id } = req.params;
       const success = await userUseCases.deleteUser(id);
@@ -178,22 +184,35 @@ export function createAuthRoutes(
     }
   });
 
-  // Проверка токена
-  router.get("/verify", jwtAuth(authRepository), (req, res) => {
-    res.json({ 
-      valid: true, 
-      user: req.user 
-    });
+  // Проверка сессии
+  router.get("/verify", (req, res) => {
+    if (authRepository.isAuthenticated()) {
+      const user = authRepository.getCurrentUser();
+      res.json({ 
+        valid: true, 
+        user: user
+      });
+    } else {
+      res.status(401).json({ 
+        valid: false, 
+        error: 'Сессия не найдена' 
+      });
+    }
   });
 
   // Получить текущего пользователя
-  router.get("/me", jwtAuth(authRepository), async (req, res) => {
+  router.get("/me", async (req, res) => {
     try {
-      if (!req.user) {
+      if (!authRepository.isAuthenticated()) {
         return res.status(401).json({ error: "Пользователь не авторизован" });
       }
 
-      const user = await userUseCases.getUserById(req.user.userId);
+      const currentUser = authRepository.getCurrentUser();
+      if (!currentUser) {
+        return res.status(404).json({ error: "Пользователь не найден" });
+      }
+
+      const user = await userUseCases.getUserById(currentUser.userId);
       if (!user) {
         return res.status(404).json({ error: "Пользователь не найден" });
       }
@@ -203,6 +222,7 @@ export function createAuthRoutes(
         email: user.email,
         fullName: user.fullName,
         role: user.role,
+        mustChangePassword: user.mustChangePassword,
         createdAt: user.createdAt,
       });
     } catch (error) {
@@ -297,15 +317,15 @@ export function createAuthRoutes(
     }
   });
 
-  // Создать пользователя госоргана (только с ключом админа)
-  router.post("/create-organ-control", adminAuth, async (req, res) => {
+  // Создать инспектора (только с ключом админа)
+  router.post("/create-inspector", adminAuth, async (req, res) => {
     try {
       const data = createUserSchema.parse(req.body);
 
-      const user = await userUseCases.createOrganControlUser(data);
+      const user = await userUseCases.createInspectorUser(data);
 
       res.status(201).json({
-        message: "Пользователь госоргана успешно создан",
+        message: "Инспектор успешно создан",
         user: {
           id: user.id,
           email: user.email,
@@ -320,6 +340,49 @@ export function createAuthRoutes(
       }
       if (error instanceof Error) {
         res.status(409).json({ error: error.message });
+        return;
+      }
+      res.status(500).json({ error: "Внутренняя ошибка сервера" });
+    }
+  });
+
+  // === ВЫХОД ===
+
+  // Выход из системы
+  router.post("/logout", async (req, res) => {
+    try {
+      authRepository.destroySession();
+      res.json({ message: "Выход выполнен успешно" });
+    } catch (error) {
+      res.status(500).json({ error: "Внутренняя ошибка сервера" });
+    }
+  });
+
+  // === СМЕНА ПАРОЛЯ ===
+
+  // Сменить пароль (требует авторизации)
+  router.post("/change-password", async (req, res) => {
+    try {
+      if (!authRepository.isAuthenticated()) {
+        return res.status(401).json({ error: "Пользователь не авторизован" });
+      }
+
+      const currentUser = authRepository.getCurrentUser();
+      if (!currentUser) {
+        return res.status(401).json({ error: "Пользователь не найден" });
+      }
+
+      const data = changePasswordSchema.parse(req.body);
+      const success = await authRepository.changePassword(currentUser.userId, data);
+
+      if (!success) {
+        return res.status(400).json({ error: "Неверный текущий пароль" });
+      }
+
+      res.json({ message: "Пароль успешно изменен" });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        res.status(400).json({ error: "Неверные данные", details: error.errors });
         return;
       }
       res.status(500).json({ error: "Внутренняя ошибка сервера" });

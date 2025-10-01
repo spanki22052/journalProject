@@ -12,6 +12,23 @@ const EnvSchema = z.object({
     .default("3003")
     .transform((v) => parseInt(v, 10)),
 
+  // Database
+  DATABASE_URL: z.string().default("postgresql://hakaton_user:hakaton_password@localhost:5433/hakaton_db"),
+
+  // Security Keys
+  ADMIN_SECRET_KEY: z.string().default("your-admin-secret-key-here"),
+  SYSTEM_SECRET_KEY: z.string().default("your-system-secret-key-here"),
+
+  // Super Admin
+  SUPER_ADMIN_PASSWORD: z.string().default("SuperAdmin123!"),
+
+  // Session Configuration
+  SESSION_SECRET: z.string().default("your-super-secret-session-key"),
+  REDIS_URL: z.string().default("redis://localhost:6379"),
+
+  // Frontend URL
+  FRONTEND_URL: z.string().default("http://localhost:3000"),
+
   // MinIO конфигурация
   MINIO_ENDPOINT: z.string().default("localhost"),
   MINIO_PORT: z

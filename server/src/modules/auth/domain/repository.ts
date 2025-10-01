@@ -10,6 +10,7 @@ import type {
   PasswordResetRequest,
   PasswordResetData,
   PasswordResetToken,
+  ChangePasswordData,
 } from "./types";
 
 export interface UserRepository {
@@ -26,9 +27,13 @@ export interface AuthRepository {
   login(data: LoginData): Promise<AuthResult | null>;
   validatePassword(password: string, hashedPassword: string): Promise<boolean>;
   hashPassword(password: string): Promise<string>;
-  generateToken(userId: string, role: string): string;
-  verifyToken(token: string): JwtPayload | null;
   generateResetToken(): string;
   requestPasswordReset(data: PasswordResetRequest): Promise<{ token: string; expiresAt: Date } | null>;
   resetPassword(data: PasswordResetData): Promise<boolean>;
+  changePassword(userId: string, data: ChangePasswordData): Promise<boolean>;
+  // Session-based методы
+  createSession(userId: string, userRole: string, userEmail: string, userFullName: string): void;
+  destroySession(): void;
+  isAuthenticated(): boolean;
+  getCurrentUser(): { userId: string; userRole: string; userEmail: string; userFullName: string } | null;
 }

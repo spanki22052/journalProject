@@ -1,5 +1,5 @@
 // Типы для ролей (теперь enum)
-export type UserRole = 'ADMIN' | 'CONTRACTOR' | 'ORGAN_CONTROL';
+export type UserRole = 'ADMIN' | 'CONTRACTOR' | 'INSPECTOR';
 
 // Типы для пользователей
 export interface UserData {
@@ -8,6 +8,7 @@ export interface UserData {
   password?: string; // Пароль может быть опциональным при возврате данных
   fullName: string;
   role: UserRole;
+  mustChangePassword: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -24,6 +25,7 @@ export interface UpdateUserData {
   password?: string;
   fullName?: string;
   role?: UserRole;
+  mustChangePassword?: boolean;
 }
 
 // Типы для аутентификации
@@ -38,6 +40,7 @@ export interface LoginResult {
     email: string;
     fullName: string;
     role: string;
+    mustChangePassword: boolean;
   };
   token: string; // JWT токен
 }
@@ -76,4 +79,10 @@ export interface UserFilters {
   role?: UserRole;
   email?: string;
   fullName?: string;
+}
+
+// Смена пароля
+export interface ChangePasswordData {
+  currentPassword: string;
+  newPassword: string;
 }

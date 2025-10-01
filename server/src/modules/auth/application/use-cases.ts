@@ -53,13 +53,13 @@ export class UserUseCases {
     });
   }
 
-  async createOrganControlUser(data: CreateUserData): Promise<UserData> {
-    // Проверяем, что пользователь госоргана еще не создан
-    await this.checkUniqueRole('ORGAN_CONTROL', 'organ_control');
+  async createInspectorUser(data: CreateUserData): Promise<UserData> {
+    // Проверяем, что инспектор еще не создан
+    await this.checkUniqueRole('INSPECTOR', 'inspector');
 
     return this.createUser({
       ...data,
-      role: 'ORGAN_CONTROL',
+      role: 'INSPECTOR',
     });
   }
 
@@ -136,8 +136,13 @@ export class AuthUseCases {
       return null;
     }
 
-    // Генерируем JWT токен
-    const token = this.authRepository.generateToken(user.id, user.role);
+    // Создаем сессию
+    this.authRepository.createSession(
+      user.id,
+      user.role,
+      user.email,
+      user.fullName
+    );
 
     return {
       user: {
@@ -145,8 +150,9 @@ export class AuthUseCases {
         email: user.email,
         fullName: user.fullName,
         role: user.role,
+        mustChangePassword: user.mustChangePassword,
       },
-      token,
+      token: 'session-based', // Заглушка для совместимости
     };
   }
 }

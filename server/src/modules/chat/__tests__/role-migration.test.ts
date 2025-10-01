@@ -45,7 +45,7 @@ describe('Chat Role Migration', () => {
         roomId: 'room-123',
         senderId: 'user-123',
         senderName: 'Test User',
-        senderRole: 'ORGAN_CONTROL',
+        senderRole: 'INSPECTOR',
         content: 'Hello',
         files: [],
         status: 'sent',
@@ -184,7 +184,7 @@ describe('Chat Role Migration', () => {
       roomId: z.string(),
       senderId: z.string(),
       senderName: z.string(),
-      senderRole: z.enum(["ADMIN", "CONTRACTOR", "ORGAN_CONTROL"]),
+      senderRole: z.enum(["ADMIN", "CONTRACTOR", "INSPECTOR"]),
       content: z.string().min(1),
       recognizedInfo: z.string().optional(),
       files: z.array(z.string()).optional(),
@@ -195,7 +195,7 @@ describe('Chat Role Migration', () => {
         roomId: 'room-123',
         senderId: 'user-123',
         senderName: 'Test User',
-        senderRole: 'ORGAN_CONTROL',
+        senderRole: 'INSPECTOR',
         content: 'Hello world',
       };
 

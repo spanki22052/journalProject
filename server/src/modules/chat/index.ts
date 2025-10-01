@@ -41,9 +41,9 @@ export class ChatModule {
     await this.fileStorage.initialize();
   }
 
-  setupWebSocket(io: SocketIOServer, authRepository: AuthRepository): void {
+  setupWebSocket(io: SocketIOServer, prisma: any): void {
     this.wsService = new SocketIOWebSocketService(io);
-    setupChatWebSocketHandlers(io, this.createSendMessageUseCase(), authRepository);
+    setupChatWebSocketHandlers(io, this.createSendMessageUseCase(), prisma);
   }
 
   createRoutes(authRepository: AuthRepository): Router {

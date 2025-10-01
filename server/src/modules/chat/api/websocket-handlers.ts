@@ -1,8 +1,8 @@
 import { Server as SocketIOServer } from "socket.io";
 import { SendMessageUseCase } from "../application/use-cases";
 import { z } from "zod";
-import jwt from "jsonwebtoken";
 import type { AuthRepository } from "../../auth/domain/repository";
+import { PrismaClient } from "@prisma/client";
 
 const JoinRoomSchema = z.object({
   roomId: z.string(),
@@ -13,7 +13,7 @@ const SendMessageSchema = z.object({
   roomId: z.string(),
   senderId: z.string(),
   senderName: z.string(),
-  senderRole: z.enum(["ADMIN", "CONTRACTOR", "ORGAN_CONTROL"]),
+  senderRole: z.enum(["ADMIN", "CONTRACTOR", "INSPECTOR"]),
   content: z.string().min(1),
   recognizedInfo: z.string().optional(),
   files: z.array(z.string()).optional(),
@@ -22,26 +22,53 @@ const SendMessageSchema = z.object({
 export function setupChatWebSocketHandlers(
   io: SocketIOServer,
   sendMessageUseCase: SendMessageUseCase,
-  authRepository: AuthRepository
+  prisma: PrismaClient
 ) {
   io.on("connection", (socket) => {
     console.log(`User connected: ${socket.id}`);
 
-    // Middleware для проверки JWT токена
-    socket.use((packet, next) => {
-      const token = socket.handshake.auth?.token;
-      if (!token) {
-        return next(new Error("Authentication error: No token provided"));
-      }
+    // Middleware для проверки сессии
+    socket.use(async (packet, next) => {
+      try {
+        const sessionId = socket.handshake.auth?.sessionId;
+        if (!sessionId) {
+          return next(new Error("Authentication error: No session provided"));
+        }
 
-      const decoded = authRepository.verifyToken(token);
-      if (!decoded) {
-        return next(new Error("Authentication error: Invalid token"));
-      }
+        // Проверяем сессию в Redis через Prisma
+        // Для WebSocket мы не можем использовать req/res напрямую
+        // Поэтому проверяем сессию через переданный sessionId
+        const userData = socket.handshake.auth?.user;
+        if (!userData || !userData.userId || !userData.userRole) {
+          return next(new Error("Authentication error: Invalid user data"));
+        }
 
-      // Добавляем информацию о пользователе в socket
-      socket.data.user = decoded;
-      next();
+        // Дополнительная проверка: убеждаемся, что пользователь существует
+        const user = await prisma.user.findUnique({
+          where: { id: userData.userId },
+          select: { id: true, email: true, role: true, fullName: true }
+        });
+
+        if (!user) {
+          return next(new Error("Authentication error: User not found"));
+        }
+
+        // Проверяем, что роль совпадает
+        if (user.role !== userData.userRole) {
+          return next(new Error("Authentication error: Role mismatch"));
+        }
+
+        // Добавляем информацию о пользователе в socket
+        socket.data.user = {
+          userId: user.id,
+          userRole: user.role,
+          userEmail: user.email,
+          userFullName: user.fullName
+        };
+        next();
+      } catch (error) {
+        next(new Error("Authentication error: Session validation failed"));
+      }
     });
 
     // Присоединиться к комнате
@@ -80,11 +107,11 @@ export function setupChatWebSocketHandlers(
           return;
         }
 
-        // Добавляем информацию о пользователе из JWT токена
+        // Добавляем информацию о пользователе из сессии
         const messageData = {
           ...parsed.data,
           senderId: socket.data.user?.userId || parsed.data.senderId,
-          senderRole: (socket.data.user?.role as "ADMIN" | "CONTRACTOR" | "ORGAN_CONTROL") || parsed.data.senderRole,
+          senderRole: (socket.data.user?.userRole as "ADMIN" | "CONTRACTOR" | "INSPECTOR") || parsed.data.senderRole,
         };
 
         const message = await sendMessageUseCase.execute(messageData);

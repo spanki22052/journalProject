@@ -1,17 +1,19 @@
+import { Request, Response } from 'express';
 import bcrypt from "bcrypt";
-import jwt, { SignOptions } from "jsonwebtoken";
 import { randomBytes } from "crypto";
 import { PrismaClient } from "@prisma/client";
 import type { AuthRepository } from "../domain/repository";
-import type { LoginData, AuthResult, JwtPayload, PasswordResetRequest, PasswordResetData } from "../domain/types";
+import type { LoginData, AuthResult, PasswordResetRequest, PasswordResetData, ChangePasswordData } from "../domain/types";
 
-export class BcryptAuthRepository implements AuthRepository {
+export class SessionAuthRepository implements AuthRepository {
   private readonly saltRounds = 12;
-  private readonly jwtSecret = process.env.JWT_SECRET || "your-super-secret-jwt-key";
-  private readonly jwtExpiresIn = process.env.JWT_EXPIRES_IN || "1h";
   private readonly resetTokenExpiresIn = 15 * 60 * 1000; // 15 минут
 
-  constructor(private prisma: PrismaClient) {}
+  constructor(
+    private prisma: PrismaClient,
+    private req: Request,
+    private res: Response
+  ) {}
 
   async login(data: LoginData): Promise<AuthResult | null> {
     // Этот метод не используется напрямую, так как логика входа
@@ -32,25 +34,6 @@ export class BcryptAuthRepository implements AuthRepository {
       return await bcrypt.hash(password, this.saltRounds);
     } catch (error) {
       throw new Error("Failed to hash password");
-    }
-  }
-
-  generateToken(userId: string, role: string): string {
-    try {
-      const payload = { userId, role };
-      const options: SignOptions = { expiresIn: "1h" };
-      return jwt.sign(payload, this.jwtSecret, options);
-    } catch (error) {
-      throw new Error("Failed to generate token");
-    }
-  }
-
-  verifyToken(token: string): JwtPayload | null {
-    try {
-      const decoded = jwt.verify(token, this.jwtSecret) as JwtPayload;
-      return decoded;
-    } catch (error) {
-      return null;
     }
   }
 
@@ -134,5 +117,74 @@ export class BcryptAuthRepository implements AuthRepository {
       console.error('Error resetting password:', error);
       return false;
     }
+  }
+
+  async changePassword(userId: string, data: ChangePasswordData): Promise<boolean> {
+    try {
+      // Находим пользователя
+      const user = await this.prisma.user.findUnique({
+        where: { id: userId }
+      });
+
+      if (!user) {
+        return false;
+      }
+
+      // Проверяем текущий пароль
+      const isValidPassword = await this.validatePassword(data.currentPassword, user.password);
+      if (!isValidPassword) {
+        return false;
+      }
+
+      // Хешируем новый пароль
+      const hashedPassword = await this.hashPassword(data.newPassword);
+
+      // Обновляем пароль и снимаем флаг принудительной смены
+      await this.prisma.user.update({
+        where: { id: userId },
+        data: { 
+          password: hashedPassword,
+          mustChangePassword: false
+        }
+      });
+
+      return true;
+    } catch (error) {
+      console.error('Error changing password:', error);
+      return false;
+    }
+  }
+
+  // Session-based методы
+  createSession(userId: string, userRole: string, userEmail: string, userFullName: string): void {
+    this.req.session.userId = userId;
+    this.req.session.userRole = userRole;
+    this.req.session.userEmail = userEmail;
+    this.req.session.userFullName = userFullName;
+  }
+
+  destroySession(): void {
+    this.req.session.destroy((err) => {
+      if (err) {
+        console.error('Error destroying session:', err);
+      }
+    });
+  }
+
+  isAuthenticated(): boolean {
+    return !!(this.req.session.userId && this.req.session.userRole);
+  }
+
+  getCurrentUser(): { userId: string; userRole: string; userEmail: string; userFullName: string } | null {
+    if (!this.isAuthenticated()) {
+      return null;
+    }
+
+    return {
+      userId: this.req.session.userId!,
+      userRole: this.req.session.userRole!,
+      userEmail: this.req.session.userEmail!,
+      userFullName: this.req.session.userFullName!
+    };
   }
 }

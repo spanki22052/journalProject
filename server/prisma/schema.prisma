@@ -85,13 +85,14 @@ model Work {
 
 // Модель пользователя
 model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  password  String
-  fullName  String
-  role      UserRole @default(CONTRACTOR)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id                String   @id @default(uuid())
+  email             String   @unique
+  password          String
+  fullName          String
+  role              UserRole @default(CONTRACTOR)
+  mustChangePassword Boolean  @default(false)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 
   // Связи
   passwordResetTokens PasswordResetToken[]
@@ -129,5 +130,5 @@ enum WorkType {
 enum UserRole {
   ADMIN
   CONTRACTOR
-  ORGAN_CONTROL
+  INSPECTOR
 }
