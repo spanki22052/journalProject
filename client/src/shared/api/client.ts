@@ -33,17 +33,6 @@ apiClient.interceptors.request.use(
       config.headers.Authorization = `Bearer ${token}`;
     }
 
-    // Логируем запрос в development режиме
-    if ((import.meta as { env?: { DEV?: boolean } }).env?.DEV) {
-      console.log(
-        `🚀 API Request: ${config.method?.toUpperCase()} ${config.url}`,
-        {
-          data: config.data,
-          params: config.params,
-        }
-      );
-    }
-
     return config;
   },
   (error: AxiosError) => {
@@ -56,15 +45,6 @@ apiClient.interceptors.request.use(
 apiClient.interceptors.response.use(
   (response: AxiosResponse) => {
     // Логируем ответ в development режиме
-    if ((import.meta as { env?: { DEV?: boolean } }).env?.DEV) {
-      console.log(
-        `✅ API Response: ${response.config.method?.toUpperCase()} ${response.config.url}`,
-        {
-          status: response.status,
-          data: response.data,
-        }
-      );
-    }
 
     return response;
   },

@@ -39,6 +39,10 @@
 .ganttContainer {
   overflow-x: auto;
   border: 1px solid #d9d9d9;
+  border-radius: 6px;
+  background: #fff;
+  min-height: 400px;
+  width: 100%;
 }
 
 .emptyState {
@@ -221,12 +225,92 @@
   border-color: #5a6fd8;
 }
 
+/* Стили для кастомного шаблона задач */
+.taskTemplate {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 100%;
+  padding: 4px 8px;
+}
+
+.expandButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+  color: #595959;
+  font-size: 12px;
+}
+
+.expandButton:hover {
+  background-color: #f0f0f0;
+}
+
+.taskContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.taskName {
+  font-weight: 500;
+  color: #262626;
+  font-size: 12px;
+  line-height: 1.2;
+}
+
+.taskAssignee {
+  font-size: 10px;
+  color: #8c8c8c;
+  line-height: 1.2;
+}
+
+/* Стили для иерархического отображения */
+.ganttContainer {
+  overflow-x: auto;
+  border: 1px solid #d9d9d9;
+  border-radius: 6px;
+}
+
+/* Стили для обертки Gantt таблицы */
+.ganttWrapper {
+  width: 100%;
+}
+
+.ganttWrapper .wx-add-task {
+  display: none;
+}
+
+.ganttContainer::-webkit-scrollbar {
+  height: 8px;
+}
+
+.ganttContainer::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.ganttContainer::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+.ganttContainer::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
 /* Мобильные стили для таблицы задач */
 @media (max-width: 768px) {
   .taskCell:nth-child(1) {
     width: 100px !important;
     max-width: 100px !important;
-    overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
@@ -234,7 +318,6 @@
   .taskCell:nth-child(2) {
     width: 100px !important;
     max-width: 100px !important;
-    overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
@@ -250,15 +333,30 @@
   }
 
   .taskName {
-    overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
 
   .assigneeTag {
-    overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
     max-width: 80px;
+  }
+
+  .taskTemplate {
+    padding: 2px 4px;
+  }
+
+  .expandButton {
+    padding: 2px;
+    font-size: 10px;
+  }
+
+  .taskName {
+    font-size: 11px;
+  }
+
+  .taskAssignee {
+    font-size: 9px;
   }
 }

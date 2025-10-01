@@ -10,7 +10,8 @@ import { ChatPageContainer } from '@pages/chat';
 import { ChatsListPage } from '@pages/chats';
 import { useServiceWorker } from '@shared/lib/useServiceWorker';
 import { withRouter, withAntd, withQuery } from './providers';
-import '../App.css';
+import './App.css';
+import './style.css';
 
 const AppComponent: React.FC = () => {
   // Регистрируем Service Worker для PWA

@@ -98,6 +98,7 @@ export interface ChecklistItemApi {
   completed: boolean;
   completedAt?: string;
   createdAt: string;
+  objId: string;
 }
 
 export interface CreateChecklistRequest {
