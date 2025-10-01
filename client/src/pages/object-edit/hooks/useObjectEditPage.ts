@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { message } from 'antd';
-import { mockObjects, mockChecklists } from '@shared/api/mockData';
-import { ObjectData } from '@pages/objects/model/types';
+import { apiClient, ApiError, ObjectData } from '@shared/api/client';
 import type {
   ObjectChecklistType,
   ChecklistItem,
@@ -23,28 +22,29 @@ export const useObjectEditPage = () => {
       return;
     }
 
-    // Имитация загрузки данных
+    // Загрузка данных с бэкенда
     const loadObject = async () => {
       setLoading(true);
       try {
-        // В реальном приложении здесь был бы API запрос
-        const foundObject = mockObjects.find(obj => obj.id === id);
+        const foundObject = await apiClient.getObjectById(id!);
 
-        if (foundObject) {
-          setObjectData(foundObject);
-          setName(foundObject.name);
-          setAssignee(foundObject.assignee || '');
+        setObjectData(foundObject);
+        setName(foundObject.name);
+        setAssignee(foundObject.assignee || '');
 
-          // Загружаем чеклист для объекта
-          const foundChecklist = mockChecklists.find(c => c.objectId === id);
-          setChecklist(foundChecklist || null);
-        } else {
-          setObjectData(null);
-          setChecklist(null);
-        }
+        // TODO: Загрузить чеклист для объекта через API
+        setChecklist(null);
       } catch (error) {
         console.error('Ошибка при загрузке объекта:', error);
-        message.error('Ошибка при загрузке данных объекта');
+
+        if (error instanceof ApiError) {
+          message.error(`Ошибка: ${error.message}`);
+        } else {
+          message.error('Ошибка при загрузке данных объекта');
+        }
+
+        setObjectData(null);
+        setChecklist(null);
       } finally {
         setLoading(false);
       }
@@ -65,23 +65,30 @@ export const useObjectEditPage = () => {
     if (!objectData) return;
 
     try {
-      // В реальном приложении здесь был бы API запрос для сохранения
       console.log('Сохранение объекта:', {
-        ...objectData,
         name,
         assignee,
       });
 
-      // Имитация задержки API
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Отправляем запрос на бэкенд
+      const updatedObject = await apiClient.updateObject(objectData.id, {
+        name,
+        assignee,
+      });
 
+      console.log('Объект обновлен:', updatedObject);
       message.success('Объект успешно сохранен');
 
       // Возвращаемся к списку объектов
       navigate('/objects');
     } catch (error) {
       console.error('Ошибка при сохранении объекта:', error);
-      message.error('Ошибка при сохранении объекта');
+
+      if (error instanceof ApiError) {
+        message.error(`Ошибка: ${error.message}`);
+      } else {
+        message.error('Ошибка при сохранении объекта');
+      }
     }
   };
 

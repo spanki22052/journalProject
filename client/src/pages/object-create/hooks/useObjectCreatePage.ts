@@ -6,6 +6,7 @@ import type {
   ChecklistItem,
 } from '@features/object-checklist';
 import { CreateObjectData } from '../model/types';
+import { apiClient, ApiError } from '@shared/api/client';
 
 export const useObjectCreatePage = () => {
   const navigate = useNavigate();
@@ -13,6 +14,8 @@ export const useObjectCreatePage = () => {
   const [name, setName] = useState('');
   const [assignee, setAssignee] = useState('');
   const [description, setDescription] = useState('');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
   const [checklist, setChecklist] = useState<ObjectChecklistType | null>(null);
   const [polygonCoords, setPolygonCoords] = useState<number[][]>([]);
 
@@ -28,6 +31,14 @@ export const useObjectCreatePage = () => {
     setDescription(value);
   };
 
+  const handleStartDateChange = (value: string) => {
+    setStartDate(value);
+  };
+
+  const handleEndDateChange = (value: string) => {
+    setEndDate(value);
+  };
+
   const handleSave = async () => {
     if (!name.trim()) {
       message.error('Название объекта обязательно для заполнения');
@@ -39,31 +50,47 @@ export const useObjectCreatePage = () => {
       return;
     }
 
+    if (!startDate) {
+      message.error('Дата начала обязательна для заполнения');
+      return;
+    }
+
+    if (!endDate) {
+      message.error('Дата окончания обязательна для заполнения');
+      return;
+    }
+
+    if (new Date(startDate) >= new Date(endDate)) {
+      message.error('Дата окончания должна быть позже даты начала');
+      return;
+    }
+
     setLoading(true);
     try {
-      // В реальном приложении здесь был бы API запрос для создания объекта
-      const newObjectId = `obj-${Date.now()}`;
-
       const objectData: CreateObjectData = {
         name: name.trim(),
         assignee: assignee.trim(),
         description: description.trim(),
+        startDate: new Date(startDate).toISOString(),
+        endDate: new Date(endDate).toISOString(),
         polygonCoords,
       };
 
       console.log('Создание объекта:', objectData);
 
-      // Имитация задержки API
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Отправляем запрос на бэкенд
+      const createdObject = await apiClient.createObject(objectData);
+      console.log('Объект создан:', createdObject);
 
       // Создаем чеклист для нового объекта, если он есть
       if (checklist) {
         const newChecklist: ObjectChecklistType = {
           ...checklist,
           id: `checklist-${Date.now()}`,
-          objectId: newObjectId,
+          objectId: createdObject.id,
         };
         console.log('Создание чеклиста:', newChecklist);
+        // TODO: Добавить API для создания чеклиста
       }
 
       message.success('Объект успешно создан');
@@ -72,7 +99,15 @@ export const useObjectCreatePage = () => {
       navigate('/objects');
     } catch (error) {
       console.error('Ошибка при создании объекта:', error);
-      message.error('Ошибка при создании объекта');
+
+      if (error instanceof ApiError) {
+        message.error(`Ошибка: ${error.message}`);
+        if (error.details) {
+          console.error('Детали ошибки:', error.details);
+        }
+      } else {
+        message.error('Ошибка при создании объекта');
+      }
     } finally {
       setLoading(false);
     }
@@ -183,11 +218,15 @@ export const useObjectCreatePage = () => {
     name,
     assignee,
     description,
+    startDate,
+    endDate,
     checklist,
     polygonCoords,
     handleNameChange,
     handleAssigneeChange,
     handleDescriptionChange,
+    handleStartDateChange,
+    handleEndDateChange,
     handleSave,
     handleBack,
     handleToggleChecklistItem,

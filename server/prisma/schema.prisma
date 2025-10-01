@@ -7,12 +7,12 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+  url      = "postgresql://postgres:123@localhost:5432/hakaton_db" //env("DATABASE_URL")
 }
 
 // Модель объекта (проекта/задачи)
 model Object {
-  id          String     @id @default(cuid())
+  id          String    @id @default(uuid())
   name        String
   description String?
   type        ObjectType @default(PROJECT)
@@ -21,6 +21,7 @@ model Object {
   endDate     DateTime
   progress    Int        @default(0)
   isExpanded  Boolean    @default(false)
+  polygon     String?
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
 
@@ -33,7 +34,7 @@ model Object {
 
 // Модель чеклиста
 model Checklist {
-  id        String   @id @default(cuid())
+  id        String   @id @default(uuid())
   objectId  String
   title     String
   createdAt DateTime @default(now())
@@ -48,7 +49,7 @@ model Checklist {
 
 // Модель элемента чеклиста
 model ChecklistItem {
-  id          String    @id @default(cuid())
+  id          String    @id @default(uuid())
   checklistId String
   text        String
   completed   Boolean   @default(false)
@@ -63,7 +64,7 @@ model ChecklistItem {
 
 // Модель работы/задачи (для Gantt диаграммы)
 model Work {
-  id           String   @id @default(cuid())
+  id           String   @id @default(uuid())
   objectId     String
   name         String
   startDate    DateTime
@@ -82,6 +83,36 @@ model Work {
   @@map("works")
 }
 
+// Модель пользователя
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  fullName  String
+  role      UserRole @default(CONTRACTOR)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Связи
+  passwordResetTokens PasswordResetToken[]
+
+  @@map("users")
+}
+
+// Модель токена сброса пароля
+model PasswordResetToken {
+  id        String   @id @default(uuid())
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  // Связи
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("password_reset_tokens")
+}
+
 // Енумы
 enum ObjectType {
   PROJECT
@@ -93,4 +124,10 @@ enum WorkType {
   TASK
   MILESTONE
   PROJECT
+}
+
+enum UserRole {
+  ADMIN
+  CONTRACTOR
+  ORGAN_CONTROL
 }

@@ -16,7 +16,7 @@ export class SendMessageUseCase {
     roomId: string;
     senderId: string;
     senderName: string;
-    senderRole: "contractor" | "customer";
+    senderRole: "ADMIN" | "CONTRACTOR" | "ORGAN_CONTROL";
     content: string;
     recognizedInfo?: string;
     files?: string[];

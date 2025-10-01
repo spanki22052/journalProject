@@ -17,6 +17,15 @@ const createObjectSchema = z.object({
     .transform((str) => new Date(str)),
   progress: z.number().min(0).max(100).optional().default(0),
   isExpanded: z.boolean().optional().default(false),
+  polygonCoords: z
+    .array(z.array(z.number()).length(2))
+    .min(3, "Полигон должен содержать минимум 3 точки")
+    .optional()
+    .transform((coords) => {
+      if (!coords) return undefined;
+      const points = coords.map(c => `${c[1]} ${c[0]}`).join(', '); // lng lat
+      return `POLYGON((${points}))`;
+    }),
 });
 
 const updateObjectSchema = z.object({
@@ -36,6 +45,15 @@ const updateObjectSchema = z.object({
     .transform((str) => (str ? new Date(str) : undefined)),
   progress: z.number().min(0).max(100).optional(),
   isExpanded: z.boolean().optional(),
+  polygonCoords: z
+    .array(z.array(z.number()).length(2))
+    .min(3, "Полигон должен содержать минимум 3 точки")
+    .optional()
+    .transform((coords) => {
+      if (!coords) return undefined;
+      const points = coords.map(c => `${c[1]} ${c[0]}`).join(', '); // lng lat
+      return `POLYGON((${points}))`;
+    }),
 });
 
 const querySchema = z.object({
@@ -52,11 +70,21 @@ export function createObjectRoutes(objectUseCases: ObjectUseCases): Router {
   // Создать объект
   router.post("/", async (req, res) => {
     try {
+      console.log("=== POST /api/objects ===");
+      console.log("Request body:", JSON.stringify(req.body, null, 2));
+      
       const data = createObjectSchema.parse(req.body);
+      console.log("Validated data:", JSON.stringify(data, null, 2));
+      
       const object = await objectUseCases.createObject(data);
+      console.log("Created object:", JSON.stringify(object, null, 2));
+      
       res.status(201).json(object);
     } catch (error) {
+      console.error("Error creating object:", error);
+      
       if (error instanceof z.ZodError) {
+        console.error("Validation errors:", error.errors);
         res
           .status(400)
           .json({ error: "Неверные данные", details: error.errors });

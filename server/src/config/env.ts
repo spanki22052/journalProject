@@ -9,7 +9,7 @@ const EnvSchema = z.object({
     .default("development"),
   PORT: z
     .string()
-    .default("3000")
+    .default("3003")
     .transform((v) => parseInt(v, 10)),
 
   // MinIO конфигурация

@@ -10,6 +10,15 @@ import type {
 export class PrismaObjectRepository implements ObjectRepository {
   constructor(private prisma: PrismaClient) {}
 
+  private fromWKTPolygon(wkt: string): number[][] {
+    const coords = wkt
+      .replace('POLYGON((', '')
+      .replace('))', '')
+      .split(', ')
+      .map(s => s.split(' ').map(Number).reverse()); // обратно в [lat, lng]
+    return coords;
+  }
+
   async create(data: CreateObjectData): Promise<ObjectData> {
     const object = await this.prisma.object.create({
       data: {
@@ -21,6 +30,7 @@ export class PrismaObjectRepository implements ObjectRepository {
         endDate: data.endDate,
         progress: data.progress || 0,
         isExpanded: data.isExpanded || false,
+        ...(data.polygon && { polygon: data.polygon }),
       },
     });
 
@@ -80,6 +90,7 @@ export class PrismaObjectRepository implements ObjectRepository {
         ...(data.endDate !== undefined && { endDate: data.endDate }),
         ...(data.progress !== undefined && { progress: data.progress }),
         ...(data.isExpanded !== undefined && { isExpanded: data.isExpanded }),
+        ...(data.polygon !== undefined && { polygon: data.polygon }),
       },
     });
 
@@ -132,6 +143,8 @@ export class PrismaObjectRepository implements ObjectRepository {
       endDate: object.endDate,
       progress: object.progress,
       isExpanded: object.isExpanded,
+      polygon: object.polygon,
+      polygonCoords: object.polygon ? this.fromWKTPolygon(object.polygon) : undefined,
       createdAt: object.createdAt,
       updatedAt: object.updatedAt,
     };

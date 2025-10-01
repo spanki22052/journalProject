@@ -1,6 +1,8 @@
 import { Server as SocketIOServer } from "socket.io";
 import { SendMessageUseCase } from "../application/use-cases";
 import { z } from "zod";
+import jwt from "jsonwebtoken";
+import type { AuthRepository } from "../../auth/domain/repository";
 
 const JoinRoomSchema = z.object({
   roomId: z.string(),
@@ -11,7 +13,7 @@ const SendMessageSchema = z.object({
   roomId: z.string(),
   senderId: z.string(),
   senderName: z.string(),
-  senderRole: z.enum(["contractor", "customer"]),
+  senderRole: z.enum(["ADMIN", "CONTRACTOR", "ORGAN_CONTROL"]),
   content: z.string().min(1),
   recognizedInfo: z.string().optional(),
   files: z.array(z.string()).optional(),
@@ -19,10 +21,28 @@ const SendMessageSchema = z.object({
 
 export function setupChatWebSocketHandlers(
   io: SocketIOServer,
-  sendMessageUseCase: SendMessageUseCase
+  sendMessageUseCase: SendMessageUseCase,
+  authRepository: AuthRepository
 ) {
   io.on("connection", (socket) => {
     console.log(`User connected: ${socket.id}`);
+
+    // Middleware для проверки JWT токена
+    socket.use((packet, next) => {
+      const token = socket.handshake.auth?.token;
+      if (!token) {
+        return next(new Error("Authentication error: No token provided"));
+      }
+
+      const decoded = authRepository.verifyToken(token);
+      if (!decoded) {
+        return next(new Error("Authentication error: Invalid token"));
+      }
+
+      // Добавляем информацию о пользователе в socket
+      socket.data.user = decoded;
+      next();
+    });
 
     // Присоединиться к комнате
     socket.on("join_room", async (data) => {
@@ -34,6 +54,13 @@ export function setupChatWebSocketHandlers(
         }
 
         const { roomId, userId } = parsed.data;
+        
+        // Проверяем, что пользователь может присоединиться к комнате
+        if (socket.data.user?.userId !== userId) {
+          socket.emit("error", { message: "Unauthorized: User ID mismatch" });
+          return;
+        }
+
         socket.join(roomId);
         socket.join(`user_${userId}`);
 
@@ -53,7 +80,14 @@ export function setupChatWebSocketHandlers(
           return;
         }
 
-        const message = await sendMessageUseCase.execute(parsed.data);
+        // Добавляем информацию о пользователе из JWT токена
+        const messageData = {
+          ...parsed.data,
+          senderId: socket.data.user?.userId || parsed.data.senderId,
+          senderRole: (socket.data.user?.role as "ADMIN" | "CONTRACTOR" | "ORGAN_CONTROL") || parsed.data.senderRole,
+        };
+
+        const message = await sendMessageUseCase.execute(messageData);
 
         // Отправляем сообщение всем в комнате
         io.to(parsed.data.roomId).emit("new_message", message);

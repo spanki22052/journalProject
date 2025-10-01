@@ -8,6 +8,8 @@ export interface ObjectData {
   endDate: Date;
   progress: number;
   isExpanded: boolean;
+  polygon?: string; // WKT POLYGON строка (для внутреннего использования)
+  polygonCoords?: number[][]; // Координаты для фронтенда [lat, lng][]
   createdAt: Date;
   updatedAt: Date;
 }
@@ -21,6 +23,7 @@ export interface CreateObjectData {
   endDate: Date;
   progress?: number;
   isExpanded?: boolean;
+  polygon?: string; // WKT POLYGON строка
 }
 
 export interface UpdateObjectData {
@@ -32,6 +35,7 @@ export interface UpdateObjectData {
   endDate?: Date;
   progress?: number;
   isExpanded?: boolean;
+  polygon?: string; // WKT POLYGON строка
 }
 
 export interface ObjectFilters {

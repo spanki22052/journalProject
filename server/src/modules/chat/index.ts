@@ -11,6 +11,7 @@ import {
 } from "./application/use-cases";
 import { createChatRoutes } from "./api/routes";
 import { setupChatWebSocketHandlers } from "./api/websocket-handlers";
+import type { AuthRepository } from "../auth/domain/repository";
 
 export interface ChatModuleConfig {
   minio: {
@@ -40,17 +41,18 @@ export class ChatModule {
     await this.fileStorage.initialize();
   }
 
-  setupWebSocket(io: SocketIOServer): void {
+  setupWebSocket(io: SocketIOServer, authRepository: AuthRepository): void {
     this.wsService = new SocketIOWebSocketService(io);
-    setupChatWebSocketHandlers(io, this.createSendMessageUseCase());
+    setupChatWebSocketHandlers(io, this.createSendMessageUseCase(), authRepository);
   }
 
-  createRoutes(): Router {
+  createRoutes(authRepository: AuthRepository): Router {
     return createChatRoutes(
       this.createSendMessageUseCase(),
       this.createGetRoomMessagesUseCase(),
       this.createUploadFileUseCase(),
-      this.createGetFileUrlUseCase()
+      this.createGetFileUrlUseCase(),
+      authRepository
     );
   }
 

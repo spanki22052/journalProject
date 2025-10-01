@@ -31,11 +31,15 @@ export const ObjectCreatePage: React.FC = () => {
     name,
     assignee,
     description,
+    startDate,
+    endDate,
     checklist,
     polygonCoords,
     handleNameChange,
     handleAssigneeChange,
     handleDescriptionChange,
+    handleStartDateChange,
+    handleEndDateChange,
     handleSave,
     handleBack,
     handleToggleChecklistItem,
@@ -115,6 +119,24 @@ export const ObjectCreatePage: React.FC = () => {
                         className={styles.textarea}
                         placeholder='Введите описание объекта'
                         rows={4}
+                      />
+                    </div>
+                    <div className={styles.formItem}>
+                      <label>Дата начала *</label>
+                      <input
+                        type='date'
+                        value={startDate}
+                        onChange={e => handleStartDateChange(e.target.value)}
+                        className={styles.input}
+                      />
+                    </div>
+                    <div className={styles.formItem}>
+                      <label>Дата окончания *</label>
+                      <input
+                        type='date'
+                        value={endDate}
+                        onChange={e => handleEndDateChange(e.target.value)}
+                        className={styles.input}
                       />
                     </div>
                   </div>

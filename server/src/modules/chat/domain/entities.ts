@@ -5,7 +5,7 @@ export const MessageSchema = z.object({
   roomId: z.string(),
   senderId: z.string(),
   senderName: z.string(),
-  senderRole: z.enum(["contractor", "customer"]),
+  senderRole: z.enum(["ADMIN", "CONTRACTOR", "ORGAN_CONTROL"]),
   content: z.string(),
   recognizedInfo: z.string().optional(),
   files: z.array(z.string()).default([]),

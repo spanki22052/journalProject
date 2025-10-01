@@ -1,21 +1,53 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { ColumnsType } from 'antd/es/table';
-import { Tag, Progress, Button, Space } from 'antd';
+import { Tag, Progress, Button, Space, message } from 'antd';
 import {
   AppstoreOutlined,
   EditOutlined,
   MessageOutlined,
 } from '@ant-design/icons';
-import { mockObjects } from '@shared/api/mockData';
-import { ObjectData } from '../model/types';
+import { apiClient, ApiError, ObjectData } from '@shared/api/client';
 import styles from '../ui/ObjectsPage.module.css';
 
 export const useObjectsPage = () => {
   const [searchText, setSearchText] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+  const [objects, setObjects] = useState<ObjectData[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [total, setTotal] = useState(0);
   const navigate = useNavigate();
+
+  // Загрузка объектов с бэкенда
+  const loadObjects = async () => {
+    setLoading(true);
+    try {
+      const response = await apiClient.getObjects({
+        search: searchText || undefined,
+        limit: pageSize,
+        offset: (currentPage - 1) * pageSize,
+      });
+
+      setObjects(response.data);
+      setTotal(response.total);
+    } catch (error) {
+      console.error('Ошибка при загрузке объектов:', error);
+
+      if (error instanceof ApiError) {
+        message.error(`Ошибка: ${error.message}`);
+      } else {
+        message.error('Ошибка при загрузке объектов');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Загружаем объекты при монтировании и изменении параметров
+  useEffect(() => {
+    loadObjects();
+  }, [currentPage, pageSize, searchText]);
 
   const handleEdit = (objectId: string) => {
     console.log('Edit object:', objectId);
@@ -29,8 +61,7 @@ export const useObjectsPage = () => {
 
   const handleSearch = (value: string) => {
     setSearchText(value);
-    console.log('Search:', value);
-    // TODO: Реализовать поиск по объектам
+    setCurrentPage(1); // Сбрасываем на первую страницу при поиске
   };
 
   const handleSort = () => {
@@ -141,9 +172,11 @@ export const useObjectsPage = () => {
   return {
     searchText,
     columns,
-    dataSource: mockObjects,
+    dataSource: objects,
     currentPage,
     pageSize,
+    loading,
+    total,
     handleSearch,
     handleSort,
     handleCreateObject,
