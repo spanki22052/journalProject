@@ -44,7 +44,7 @@ const AppComponent: React.FC = () => {
               <Route path='/objects/create' element={<ObjectCreatePage />} />
               <Route path='/objects/:id/edit' element={<ObjectEditPage />} />
               <Route path='/chats' element={<ChatsListPage />} />
-              <Route path='/chats/:id' element={<ChatPageContainer />} />
+              <Route path='/chats/:objectId' element={<ChatPageContainer />} />
               <Route path='*' element={<Navigate to='/' replace />} />
             </Routes>
           </Suspense>

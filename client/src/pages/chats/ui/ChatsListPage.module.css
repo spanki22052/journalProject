@@ -1,72 +1,122 @@
-.wrapper {
-    padding: 24px;
+.container {
+  padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
-.card {
-    background: #fff;
+.header {
+  margin-bottom: 24px;
 }
 
 .title {
-    margin-bottom: 16px !important;
+  margin: 0;
+  color: #262626;
 }
 
-.list {
-    background: transparent;
+.content {
+  min-height: 400px;
 }
 
-.item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 16px 12px;
-    border: 1px solid #e8e8e8;
-    border-radius: 6px;
-    margin-bottom: 16px;
-    cursor: pointer;
-    transition: background-color 0.2s ease, box-shadow 0.2s ease;
+.loadingContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
 }
 
-.item:hover {
-    background: #fafafa;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+.loadingContainer .ant-typography {
+  margin-top: 16px;
 }
 
-.itemLeft {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    flex-wrap: wrap;
+.errorContainer {
+  padding: 40px 20px;
+  text-align: center;
 }
 
-.itemTitle {
-    font-weight: 700;
+.emptyCard {
+  text-align: center;
+  border: 2px dashed #d9d9d9;
+  background: #fafafa;
 }
 
-.linkButton {
-    padding: 0;
+.emptyState {
+  padding: 40px 20px;
 }
 
-.itemRight {
-    text-align: right;
+.emptyIcon {
+  font-size: 48px;
+  color: #d9d9d9;
+  margin-bottom: 16px;
 }
 
-.unreadText {
-    font-weight: 600;
-    text-decoration: underline;
+.emptyState .ant-typography {
+  margin-bottom: 8px;
 }
 
-@media (max-width: 768px) {
-    .wrapper {
-        padding: 16px;
-    }
+.chatItem {
+  margin-bottom: 16px;
+  padding: 0;
+}
 
-    .item {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 8px;
-    }
+.chatCard {
+  width: 100%;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+}
 
-    .itemRight {
-        width: 100%;
-    }
+.chatCard:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.chatHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.chatInfo {
+  flex: 1;
+}
+
+.chatTitle {
+  margin: 0 0 4px 0;
+  color: #262626;
+  font-size: 18px;
+}
+
+.chatDate {
+  font-size: 14px;
+}
+
+.chatStats {
+  margin-left: 16px;
+}
+
+.messageIcon {
+  font-size: 20px;
+  color: #1890ff;
+}
+
+.chatActions {
+  border-top: 1px solid #f0f0f0;
+  padding-top: 16px;
+}
+
+.actionButton {
+  border-radius: 6px;
+  font-weight: 500;
+}
+
+.actionButton:first-child {
+  background: #1890ff;
+  border-color: #1890ff;
+}
+
+.actionButton:first-child:hover {
+  background: #40a9ff;
+  border-color: #40a9ff;
 }

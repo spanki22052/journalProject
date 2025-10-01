@@ -41,8 +41,7 @@ export const useObjectsPage = () => {
   };
 
   const handleChat = (objectId: string) => {
-    console.log('Open chat for object:', objectId);
-    // TODO: Реализовать редирект к чату
+    navigate(`/chats/${objectId}`);
   };
 
   const handleSearch = (value: string) => {

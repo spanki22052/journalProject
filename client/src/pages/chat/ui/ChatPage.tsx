@@ -1,35 +1,33 @@
 import React from 'react';
-import { Row, Col } from 'antd';
-import { Chat } from './Chat';
-import { CommonCheckList } from '@pages/chat';
-import { MessageType, CheckListType } from '@shared/api';
+import { useParams } from 'react-router-dom';
+import { Layout, Typography } from 'antd';
+import { Chat } from '../../../features/chat/ui/Chat';
 import styles from './ChatPage.module.css';
 
-interface ChatPageProps {
-  messages: MessageType[];
-  checkListItems: CheckListType[];
-  currentUserId?: string | number;
-}
+const { Content } = Layout;
+const { Title } = Typography;
+export const ChatPage: React.FC = () => {
+  const { objectId } = useParams<{ objectId: string }>();
 
-export const ChatPage: React.FC<ChatPageProps> = ({
-  messages,
-  checkListItems,
-  currentUserId,
-}) => {
+  if (!objectId) {
+    return (
+      <div className={styles.errorContainer}>
+        <Title level={3}>Ошибка</Title>
+        <p>ID объекта не найден</p>
+      </div>
+    );
+  }
+
+  // В реальном приложении здесь бы получали данные пользователя
+  const currentUser = 'Текущий пользователь';
+
   return (
-    <div className={styles.chatPage}>
-      <Row gutter={16} className={styles.pageRow}>
-        <Col xs={24} lg={16} className={styles.chatColumn}>
-          <Chat
-            messages={messages}
-            currentUserId={currentUserId}
-            checkListItems={checkListItems}
-          />
-        </Col>
-        <Col xs={24} lg={8} className={styles.checkListColumn}>
-          <CommonCheckList checkListItems={checkListItems} />
-        </Col>
-      </Row>
-    </div>
+    <Layout className={styles.layout}>
+      <Content className={styles.content}>
+        <div className={styles.chatPageContainer}>
+          <Chat objectId={objectId} author={currentUser} />
+        </div>
+      </Content>
+    </Layout>
   );
 };
