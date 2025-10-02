@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Card, Button, Space, Typography, Spin, message } from 'antd';
+import { Card, Button, Space, Typography, Spin } from 'antd';
 import {
   EditOutlined,
   CheckCircleOutlined,
@@ -11,6 +11,41 @@ import { ChatTasks } from './ChatTasks';
 import { SuggestEditModal } from './SuggestEditModal';
 import { ConfirmCompletionModal } from './ConfirmCompletionModal';
 import styles from './Chat.module.css';
+
+// Хук для определения мобильного устройства
+const useIsMobile = () => {
+  const [isMobile, setIsMobile] = useState(() => {
+    // Инициализируем с правильным значением для SSR
+    if (typeof window !== 'undefined') {
+      return window.innerWidth <= 768;
+    }
+    return false;
+  });
+
+  useEffect(() => {
+    const checkIsMobile = () => {
+      const mobile = window.innerWidth <= 768;
+      setIsMobile(prev => (prev !== mobile ? mobile : prev));
+    };
+
+    // Добавляем слушатель изменения размера окна с debounce
+    let timeoutId: NodeJS.Timeout;
+    const debouncedCheck = () => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(checkIsMobile, 100);
+    };
+
+    window.addEventListener('resize', debouncedCheck);
+
+    // Очищаем слушатель при размонтировании
+    return () => {
+      window.removeEventListener('resize', debouncedCheck);
+      clearTimeout(timeoutId);
+    };
+  }, []);
+
+  return isMobile;
+};
 
 const { Title } = Typography;
 
@@ -25,6 +60,7 @@ export const Chat: React.FC<ChatProps> = ({ objectId, author }) => {
   const [isConfirmCompletionModalVisible, setIsConfirmCompletionModalVisible] =
     useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const isMobile = useIsMobile();
 
   const { data: chat, isLoading, error, refetch } = useChatByObjectId(objectId);
   const { data: tasks = [] } = useObjectTasks(objectId);
@@ -108,13 +144,21 @@ export const Chat: React.FC<ChatProps> = ({ objectId, author }) => {
           </div>
 
           <div className={styles.actionsContainer}>
-            <Space size='middle'>
+            <Space
+              direction='horizontal'
+              size={isMobile ? 'small' : 'large'}
+              className={styles.actionsSpace}
+              align='center'
+              style={{ width: '100%' }}
+              wrap
+            >
               <Button
                 type='default'
                 icon={<EditOutlined />}
                 onClick={handleSuggestEdit}
                 className={styles.actionButton}
-                size='large'
+                size={isMobile ? 'small' : 'large'}
+                block
               >
                 Предложить правку
               </Button>
@@ -123,7 +167,8 @@ export const Chat: React.FC<ChatProps> = ({ objectId, author }) => {
                 icon={<CheckCircleOutlined />}
                 onClick={handleConfirmCompletion}
                 className={styles.actionButton}
-                size='large'
+                size={isMobile ? 'small' : 'large'}
+                block
               >
                 Подтвердить выполнение
               </Button>

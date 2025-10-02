@@ -1,9 +1,69 @@
 import React, { useState } from 'react';
-import { Avatar, Card, Button } from 'antd';
 import { CheckCircleOutlined, EditOutlined } from '@ant-design/icons';
 import { MessageType, CheckListType } from '@shared/api';
-import { CheckListSelector } from '@pages/chat';
 import styles from './Chat.module.css';
+
+// Собственный компонент аватара
+interface AvatarProps {
+  src?: string;
+  children?: React.ReactNode;
+  size?: 'small' | 'default' | 'large';
+  className?: string;
+}
+
+const Avatar: React.FC<AvatarProps> = ({
+  src,
+  children,
+  size = 'default',
+  className = '',
+}) => {
+  const sizeClass =
+    size === 'small'
+      ? styles.avatarSmall
+      : size === 'large'
+        ? styles.avatarLarge
+        : styles.avatarDefault;
+
+  return (
+    <div className={`${styles.avatar} ${sizeClass} ${className}`}>
+      {src ? (
+        <img src={src} alt='Avatar' className={styles.avatarImage} />
+      ) : (
+        <span className={styles.avatarText}>{children}</span>
+      )}
+    </div>
+  );
+};
+
+// Собственный компонент кнопки
+interface ButtonProps {
+  type?: 'primary' | 'default';
+  icon?: React.ReactNode;
+  onClick?: () => void;
+  className?: string;
+  children: React.ReactNode;
+}
+
+const Button: React.FC<ButtonProps> = ({
+  type = 'default',
+  icon,
+  onClick,
+  className = '',
+  children,
+}) => {
+  const buttonClass =
+    type === 'primary' ? styles.buttonPrimary : styles.buttonDefault;
+
+  return (
+    <button
+      className={`${styles.button} ${buttonClass} ${className}`}
+      onClick={onClick}
+    >
+      {icon && <span className={styles.buttonIcon}>{icon}</span>}
+      <span className={styles.buttonText}>{children}</span>
+    </button>
+  );
+};
 
 interface ChatProps {
   messages: MessageType[];
@@ -11,14 +71,7 @@ interface ChatProps {
   checkListItems: CheckListType[];
 }
 
-export const Chat: React.FC<ChatProps> = ({
-  messages,
-  currentUserId = 1,
-  checkListItems,
-}) => {
-  const [selectorVisible, setSelectorVisible] = useState(false);
-  const [selectorTitle, setSelectorTitle] = useState('');
-
+export const Chat: React.FC<ChatProps> = ({ messages, currentUserId = 1 }) => {
   const formatTime = (date: Date) => {
     return date.toLocaleTimeString('ru-RU', {
       hour: '2-digit',
@@ -31,22 +84,15 @@ export const Chat: React.FC<ChatProps> = ({
   };
 
   const handleButtonClick = (title: string) => {
-    setSelectorTitle(title);
-    setSelectorVisible(true);
-  };
-
-  const handleSelectorClose = () => {
-    setSelectorVisible(false);
-  };
-
-  const handleSelectorSubmit = (selectedItems: (string | number)[]) => {
-    console.log('Selected items:', selectedItems);
-    console.log('Action:', selectorTitle);
-    // Здесь можно добавить логику отправки данных
+    console.log('Button clicked:', title);
+    // TODO: Добавить логику для обработки кнопок
   };
 
   return (
-    <Card title='Чат' className={styles.chatCard}>
+    <div className={styles.chatCard}>
+      <div className={styles.chatHeader}>
+        <h3 className={styles.chatTitle}>Чат</h3>
+      </div>
       <div className={styles.messagesContainer}>
         {messages.map(message => {
           const isOwn = isCurrentUser(message.sender.id);
@@ -135,13 +181,7 @@ export const Chat: React.FC<ChatProps> = ({
         </Button>
       </div>
 
-      <CheckListSelector
-        visible={selectorVisible}
-        title={selectorTitle}
-        checkListItems={checkListItems}
-        onClose={handleSelectorClose}
-        onSubmit={handleSelectorSubmit}
-      />
-    </Card>
+      {/* TODO: Добавить CheckListSelector компонент */}
+    </div>
   );
 };

@@ -1,0 +1,63 @@
+.selectorModal {
+  .ant-modal-body {
+    padding: 0;
+  }
+}
+
+.tasksCard {
+  border: none;
+  box-shadow: none;
+}
+
+.tasksList {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.taskItem {
+  padding: 12px 16px;
+  border-bottom: 1px solid #f0f0f0;
+  transition: background-color 0.2s;
+}
+
+.taskItem:hover {
+  background-color: #fafafa;
+}
+
+.taskItem:last-child {
+  border-bottom: none;
+}
+
+.taskContent {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  width: 100%;
+}
+
+.checkbox {
+  margin-top: 2px;
+}
+
+.taskDetails {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.taskText {
+  font-size: 14px;
+  line-height: 1.4;
+  color: #262626;
+}
+
+.taskStatus {
+  display: flex;
+  align-items: center;
+}
+
+.taskStatus .ant-typography {
+  font-size: 12px;
+  font-weight: 500;
+}

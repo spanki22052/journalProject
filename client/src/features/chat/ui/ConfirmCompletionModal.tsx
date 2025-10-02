@@ -8,7 +8,9 @@ import {
   Button,
   message,
   Space,
+  UploadFile,
 } from 'antd';
+import type { UploadChangeParam } from 'antd/es/upload';
 import {
   CheckCircleOutlined,
   CameraOutlined,
@@ -21,6 +23,7 @@ import {
   useUploadFile,
   ObjectTask,
 } from '../../../shared/api/chatApi';
+import { FullScreenCamera } from '../../camera/FullScreenCamera';
 import styles from './ConfirmCompletionModal.module.css';
 
 const { TextArea } = Input;
@@ -46,7 +49,8 @@ export const ConfirmCompletionModal: React.FC<ConfirmCompletionModalProps> = ({
   const [form] = Form.useForm();
   const [confirmLoading, setConfirmLoading] = useState(false);
   const [selectedTaskId, setSelectedTaskId] = useState<string>('');
-  const [fileList, setFileList] = useState<any[]>([]);
+  const [fileList, setFileList] = useState<UploadFile[]>([]);
+  const [cameraVisible, setCameraVisible] = useState(false);
 
   const confirmCompletionMutation = useConfirmCompletion();
   const uploadFileMutation = useUploadFile();
@@ -65,28 +69,38 @@ export const ConfirmCompletionModal: React.FC<ConfirmCompletionModalProps> = ({
   const incompleteTasks = tasks.filter(task => !task.completed);
 
   const handleCameraCapture = () => {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = 'image/*';
-    input.capture = 'environment'; // Используем заднюю камеру
-
-    input.onchange = e => {
-      const file = (e.target as HTMLInputElement).files?.[0];
-      if (file) {
-        const newFile = {
-          uid: Date.now().toString(),
-          name: `camera_${Date.now()}.jpg`,
-          status: 'done',
-          originFileObj: file,
-        };
-        setFileList([newFile]);
-      }
-    };
-
-    input.click();
+    setCameraVisible(true);
   };
 
-  const handleFileUpload = (info: any) => {
+  const handleCameraClose = () => {
+    setCameraVisible(false);
+  };
+
+  const handleCameraCapturePhoto = (imageData: string) => {
+    // Конвертируем base64 в файл
+    const byteCharacters = atob(imageData.split(',')[1]);
+    const byteNumbers = new Array(byteCharacters.length);
+    for (let i = 0; i < byteCharacters.length; i++) {
+      byteNumbers[i] = byteCharacters.charCodeAt(i);
+    }
+    const byteArray = new Uint8Array(byteNumbers);
+    const blob = new Blob([byteArray], { type: 'image/jpeg' });
+
+    const file = new File([blob], `camera_${Date.now()}.jpg`, {
+      type: 'image/jpeg',
+    }) as unknown as File;
+
+    const newFile: UploadFile = {
+      uid: Date.now().toString(),
+      name: `camera_${Date.now()}.jpg`,
+      status: 'done',
+      originFileObj: file,
+    };
+    setFileList([newFile]);
+    setCameraVisible(false);
+  };
+
+  const handleFileUpload = (info: UploadChangeParam<UploadFile>) => {
     setFileList(info.fileList);
   };
 
@@ -146,7 +160,7 @@ export const ConfirmCompletionModal: React.FC<ConfirmCompletionModalProps> = ({
         content: values.content,
         author,
         taskId: selectedTaskId,
-        type: messageType,
+        type: messageType as 'IMAGE' | 'FILE',
         fileUrl: firstFile?.url,
         fileName: firstFile?.name,
         fileSize: firstFile?.size,
@@ -278,6 +292,12 @@ export const ConfirmCompletionModal: React.FC<ConfirmCompletionModalProps> = ({
           </Space>
         </Form.Item>
       </Form>
+
+      <FullScreenCamera
+        visible={cameraVisible}
+        onClose={handleCameraClose}
+        onCapture={handleCameraCapturePhoto}
+      />
     </Modal>
   );
 };

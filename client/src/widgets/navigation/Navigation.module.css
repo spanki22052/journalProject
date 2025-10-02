@@ -4,6 +4,7 @@
   padding: 0 24px;
   background: #001529;
   justify-content: space-between;
+  position: relative;
 }
 
 .logo {
@@ -12,9 +13,11 @@
   font-weight: bold;
   margin-right: 24px;
   min-width: 150px;
+  flex-shrink: 0;
 }
 
-.menu {
+/* Desktop Menu */
+.desktopMenu {
   flex: 1;
   border: none;
   background: transparent;
@@ -22,20 +25,113 @@
   justify-content: center;
 }
 
-.userSection {
-  display: flex;
-  align-items: center;
-}
-
-.menu .ant-menu-item {
+.desktopMenu .ant-menu-item {
   color: rgba(255, 255, 255, 0.85);
 }
 
-.menu .ant-menu-item:hover {
+.desktopMenu .ant-menu-item:hover {
   color: #1890ff;
 }
 
-.menu .ant-menu-item-selected {
+.desktopMenu .ant-menu-item-selected {
   color: #1890ff;
   background-color: transparent;
+}
+
+/* Mobile Menu Button */
+.mobileMenuButton {
+  display: none;
+  color: white;
+  border: none;
+  background: transparent;
+  font-size: 18px;
+  padding: 8px;
+}
+
+.mobileMenuButton:hover {
+  color: #1890ff;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.userSection {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+/* Mobile Drawer */
+.mobileDrawer .ant-drawer-header {
+  background: #001529;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.mobileDrawer .ant-drawer-title {
+  color: white;
+}
+
+.mobileDrawer .ant-drawer-close {
+  color: white;
+}
+
+.mobileMenu {
+  border: none;
+  background: transparent;
+}
+
+.mobileMenu .ant-menu-item {
+  color: #001529;
+  padding: 12px 24px;
+  margin: 0;
+  border-radius: 0;
+}
+
+.mobileMenu .ant-menu-item:hover {
+  color: #1890ff;
+  background-color: #f0f8ff;
+}
+
+.mobileMenu .ant-menu-item-selected {
+  color: #1890ff;
+  background-color: #e6f7ff;
+}
+
+.mobileUserSection {
+  border-top: 1px solid #f0f0f0;
+  margin-top: auto;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .header {
+    padding: 0 16px;
+  }
+  
+  .logo {
+    font-size: 18px;
+    margin-right: 16px;
+    min-width: auto;
+  }
+  
+  .desktopMenu {
+    display: none;
+  }
+  
+  .mobileMenuButton {
+    display: block;
+  }
+  
+  .userSection {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .header {
+    padding: 0 12px;
+  }
+  
+  .logo {
+    font-size: 16px;
+    margin-right: 12px;
+  }
 }

@@ -48,6 +48,7 @@ services:
       - MINIO_ACCESS_KEY=minioadmin
       - MINIO_SECRET_KEY=minioadmin123
       - MINIO_BUCKET_NAME=chat-files
+      - MINIO_PUBLIC_URL=http://localhost:9000
     command: npm start
     depends_on:
       - db-init
@@ -81,6 +82,7 @@ services:
       - MINIO_ACCESS_KEY=minioadmin
       - MINIO_SECRET_KEY=minioadmin123
       - MINIO_BUCKET_NAME=chat-files
+      - MINIO_PUBLIC_URL=http://localhost:9000
     volumes:
       - ./server:/app
       - /app/node_modules
@@ -137,9 +139,13 @@ services:
     environment:
       - MINIO_ROOT_USER=minioadmin
       - MINIO_ROOT_PASSWORD=minioadmin123
+      - MINIO_BROWSER_REDIRECT_URL=http://localhost:9001
+      - MINIO_DOMAIN=localhost
+      - MINIO_SERVER_URL=http://localhost:9000
+      - MINIO_BROWSER_REDIRECT_URL=http://localhost:9001
     volumes:
       - minio_data:/data
-    command: server /data --console-address ":9001"
+    command: server /data --console-address ":9001" --address ":9000"
     networks:
       - app-network
     restart: unless-stopped
@@ -149,11 +155,33 @@ services:
     image: minio/mc:latest
     depends_on:
       - minio
+    volumes:
+      - ./minio-cors.json:/minio-cors.json
     entrypoint: >
       /bin/sh -c "
+      sleep 10;
       /usr/bin/mc alias set myminio http://minio:9000 minioadmin minioadmin123;
       /usr/bin/mc mb myminio/chat-files --ignore-existing;
       /usr/bin/mc policy set public myminio/chat-files;
+      /usr/bin/mc policy set download myminio/chat-files;
+      /usr/bin/mc policy set upload myminio/chat-files;
+      /usr/bin/mc policy set write myminio/chat-files;
+      /usr/bin/mc policy set readwrite myminio/chat-files;
+      /usr/bin/mc admin config set myminio api cors_allow_origin '*';
+      /usr/bin/mc admin config set myminio api cors_allow_methods 'GET,POST,PUT,DELETE,HEAD,OPTIONS,PATCH';
+      /usr/bin/mc admin config set myminio api cors_allow_headers '*';
+      /usr/bin/mc admin config set myminio api cors_allow_credentials 'true';
+      /usr/bin/mc admin config set myminio api cors_max_age '86400';
+      /usr/bin/mc admin config set myminio api cors_expose_headers '*';
+      /usr/bin/mc admin config set myminio api anonymous_access 'on';
+      /usr/bin/mc admin config set myminio api anonymous_upload 'on';
+      /usr/bin/mc admin config set myminio api anonymous_download 'on';
+      /usr/bin/mc admin config set myminio api anonymous_list 'on';
+      /usr/bin/mc admin config set myminio api anonymous_delete 'on';
+      /usr/bin/mc admin config set myminio api anonymous_put 'on';
+      /usr/bin/mc admin config set myminio api anonymous_get 'on';
+      /usr/bin/mc admin service restart myminio;
+      echo 'MinIO setup completed - FULLY OPEN ACCESS ENABLED';
       exit 0;
       "
     networks:
