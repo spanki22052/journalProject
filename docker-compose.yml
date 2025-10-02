@@ -12,6 +12,23 @@ services:
       - app-network
     restart: unless-stopped
 
+  # Database Schema Initialization
+  db-init:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://hakaton_user:hakaton_password@postgres:5432/hakaton_db
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: npx prisma db push
+    networks:
+      - app-network
+    restart: "no"
+
   # Backend API Server (Production)
   backend:
     build:
@@ -31,13 +48,19 @@ services:
       - MINIO_ACCESS_KEY=minioadmin
       - MINIO_SECRET_KEY=minioadmin123
       - MINIO_BUCKET_NAME=chat-files
-    command: sh -c "npx prisma db push && npm start"
+    command: npm start
     depends_on:
-      - postgres
+      - db-init
       - minio
     networks:
       - app-network
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
   # Backend API Server (Development)
   backend-dev:
@@ -146,8 +169,8 @@ services:
       - DATABASE_URL=postgresql://hakaton_user:hakaton_password@postgres:5432/hakaton_db
       - REDIS_URL=redis://redis:6379
     depends_on:
-      postgres:
-        condition: service_healthy
+      db-init:
+        condition: service_completed_successfully
     command: node dist/scripts/create-mock-users.js
     networks:
       - app-network
@@ -162,8 +185,8 @@ services:
       - DATABASE_URL=postgresql://hakaton_user:hakaton_password@postgres:5432/hakaton_db
       - REDIS_URL=redis://redis:6379
     depends_on:
-      postgres:
-        condition: service_healthy
+      db-init:
+        condition: service_completed_successfully
     command: node dist/scripts/create-mock-contractors.js
     networks:
       - app-network
@@ -195,8 +218,8 @@ services:
       - REDIS_URL=redis://redis:6379
       - SUPER_ADMIN_PASSWORD=SuperAdmin123!
     depends_on:
-      postgres:
-        condition: service_healthy
+      db-init:
+        condition: service_completed_successfully
     command: node dist/scripts/seed.js
     networks:
       - app-network
