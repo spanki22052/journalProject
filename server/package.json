@@ -2,22 +2,35 @@
   "name": "hakaton-backend-server",
   "version": "1.0.0",
   "description": "Backend server with chat module using WebSockets and MinIO",
-  "main": "dist/index.js",
-  "type": "module",
+  "main": "dist/src/index.js",
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "build": "tsc",
-    "start": "node dist/index.js"
+    "start": "node dist/src/index.js",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "init-roles": "tsx scripts/init-roles.ts",
+    "get-role-ids": "tsx scripts/get-role-ids.ts",
+    "seed": "tsx scripts/seed.ts"
   },
   "dependencies": {
     "@prisma/client": "^6.16.2",
+    "@types/bcrypt": "^6.0.0",
+    "@types/express-session": "^1.18.2",
+    "@types/jsonwebtoken": "^9.0.10",
+    "bcrypt": "^6.0.0",
+    "connect-redis": "^9.0.0",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
+    "express-session": "^1.18.2",
+    "jsonwebtoken": "^9.0.2",
     "minio": "^7.1.3",
     "multer": "^1.4.5-lts.1",
     "pg": "^8.16.3",
     "prisma": "^6.16.2",
+    "redis": "^5.8.2",
     "socket.io": "^4.7.5",
     "socket.io-client": "^4.8.1",
     "zod": "^3.22.4"
@@ -25,9 +38,14 @@
   "devDependencies": {
     "@types/cors": "^2.8.17",
     "@types/express": "^4.17.21",
+    "@types/jest": "^30.0.0",
     "@types/multer": "^1.4.11",
     "@types/node": "^20.10.6",
     "@types/pg": "^8.15.5",
+    "@types/supertest": "^6.0.3",
+    "jest": "^30.2.0",
+    "supertest": "^7.1.4",
+    "ts-jest": "^29.4.4",
     "tsx": "^4.7.0",
     "typescript": "^5.3.3"
   }

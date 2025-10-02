@@ -181,7 +181,7 @@ export const GanntTable: React.FC<GanntTableProps> = ({
           </div>
         </div>
       ) : tasks.length > 0 ? (
-        <div className={styles.ganttContainer}>
+        <div className={`${styles.ganttContainer} ${styles.tableContainer}`}>
           <Gantt
             tasks={tasks}
             viewMode={getGanttViewMode(viewMode)}

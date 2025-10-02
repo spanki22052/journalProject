@@ -1,6 +1,8 @@
 import { Router } from "express";
 import { z } from "zod";
 import type { ChecklistUseCases } from "../application/use-cases";
+import { sessionAuth, requireAnyRole } from "../../auth/middleware/session-auth.js";
+import type { AuthRepository } from "../../auth/domain/repository";
 
 const createChecklistSchema = z.object({
   objectId: z.string().min(1, "ID объекта обязателен"),
@@ -22,12 +24,13 @@ const updateChecklistItemSchema = z.object({
 });
 
 export function createChecklistRoutes(
-  checklistUseCases: ChecklistUseCases
+  checklistUseCases: ChecklistUseCases,
+  authRepository: AuthRepository
 ): Router {
   const router = Router();
 
-  // Создать чеклист
-  router.post("/", async (req, res) => {
+  // Создать чеклист (только админ и подрядчик)
+  router.post("/", sessionAuth(authRepository), requireAnyRole(authRepository)('ADMIN', 'INSPECTOR'), async (req, res) => {
     try {
       const data = createChecklistSchema.parse(req.body);
       const checklist = await checklistUseCases.createChecklist(data);
@@ -43,8 +46,8 @@ export function createChecklistRoutes(
     }
   });
 
-  // Получить чеклист по ID
-  router.get("/:id", async (req, res) => {
+  // Получить чеклист по ID (требуется аутентификация)
+  router.get("/:id", sessionAuth(authRepository), async (req, res) => {
     try {
       const { id } = req.params;
       const checklist = await checklistUseCases.getChecklistById(id);
@@ -60,8 +63,8 @@ export function createChecklistRoutes(
     }
   });
 
-  // Получить чеклисты по ID объекта
-  router.get("/object/:objectId", async (req, res) => {
+  // Получить чеклисты по ID объекта (требуется аутентификация)
+  router.get("/object/:objectId", sessionAuth(authRepository), async (req, res) => {
     try {
       const { objectId } = req.params;
       const checklists = await checklistUseCases.getChecklistsByObjectId(
@@ -73,8 +76,8 @@ export function createChecklistRoutes(
     }
   });
 
-  // Обновить чеклист
-  router.put("/:id", async (req, res) => {
+  // Обновить чеклист (только админ и подрядчик)
+  router.put("/:id", sessionAuth(authRepository), requireAnyRole(authRepository)('ADMIN', 'INSPECTOR'), async (req, res) => {
     try {
       const { id } = req.params;
       const data = updateChecklistSchema.parse(req.body);
@@ -97,8 +100,8 @@ export function createChecklistRoutes(
     }
   });
 
-  // Удалить чеклист
-  router.delete("/:id", async (req, res) => {
+  // Удалить чеклист (только админ)
+  router.delete("/:id", sessionAuth(authRepository), requireAnyRole(authRepository)('ADMIN'), async (req, res) => {
     try {
       const { id } = req.params;
       const success = await checklistUseCases.deleteChecklist(id);

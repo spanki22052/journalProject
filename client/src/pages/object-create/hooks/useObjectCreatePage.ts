@@ -16,6 +16,8 @@ export const useObjectCreatePage = () => {
   const [name, setName] = useState('');
   const [assignee, setAssignee] = useState('');
   const [description, setDescription] = useState('');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
   const [checklist, setChecklist] = useState<ObjectChecklistType | null>(null);
   const [polygonCoords, setPolygonCoords] = useState<number[][]>([]);
 
@@ -36,9 +38,32 @@ export const useObjectCreatePage = () => {
     setDescription(value);
   };
 
+  const handleStartDateChange = (value: string) => {
+    setStartDate(value);
+  };
+
+  const handleEndDateChange = (value: string) => {
+    setEndDate(value);
+  };
+
   const handleSave = async () => {
     if (!name.trim()) {
       message.error('Название объекта обязательно для заполнения');
+      return;
+    }
+
+    if (!startDate) {
+      message.error('Дата начала обязательна для заполнения');
+      return;
+    }
+
+    if (!endDate) {
+      message.error('Дата окончания обязательна для заполнения');
+      return;
+    }
+
+    if (!assignee.trim()) {
+      message.error('Ответственный обязателен для заполнения');
       return;
     }
 
@@ -55,8 +80,8 @@ export const useObjectCreatePage = () => {
         description: description.trim() || undefined,
         type: 'PROJECT' as const,
         assignee: assignee.trim(),
-        startDate: new Date().toISOString(),
-        endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // +30 дней
+        startDate: new Date(startDate).toISOString(),
+        endDate: new Date(endDate).toISOString(),
         progress: 0,
         isExpanded: true,
       };
@@ -223,11 +248,15 @@ export const useObjectCreatePage = () => {
     name,
     assignee,
     description,
+    startDate,
+    endDate,
     checklist,
     polygonCoords,
     handleNameChange,
     handleAssigneeChange,
     handleDescriptionChange,
+    handleStartDateChange,
+    handleEndDateChange,
     handleSave,
     handleBack,
     handleToggleChecklistItem,

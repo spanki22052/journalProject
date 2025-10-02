@@ -22,6 +22,7 @@ model Object {
   progress       Int        @default(0)
   isExpanded     Boolean    @default(false)
   checkerBlockId String? // Идентификатор блока чекеров (внешняя интеграция/привязка)
+  polygon     String?
   createdAt      DateTime   @default(now())
   updatedAt      DateTime   @updatedAt
 
@@ -84,6 +85,37 @@ model Work {
   @@map("works")
 }
 
+// Модель пользователя
+model User {
+  id                String   @id @default(uuid())
+  email             String   @unique
+  password          String
+  fullName          String
+  role              UserRole @default(CONTRACTOR)
+  mustChangePassword Boolean  @default(false)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  // Связи
+  passwordResetTokens PasswordResetToken[]
+
+  @@map("users")
+}
+
+// Модель токена сброса пароля
+model PasswordResetToken {
+  id        String   @id @default(uuid())
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  // Связи
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("password_reset_tokens")
+}
+
 // Енумы
 enum ObjectType {
   PROJECT
@@ -138,4 +170,10 @@ enum MessageType {
   IMAGE
   FILE
   SYSTEM
+}
+
+enum UserRole {
+  ADMIN
+  CONTRACTOR
+  INSPECTOR
 }

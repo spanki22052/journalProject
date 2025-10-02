@@ -19,6 +19,7 @@ const API_TIMEOUT =
 const apiClient: AxiosInstance = axios.create({
   baseURL: API_BASE_URL,
   timeout: API_TIMEOUT,
+  withCredentials: true, // Включаем передачу cookies для session-based auth
   headers: {
     'Content-Type': 'application/json',
   },
@@ -27,11 +28,8 @@ const apiClient: AxiosInstance = axios.create({
 // Интерсептор для запросов
 apiClient.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
-    // Добавляем токен авторизации если есть
-    const token = localStorage.getItem('authToken');
-    if (token && config.headers) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
+    // Для session-based auth не нужно добавлять токен в заголовки
+    // Сессия автоматически передается через cookies
 
     // Логируем запрос в development режиме
     if ((import.meta as { env?: { DEV?: boolean } }).env?.DEV) {
@@ -78,9 +76,9 @@ apiClient.interceptors.response.use(
 
       switch (status) {
         case 401:
-          // Неавторизован - очищаем токен и перенаправляем на логин
-          localStorage.removeItem('authToken');
-          // Можно добавить перенаправление на страницу логина
+          // Неавторизован - не делаем автоматический редирект, 
+          // пусть компоненты сами обрабатывают это состояние
+          console.error('Пользователь не авторизован');
           break;
         case 403:
           // Доступ запрещен

@@ -4,10 +4,17 @@ import { Server as SocketIOServer } from "socket.io";
 import cors from "cors";
 import { loadConfig } from "./config/env.js";
 import { ChatsModule } from "./modules/chats/index.js";
+import { sessionConfig } from "./infra/session.js";
 import { prisma } from "./infra/prisma.js";
 import { PrismaObjectRepository } from "./modules/objects/infrastructure/prisma-object-repository.js";
 import { ObjectUseCases } from "./modules/objects/application/use-cases.js";
 import { createObjectRoutes } from "./modules/objects/api/routes.js";
+import { PrismaUserRepository } from "./modules/auth/infrastructure/prisma-user-repository.js";
+import { SessionAuthRepository } from "./modules/auth/infrastructure/session-auth-repository.js";
+import { BcryptAuthRepository } from "./modules/auth/infrastructure/bcrypt-auth-repository.js";
+import { UserUseCases, AuthUseCases } from "./modules/auth/application/use-cases.js";
+import { createAuthRoutes } from "./modules/auth/api/routes.js";
+import { createContractorsRoutes } from "./modules/auth/api/contractors-routes.js";
 import {
   PrismaChecklistRepository,
   PrismaChecklistItemRepository,
@@ -26,13 +33,19 @@ const io = new SocketIOServer(server, {
 });
 
 // Middleware
-app.use(cors());
+const frontendUrl = loadConfig().FRONTEND_URL;
+app.use(cors({
+  origin: frontendUrl,
+  credentials: true,
+}));
 app.use(express.json());
+app.use(sessionConfig);
 
 // Инициализация репозиториев
 const objectRepository = new PrismaObjectRepository(prisma);
 const checklistRepository = new PrismaChecklistRepository(prisma);
 const checklistItemRepository = new PrismaChecklistItemRepository(prisma);
+const userRepository = new PrismaUserRepository(prisma);
 
 // Инициализация use cases
 const objectUseCases = new ObjectUseCases(objectRepository);
@@ -41,6 +54,10 @@ const checklistUseCases = new ChecklistUseCases(
   checklistItemRepository
 );
 
+// Инициализация auth use cases
+const bcryptAuthRepository = new BcryptAuthRepository();
+const userUseCases = new UserUseCases(userRepository, bcryptAuthRepository);
+const authUseCases = new AuthUseCases(userRepository, null as any); // Будет инициализирован в middleware
 // Инициализация модуля чатов с WebSocket поддержкой
 const chatsModule = new ChatsModule({ prisma });
 
@@ -56,9 +73,32 @@ chatsModule
 chatsModule.setupWebSocket(io);
 
 // API роуты
-app.use("/api/objects", createObjectRoutes(objectUseCases));
-app.use("/api/checklists", createChecklistRoutes(checklistUseCases));
+app.use("/api/objects", (req, res, next) => {
+  const authRepository = new SessionAuthRepository(prisma, req, res);
+  const objectRoutes = createObjectRoutes(objectUseCases, authRepository);
+  objectRoutes(req, res, next);
+});
+app.use("/api/checklists", (req, res, next) => {
+  const authRepository = new SessionAuthRepository(prisma, req, res);
+  const checklistRoutes = createChecklistRoutes(checklistUseCases, authRepository);
+  checklistRoutes(req, res, next);
+});
 app.use("/api/chats", chatsModule.createRoutes());
+
+// Auth роуты с session-based аутентификацией
+app.use("/api/auth", (req, res, next) => {
+  const authRepository = new SessionAuthRepository(prisma, req, res);
+  const authUseCases = new AuthUseCases(userRepository, authRepository);
+  const authRoutes = createAuthRoutes(userUseCases, authUseCases, authRepository, req, res);
+  authRoutes(req, res, next);
+});
+
+// Contractors роуты
+app.use("/api/contractors", (req, res, next) => {
+  const authRepository = new SessionAuthRepository(prisma, req, res);
+  const contractorsRoutes = createContractorsRoutes(userUseCases, authRepository);
+  contractorsRoutes(req, res, next);
+});
 
 // Health check
 app.get("/api/health", (req, res) => {
