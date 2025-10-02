@@ -30,6 +30,8 @@ export interface ObjectApi {
   endDate: string;
   progress: number;
   isExpanded: boolean;
+  checkerBlockId?: string;
+  polygon?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -138,6 +140,30 @@ export interface MessageType {
   taskName: string;
   recognizedInfo: string;
   files: string[];
+}
+
+// Типы чатов (соответствуют Prisma схеме)
+export interface ChatApi {
+  id: string;
+  objectId: string;
+  createdAt: string;
+  updatedAt: string;
+  messages: ChatMessageApi[];
+}
+
+export interface ChatMessageApi {
+  id: string;
+  chatId: string;
+  content: string;
+  type: 'TEXT' | 'IMAGE' | 'FILE' | 'SYSTEM';
+  author: string;
+  taskId?: string;
+  isEditSuggestion: boolean;
+  isCompletionConfirmation: boolean;
+  fileUrl?: string;
+  fileName?: string;
+  fileSize?: number;
+  createdAt: string;
 }
 
 // Типы для общего чек-листа
