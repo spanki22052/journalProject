@@ -97,6 +97,18 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
               mask: 'Просмотр',
             }}
           />
+          {message.fileName && (
+            <div className={styles.imageInfo}>
+              <Text type='secondary' className={styles.imageName}>
+                {message.fileName}
+              </Text>
+              {message.fileSize && (
+                <Text type='secondary' className={styles.imageSize}>
+                  ({formatFileSize(message.fileSize)})
+                </Text>
+              )}
+            </div>
+          )}
         </div>
       );
     }

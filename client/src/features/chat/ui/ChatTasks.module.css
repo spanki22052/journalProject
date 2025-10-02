@@ -1,7 +1,8 @@
 .tasksCard {
   height: 100%;
+  background: #ffffff;
   border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: 1px solid #f0f0f0;
   display: flex;
   flex-direction: column;
 }
@@ -9,8 +10,11 @@
 .tasksHeader {
   padding: 16px 16px 12px 16px;
   border-bottom: 1px solid #f0f0f0;
-  background: #fafafa;
+  background: transparent;
   border-radius: 8px 8px 0 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .tasksTitle {
@@ -123,4 +127,229 @@
 
 .tasksList::-webkit-scrollbar-thumb:hover {
   background: #a8a8a8;
+}
+
+.collapseButton {
+  color: #1890ff;
+  border: none;
+  background: transparent;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.collapseButton:hover {
+  background: #f0f8ff;
+  color: #40a9ff;
+}
+
+/* Стили для собственных компонентов */
+.title {
+  margin: 0;
+  font-weight: 600;
+  color: #262626;
+}
+
+.titleLevel5 {
+  font-size: 16px;
+  line-height: 1.4;
+}
+
+.text {
+  font-size: 14px;
+  line-height: 1.4;
+  color: #262626;
+}
+
+.textSecondary {
+  color: #8c8c8c;
+}
+
+.textSuccess {
+  color: #52c41a;
+}
+
+.textWarning {
+  color: #faad14;
+}
+
+.textDanger {
+  color: #ff4d4f;
+}
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 4px 8px;
+  border: none;
+  border-radius: 6px;
+  font-weight: 500;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  outline: none;
+  background: transparent;
+}
+
+.button:focus {
+  outline: 2px solid #1890ff;
+  outline-offset: 2px;
+}
+
+.buttonText {
+  color: #1890ff;
+  border: none;
+  background: transparent;
+}
+
+.buttonText:hover {
+  background: #f0f8ff;
+  color: #40a9ff;
+}
+
+.buttonSmall {
+  padding: 2px 6px;
+  font-size: 12px;
+}
+
+.buttonIcon {
+  display: flex;
+  align-items: center;
+  font-size: 12px;
+}
+
+.buttonText {
+  font-weight: 500;
+}
+
+/* Спиннер */
+.spin {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  position: relative;
+}
+
+.spinSmall {
+  width: 16px;
+  height: 16px;
+}
+
+.spinLarge {
+  width: 24px;
+  height: 24px;
+}
+
+.spinDot {
+  width: 100%;
+  height: 100%;
+  border: 2px solid #f0f0f0;
+  border-top: 2px solid #1890ff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Уведомления */
+.alert {
+  padding: 12px 16px;
+  border-radius: 6px;
+  border: 1px solid;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.alertInfo {
+  background: #e6f7ff;
+  border-color: #91d5ff;
+  color: #0050b3;
+}
+
+.alertSuccess {
+  background: #f6ffed;
+  border-color: #b7eb8f;
+  color: #389e0d;
+}
+
+.alertWarning {
+  background: #fffbe6;
+  border-color: #ffe58f;
+  color: #d48806;
+}
+
+.alertError {
+  background: #fff2f0;
+  border-color: #ffccc7;
+  color: #cf1322;
+}
+
+.alertIcon {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: currentColor;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.alertMessage {
+  flex: 1;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+/* Мобильные стили */
+@media (max-width: 768px) {
+  .tasksCard {
+    width: 90vw;
+    margin: 0;
+    border-radius: 0;
+    border: none;
+    border-bottom: 1px solid #f0f0f0;
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    box-shadow: none;
+  }
+  
+  .tasksHeader {
+    padding: 12px 16px;
+    border-radius: 0;
+    flex-shrink: 0;
+  }
+  
+  .tasksList {
+    max-height: none;
+    padding: 8px 12px;
+    flex: 1;
+    overflow-y: auto;
+  }
+  
+  .taskItem {
+    margin-bottom: 6px;
+    padding: 6px 10px;
+  }
+  
+  .taskTitle {
+    font-size: 13px;
+  }
+  
+  .taskStatus {
+    font-size: 11px;
+  }
 }

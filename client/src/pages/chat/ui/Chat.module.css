@@ -2,7 +2,7 @@
     height: 100%;
     display: flex;
     flex-direction: column;
-    background: #f8f9fa;
+    background: transparent;
     border: none;
     box-shadow: none;
 }
@@ -51,6 +51,40 @@
     color: white;
     font-weight: 600;
     flex-shrink: 0;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.avatarSmall {
+    width: 24px;
+    height: 24px;
+    font-size: 12px;
+}
+
+.avatarDefault {
+    width: 32px;
+    height: 32px;
+    font-size: 14px;
+}
+
+.avatarLarge {
+    width: 40px;
+    height: 40px;
+    font-size: 16px;
+}
+
+.avatarImage {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.avatarText {
+    font-weight: 600;
+    text-transform: uppercase;
 }
 
 .messageBubble {
@@ -202,9 +236,71 @@
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
+/* Стили для собственных кнопок */
+.button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 500;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    outline: none;
+    min-height: 40px;
+}
+
+.button:focus {
+    outline: 2px solid #007bff;
+    outline-offset: 2px;
+}
+
+.buttonDefault {
+    background: #ffffff;
+    color: #333;
+    border: 1px solid #d9d9d9;
+}
+
+.buttonDefault:hover {
+    background: #f5f5f5;
+    border-color: #40a9ff;
+    color: #40a9ff;
+}
+
+.buttonPrimary {
+    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+    color: white;
+    border: 1px solid #007bff;
+}
+
+.buttonPrimary:hover {
+    background: linear-gradient(135deg, #0056b3 0%, #004085 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+}
+
+.buttonIcon {
+    display: flex;
+    align-items: center;
+    font-size: 16px;
+}
+
+.buttonText {
+    font-weight: 500;
+}
+
+/* Кнопка камеры - скрыта по умолчанию */
+.cameraButton {
+    display: none;
+}
+
 
 /* Адаптивность */
-@media (max-width: 768px) {
+@media screen and (max-width: 768px) {
     .messageWrapper {
         max-width: 90%;
     }
@@ -218,13 +314,52 @@
     }
 
     .actionButtons {
+        display: flex;
         padding: 12px;
         flex-direction: column;
         gap: 8px;
+        align-items: center;
+        background: #fafafa;
+        border-top: 1px solid #e8e8e8;
     }
 
     .actionButton {
-        max-width: none;
+        max-width: 200px;
         width: 100%;
+        height: 36px;
+        font-size: 11px;
+        min-width: 120px;
+        padding: 6px 12px;
+        line-height: 1.2;
+    }
+}
+
+/* Дополнительная адаптация для очень маленьких экранов */
+@media screen and (max-width: 480px) {
+    .actionButton {
+        font-size: 10px;
+        height: 32px;
+        padding: 4px 8px;
+        min-width: 100px;
+        max-width: 160px;
+    }
+    
+    .actionButtons {
+        padding: 8px 12px;
+        gap: 6px; 
+        flex-direction: column;
+    }
+
+    /* Показываем кнопку камеры только на мобильных устройствах */
+    .cameraButton {
+        display: block;
+        background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+        border: none;
+        color: white;
+    }
+
+    .cameraButton:hover {
+        background: linear-gradient(135deg, #ff5252 0%, #d63031 100%);
+        color: white;
     }
 }

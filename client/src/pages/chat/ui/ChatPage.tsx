@@ -4,10 +4,9 @@ import { Layout, Typography } from 'antd';
 import { Chat } from '../../../features/chat/ui/Chat';
 import styles from './ChatPage.module.css';
 
-const { Content } = Layout;
 const { Title } = Typography;
 export const ChatPage: React.FC = () => {
-  const { objectId } = useParams<{ objectId: string }>();
+  const { id: objectId } = useParams<{ id: string }>();
 
   if (!objectId) {
     return (
@@ -23,11 +22,7 @@ export const ChatPage: React.FC = () => {
 
   return (
     <Layout className={styles.layout}>
-      <Content className={styles.content}>
-        <div className={styles.chatPageContainer}>
-          <Chat objectId={objectId} author={currentUser} />
-        </div>
-      </Content>
+      <Chat objectId={objectId} author={currentUser} />
     </Layout>
   );
 };

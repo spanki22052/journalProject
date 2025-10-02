@@ -81,14 +81,41 @@
 
  /* Стили для файлов */
 .fileContainer {
-  margin-top: 8px;
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.imageInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-top: 4px;
+}
+
+.imageName {
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.imageSize {
+  font-size: 11px;
 }
 
 .fileImage {
-  max-width: 200px;
-  max-height: 200px;
-  border-radius: 6px;
+  max-width: 300px;
+  max-height: 300px;
+  border-radius: 8px;
   cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+  object-fit: cover;
+}
+
+.fileImage:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transform: scale(1.02);
 }
 
 .fileCard {
@@ -114,4 +141,27 @@
 .downloadButton {
   padding: 0;
   height: auto;
+}
+
+/* Адаптивные стили для мобильных устройств */
+@media (max-width: 768px) {
+  .fileImage {
+    max-width: 250px;
+    max-height: 250px;
+  }
+  
+  .fileCard {
+    max-width: 250px;
+  }
+}
+
+@media (max-width: 480px) {
+  .fileImage {
+    max-width: 200px;
+    max-height: 200px;
+  }
+  
+  .fileCard {
+    max-width: 200px;
+  }
 }
