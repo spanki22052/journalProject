@@ -24,10 +24,39 @@ export class MinIOService {
       const exists = await this.client.bucketExists(this.bucketName);
       if (!exists) {
         await this.client.makeBucket(this.bucketName, "us-east-1");
-        console.log(`Bucket ${this.bucketName} created successfully`);
+        console.log(`✅ Bucket ${this.bucketName} created successfully`);
+      } else {
+        console.log(`✅ Bucket ${this.bucketName} already exists`);
       }
+      
+      // Ensure bucket policy is public (this is a fallback, Docker Compose should handle this)
+      try {
+        const policy = {
+          Version: "2012-10-17",
+          Statement: [
+            {
+              Effect: "Allow",
+              Principal: "*",
+              Action: ["s3:GetObject"],
+              Resource: [`arn:aws:s3:::${this.bucketName}/*`]
+            },
+            {
+              Effect: "Allow",
+              Principal: "*",
+              Action: ["s3:PutObject", "s3:DeleteObject"],
+              Resource: [`arn:aws:s3:::${this.bucketName}/*`]
+            }
+          ]
+        };
+        
+        await this.client.setBucketPolicy(this.bucketName, JSON.stringify(policy));
+        console.log(`✅ Public access policy applied to ${this.bucketName}`);
+      } catch (policyError) {
+        console.warn(`⚠️ Could not set bucket policy (this is usually handled by Docker Compose):`, policyError);
+      }
+      
     } catch (error) {
-      console.error("Error initializing MinIO:", error);
+      console.error("❌ Error initializing MinIO:", error);
       throw error;
     }
   }
@@ -60,8 +89,9 @@ export class MinIOService {
   async getFileUrl(objectName: string): Promise<string> {
     try {
       // Полностью публичный доступ без аутентификации
-      const baseUrl = `http://localhost:9000`;
-      return `${baseUrl}/${this.bucketName}/${objectName}`;
+      // Use environment variable for public URL, fallback to localhost
+      const publicUrl = process.env.MINIO_PUBLIC_URL || 'http://localhost:9000';
+      return `${publicUrl}/${this.bucketName}/${objectName}`;
     } catch (error) {
       console.error("Error getting file URL from MinIO:", error);
       throw error;

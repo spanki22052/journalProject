@@ -12,7 +12,8 @@
     "test:coverage": "jest --coverage",
     "init-roles": "tsx scripts/init-roles.ts",
     "get-role-ids": "tsx scripts/get-role-ids.ts",
-    "seed": "tsx scripts/seed.ts"
+    "seed": "tsx scripts/seed.ts",
+    "test-minio": "node scripts/test-minio-access.js"
   },
   "dependencies": {
     "@prisma/client": "^6.16.2",

@@ -160,19 +160,23 @@ services:
     entrypoint: >
       /bin/sh -c "
       sleep 10;
+      echo 'Setting up MinIO with FULL PUBLIC ACCESS...';
       /usr/bin/mc alias set myminio http://minio:9000 minioadmin minioadmin123;
       /usr/bin/mc mb myminio/chat-files --ignore-existing;
+      
+      # Make bucket completely public - anonymous access
+      /usr/bin/mc anonymous set public myminio/chat-files;
       /usr/bin/mc policy set public myminio/chat-files;
-      /usr/bin/mc policy set download myminio/chat-files;
-      /usr/bin/mc policy set upload myminio/chat-files;
-      /usr/bin/mc policy set write myminio/chat-files;
-      /usr/bin/mc policy set readwrite myminio/chat-files;
+      
+      # Apply comprehensive CORS settings
       /usr/bin/mc admin config set myminio api cors_allow_origin '*';
       /usr/bin/mc admin config set myminio api cors_allow_methods 'GET,POST,PUT,DELETE,HEAD,OPTIONS,PATCH';
       /usr/bin/mc admin config set myminio api cors_allow_headers '*';
       /usr/bin/mc admin config set myminio api cors_allow_credentials 'true';
       /usr/bin/mc admin config set myminio api cors_max_age '86400';
       /usr/bin/mc admin config set myminio api cors_expose_headers '*';
+      
+      # Enable ALL anonymous operations
       /usr/bin/mc admin config set myminio api anonymous_access 'on';
       /usr/bin/mc admin config set myminio api anonymous_upload 'on';
       /usr/bin/mc admin config set myminio api anonymous_download 'on';
@@ -180,8 +184,19 @@ services:
       /usr/bin/mc admin config set myminio api anonymous_delete 'on';
       /usr/bin/mc admin config set myminio api anonymous_put 'on';
       /usr/bin/mc admin config set myminio api anonymous_get 'on';
+      
+      # Additional settings for maximum accessibility
+      /usr/bin/mc admin config set myminio api allow_anonymous_bucket_creation 'on';
+      /usr/bin/mc admin config set myminio api allow_anonymous_delete 'on';
+      
+      # Apply policy to bucket specifically
+      /usr/bin/mc anonymous --recursive public my minio/chat-files;
+      
+      # Restart MinIO service to apply changes
       /usr/bin/mc admin service restart myminio;
-      echo 'MinIO setup completed - FULLY OPEN ACCESS ENABLED';
+      
+      echo 'MinIO setup completed - BUCKET FULLY OPEN FOR PUBLIC ACCESS';
+      echo 'All files in chat-files bucket are now publicly accessible without authentication';
       exit 0;
       "
     networks:

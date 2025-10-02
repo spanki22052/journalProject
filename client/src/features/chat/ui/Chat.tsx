@@ -6,6 +6,7 @@ import {
   ReloadOutlined,
 } from '@ant-design/icons';
 import { useChatByObjectId, useObjectTasks } from '../../../shared/api/chatApi';
+import { useAuth } from '../../../shared/lib/auth-context';
 import { ChatMessage } from './ChatMessage';
 import { ChatTasks } from './ChatTasks';
 import { SuggestEditModal } from './SuggestEditModal';
@@ -61,6 +62,7 @@ export const Chat: React.FC<ChatProps> = ({ objectId, author }) => {
     useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
+  const { user } = useAuth();
 
   const { data: chat, isLoading, error, refetch } = useChatByObjectId(objectId);
   const { data: tasks = [] } = useObjectTasks(objectId);
@@ -143,37 +145,46 @@ export const Chat: React.FC<ChatProps> = ({ objectId, author }) => {
             <div ref={messagesEndRef} />
           </div>
 
-          <div className={styles.actionsContainer}>
-            <Space
-              direction='horizontal'
-              size={isMobile ? 'small' : 'large'}
-              className={styles.actionsSpace}
-              align='center'
-              style={{ width: '100%' }}
-              wrap
-            >
-              <Button
-                type='default'
-                icon={<EditOutlined />}
-                onClick={handleSuggestEdit}
-                className={styles.actionButton}
+          {/* Показываем действия только если пользователь авторизован */}
+          {user && (
+            <div className={styles.actionsContainer}>
+              <Space
+                direction='horizontal'
                 size={isMobile ? 'small' : 'large'}
-                block
+                className={styles.actionsSpace}
+                align='center'
+                style={{ width: '100%' }}
+                wrap
               >
-                Предложить правку
-              </Button>
-              <Button
-                type='primary'
-                icon={<CheckCircleOutlined />}
-                onClick={handleConfirmCompletion}
-                className={styles.actionButton}
-                size={isMobile ? 'small' : 'large'}
-                block
-              >
-                Подтвердить выполнение
-              </Button>
-            </Space>
-          </div>
+                {/* Предложить правку - только для INSPECTOR */}
+                {user.role === 'INSPECTOR' && (
+                  <Button
+                    type='default'
+                    icon={<EditOutlined />}
+                    onClick={handleSuggestEdit}
+                    className={styles.actionButton}
+                    size={isMobile ? 'small' : 'large'}
+                    block
+                  >
+                    Предложить правку
+                  </Button>
+                )}
+                {/* Подтвердить выполнение - только для CONTRACTOR */}
+                {user.role === 'CONTRACTOR' && (
+                  <Button
+                    type='primary'
+                    icon={<CheckCircleOutlined />}
+                    onClick={handleConfirmCompletion}
+                    className={styles.actionButton}
+                    size={isMobile ? 'small' : 'large'}
+                    block
+                  >
+                    Подтвердить выполнение
+                  </Button>
+                )}
+              </Space>
+            </div>
+          )}
         </Card>
 
         <div className={styles.tasksPanel}>
@@ -186,7 +197,7 @@ export const Chat: React.FC<ChatProps> = ({ objectId, author }) => {
         onCancel={() => setIsSuggestEditModalVisible(false)}
         chatId={chat.id}
         objectId={objectId}
-        author={author}
+        author={user?.fullName || author}
         onSuccess={handleModalSuccess}
       />
 
@@ -195,7 +206,7 @@ export const Chat: React.FC<ChatProps> = ({ objectId, author }) => {
         onCancel={() => setIsConfirmCompletionModalVisible(false)}
         chatId={chat.id}
         objectId={objectId}
-        author={author}
+        author={user?.fullName || author}
         onSuccess={handleModalSuccess}
       />
     </div>

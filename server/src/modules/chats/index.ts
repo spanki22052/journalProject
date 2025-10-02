@@ -6,9 +6,11 @@ import { ChatUseCases } from "./application/use-cases.js";
 import { createChatRoutes } from "./api/routes.js";
 import { setupChatsWebSocketHandlers } from "./api/websocket-handlers.js";
 import { SocketIOWebSocketService } from "./infrastructure/websocket-service.js";
+import type { AuthRepository } from "../auth/domain/repository";
 
 export interface ChatsModuleConfig {
   prisma: PrismaClient;
+  authRepository: AuthRepository;
 }
 
 export class ChatsModule {
@@ -52,7 +54,7 @@ export class ChatsModule {
   }
 
   createRoutes(): Router {
-    return createChatRoutes(this.chatUseCases);
+    return createChatRoutes(this.chatUseCases, this.config.authRepository);
   }
 
   // Геттеры для доступа к сервисам

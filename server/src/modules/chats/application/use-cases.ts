@@ -70,10 +70,25 @@ export class ChatUseCases {
     };
   }
 
-  async getAllChats(): Promise<
+  async getAllChats(currentUser?: { id: string; userRole: string }): Promise<
     Array<ChatWithMessages & { objectName: string; unreadCount: number }>
   > {
+    // Фильтруем чаты по роли пользователя
+    let whereClause = {};
+    if (currentUser) {
+      if (currentUser.userRole === 'CONTRACTOR') {
+        // Контрактор видит только чаты от объектов, где он назначен исполнителем
+        whereClause = {
+          object: {
+            assignee: currentUser.id,
+          },
+        };
+      }
+      // INSPECTOR и ADMIN видят все чаты (без фильтра)
+    }
+
     const chats = await prisma.chat.findMany({
+      where: whereClause,
       include: {
         object: {
           select: {

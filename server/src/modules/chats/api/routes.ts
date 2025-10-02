@@ -3,8 +3,10 @@ import { z } from "zod";
 import multer from "multer";
 import type { ChatUseCases } from "../application/use-cases";
 import { minioService } from "../../../infra/minio.js";
+import { sessionAuth, requireAnyRole } from "../../auth/middleware/session-auth.js";
+import type { AuthRepository } from "../../auth/domain/repository";
 
-export function createChatRoutes(chatUseCases: ChatUseCases): Router {
+export function createChatRoutes(chatUseCases: ChatUseCases, authRepository: AuthRepository): Router {
   const router = Router();
 
   // Настройка multer для загрузки файлов
@@ -53,10 +55,11 @@ export function createChatRoutes(chatUseCases: ChatUseCases): Router {
     isCompletionConfirmation: z.boolean().optional(),
   });
 
-  // GET /api/chats - Получить все чаты
-  router.get("/", async (req, res) => {
+  // GET /api/chats - Получить все чаты (с фильтрацией по роли)
+  router.get("/", sessionAuth(authRepository), async (req, res) => {
     try {
-      const chats = await chatUseCases.getAllChats();
+      const currentUser = authRepository.getCurrentUser();
+      const chats = await chatUseCases.getAllChats(currentUser);
       res.json(chats);
     } catch (error) {
       console.error("Ошибка при получении чатов:", error);
@@ -111,8 +114,8 @@ export function createChatRoutes(chatUseCases: ChatUseCases): Router {
     }
   });
 
-  // POST /api/chats/:chatId/suggest-edit - Предложить правку
-  router.post("/:chatId/suggest-edit", async (req, res) => {
+  // POST /api/chats/:chatId/suggest-edit - Предложить правку (только для INSPECTOR)
+  router.post("/:chatId/suggest-edit", sessionAuth(authRepository), requireAnyRole(authRepository)('INSPECTOR'), async (req, res) => {
     try {
       const { chatId } = req.params;
       const validatedData = suggestEditSchema.parse(req.body);
@@ -130,8 +133,8 @@ export function createChatRoutes(chatUseCases: ChatUseCases): Router {
     }
   });
 
-  // POST /api/chats/:chatId/confirm-completion - Подтвердить выполнение
-  router.post("/:chatId/confirm-completion", async (req, res) => {
+  // POST /api/chats/:chatId/confirm-completion - Подтвердить выполнение (только для CONTRACTOR)
+  router.post("/:chatId/confirm-completion", sessionAuth(authRepository), requireAnyRole(authRepository)('CONTRACTOR'), async (req, res) => {
     try {
       const { chatId } = req.params;
       const validatedData = confirmCompletionSchema.parse(req.body);

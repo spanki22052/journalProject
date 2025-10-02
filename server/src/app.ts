@@ -59,7 +59,7 @@ const bcryptAuthRepository = new BcryptAuthRepository();
 const userUseCases = new UserUseCases(userRepository, bcryptAuthRepository);
 const authUseCases = new AuthUseCases(userRepository, null as any); // Будет инициализирован в middleware
 // Инициализация модуля чатов с WebSocket поддержкой
-const chatsModule = new ChatsModule({ prisma });
+const chatsModule = new ChatsModule({ prisma, authRepository: bcryptAuthRepository });
 
 // Инициализация модулей
 chatsModule

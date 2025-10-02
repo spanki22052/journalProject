@@ -42,6 +42,7 @@ const EnvSchema = z.object({
   MINIO_ACCESS_KEY: z.string().default("minioadmin"),
   MINIO_SECRET_KEY: z.string().default("minioadmin"),
   MINIO_BUCKET_NAME: z.string().default("chat-files"),
+  MINIO_PUBLIC_URL: z.string().default("http://localhost:9000"),
 });
 
 export type AppConfig = z.infer<typeof EnvSchema>;
