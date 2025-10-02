@@ -23,6 +23,7 @@ services:
       - NODE_ENV=production
       - PORT=3000
       - DATABASE_URL=postgresql://hakaton_user:hakaton_password@postgres:5432/hakaton_db
+      - REDIS_URL=redis://redis:6379
       - MINIO_ENDPOINT=minio
       - MINIO_PORT=9000
       - MINIO_USE_SSL=false
@@ -49,6 +50,7 @@ services:
       - NODE_ENV=development
       - PORT=3000
       - DATABASE_URL=postgresql://hakaton_user:hakaton_password@postgres:5432/hakaton_db
+      - REDIS_URL=redis://redis:6379
       - MINIO_ENDPOINT=minio
       - MINIO_PORT=9000
       - MINIO_USE_SSL=false
@@ -110,6 +112,7 @@ services:
     environment:
       - NODE_ENV=production
       - DATABASE_URL=postgresql://hakaton_user:hakaton_password@postgres:5432/hakaton_db
+      - REDIS_URL=redis://redis:6379
     depends_on:
       postgres:
         condition: service_healthy

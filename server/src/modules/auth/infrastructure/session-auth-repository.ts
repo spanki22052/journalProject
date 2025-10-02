@@ -161,6 +161,13 @@ export class SessionAuthRepository implements AuthRepository {
     this.req.session.userRole = userRole;
     this.req.session.userEmail = userEmail;
     this.req.session.userFullName = userFullName;
+    
+    // Сохраняем сессию в Redis
+    this.req.session.save((err) => {
+      if (err) {
+        console.error('Error saving session:', err);
+      }
+    });
   }
 
   destroySession(): void {

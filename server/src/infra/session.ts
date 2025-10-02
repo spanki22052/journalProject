@@ -26,10 +26,13 @@ redisClient.connect().catch((err) => {
 
 // Настройка сессий
 export const sessionConfig = session({
-  store: new RedisStore({ client: redisClient }),
+  store: new RedisStore({ 
+    client: redisClient,
+    prefix: 'session:'
+  }),
   secret: config.SESSION_SECRET || 'your-super-secret-session-key',
   resave: false,
-  saveUninitialized: false,
+  saveUninitialized: true, // Allow saving uninitialized sessions
   cookie: {
     secure: config.NODE_ENV === 'production', // HTTPS в продакшене
     httpOnly: true, // Защита от XSS

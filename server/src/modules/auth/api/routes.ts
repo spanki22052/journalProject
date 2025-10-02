@@ -170,7 +170,16 @@ export function createAuthRoutes(
         res.status(401).json({ error: "Неверный email или пароль" });
         return;
       }
-      res.json(result);
+      
+      // Ждем сохранения сессии перед отправкой ответа
+      req.session.save((err) => {
+        if (err) {
+          console.error('Error saving session in login:', err);
+          res.status(500).json({ error: "Ошибка создания сессии" });
+          return;
+        }
+        res.json(result);
+      });
     } catch (error) {
       if (error instanceof z.ZodError) {
         res.status(400).json({ error: "Неверные данные", details: error.errors });
