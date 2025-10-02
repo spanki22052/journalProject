@@ -22,14 +22,16 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=3000
+      - FRONTEND_URL=http://localhost:3001
       - DATABASE_URL=postgresql://hakaton_user:hakaton_password@postgres:5432/hakaton_db
+      - REDIS_URL=redis://redis:6379
       - MINIO_ENDPOINT=minio
       - MINIO_PORT=9000
       - MINIO_USE_SSL=false
       - MINIO_ACCESS_KEY=minioadmin
       - MINIO_SECRET_KEY=minioadmin123
       - MINIO_BUCKET_NAME=chat-files
-    command: sh -c "npx prisma migrate deploy && npm start"
+    command: sh -c "npx prisma db push && npm start"
     depends_on:
       - postgres
       - minio
@@ -47,7 +49,9 @@ services:
     environment:
       - NODE_ENV=development
       - PORT=3000
+      - FRONTEND_URL=http://localhost:3001
       - DATABASE_URL=postgresql://hakaton_user:hakaton_password@postgres:5432/hakaton_db
+      - REDIS_URL=redis://redis:6379
       - MINIO_ENDPOINT=minio
       - MINIO_PORT=9000
       - MINIO_USE_SSL=false
@@ -68,7 +72,7 @@ services:
 
   # PostgreSQL Database
   postgres:
-    image: postgres:16-alpine
+    image: postgis/postgis:16-3.4-alpine
     ports:
       - "5432:5432"
     environment:
@@ -84,6 +88,21 @@ services:
       test: ["CMD-SHELL", "pg_isready -U hakaton_user -d hakaton_db"]
       interval: 5s
       timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - app-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
       retries: 5
 
   # MinIO Object Storage
@@ -117,6 +136,72 @@ services:
     networks:
       - app-network
 
+  # Mock Data Initializers
+  mock-users:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://hakaton_user:hakaton_password@postgres:5432/hakaton_db
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: node dist/scripts/create-mock-users.js
+    networks:
+      - app-network
+    restart: "no"
+
+  mock-contractors:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://hakaton_user:hakaton_password@postgres:5432/hakaton_db
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: node dist/scripts/create-mock-contractors.js
+    networks:
+      - app-network
+    restart: "no"
+
+  mock-objects:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://hakaton_user:hakaton_password@postgres:5432/hakaton_db
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      mock-contractors:
+        condition: service_completed_successfully
+    command: node dist/scripts/create-mock-objects.js
+    networks:
+      - app-network
+    restart: "no"
+
+  seed-super-admin:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://hakaton_user:hakaton_password@postgres:5432/hakaton_db
+      - REDIS_URL=redis://redis:6379
+      - SUPER_ADMIN_PASSWORD=SuperAdmin123!
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: node dist/scripts/seed.js
+    networks:
+      - app-network
+    restart: "no"
+
   # Nginx Reverse Proxy (отключен до создания конфигурации)
   # nginx:
   #   image: nginx:alpine
@@ -135,6 +220,7 @@ services:
 
 volumes:
   postgres_data:
+  redis_data:
   minio_data:
 
 networks:

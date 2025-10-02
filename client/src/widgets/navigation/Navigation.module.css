@@ -3,7 +3,7 @@
   align-items: center;
   padding: 0 24px;
   background: #001529;
-  justify-content: flex-end;
+  justify-content: space-between;
 }
 
 .logo {
@@ -19,7 +19,12 @@
   border: none;
   background: transparent;
   display: flex;
-  justify-content: flex-end;
+  justify-content: center;
+}
+
+.userSection {
+  display: flex;
+  align-items: center;
 }
 
 .menu .ant-menu-item {

@@ -8,13 +8,16 @@ import { ObjectEditPage } from '@pages/object-edit';
 import { ObjectCreatePage } from '@pages/object-create';
 import { ChatPageContainer } from '@pages/chat';
 import { ChatsListPage } from '@pages/chats';
+import { LoginPage } from '@pages/auth';
 import { useServiceWorker } from '@shared/lib/useServiceWorker';
+import { AuthProvider, useAuth } from '@shared/lib/auth-context';
+import { ProtectedRoute } from '@shared/lib/protected-route';
+import { RoleBasedRedirect } from '@shared/lib/role-based-redirect';
 import { withRouter, withAntd, withQuery } from './providers';
 import '../App.css';
 
-const AppComponent: React.FC = () => {
-  // Регистрируем Service Worker для PWA
-  useServiceWorker();
+const AppContent: React.FC = () => {
+  const { isAuthenticated, isLoading } = useAuth();
 
   const LoadingFallback = () => (
     <div
@@ -29,6 +32,19 @@ const AppComponent: React.FC = () => {
     </div>
   );
 
+  if (isLoading) {
+    return <LoadingFallback />;
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <Routes>
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="*" element={<Navigate to="/login" replace />} />
+      </Routes>
+    );
+  }
+
   return (
     <div className='App'>
       <Layout style={{ minHeight: '100vh' }}>
@@ -38,19 +54,75 @@ const AppComponent: React.FC = () => {
         <Layout.Content>
           <Suspense fallback={<LoadingFallback />}>
             <Routes>
-              <Route path='/' element={<MainPage />} />
-              <Route path='/main' element={<MainPage />} />
-              <Route path='/objects' element={<ObjectsPage />} />
-              <Route path='/objects/create' element={<ObjectCreatePage />} />
-              <Route path='/objects/:id/edit' element={<ObjectEditPage />} />
-              <Route path='/chats' element={<ChatsListPage />} />
-              <Route path='/chats/:id' element={<ChatPageContainer />} />
+              <Route 
+                path='/'
+                element={<RoleBasedRedirect />} 
+              />
+              <Route 
+                path='/main' 
+                element={
+                  <ProtectedRoute permission="view-gantt">
+                    <MainPage />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path='/objects' 
+                element={
+                  <ProtectedRoute permission="view-objects">
+                    <ObjectsPage />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path='/objects/create' 
+                element={
+                  <ProtectedRoute permission="create-objects">
+                    <ObjectCreatePage />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path='/objects/:id/edit' 
+                element={
+                  <ProtectedRoute permission="edit-objects">
+                    <ObjectEditPage />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path='/chats' 
+                element={
+                  <ProtectedRoute permission="view-chats">
+                    <ChatsListPage />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path='/chats/:id' 
+                element={
+                  <ProtectedRoute permission="view-chats">
+                    <ChatPageContainer />
+                  </ProtectedRoute>
+                } 
+              />
               <Route path='*' element={<Navigate to='/' replace />} />
             </Routes>
           </Suspense>
         </Layout.Content>
       </Layout>
     </div>
+  );
+};
+
+const AppComponent: React.FC = () => {
+  // Регистрируем Service Worker для PWA
+  useServiceWorker();
+
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   );
 };
 

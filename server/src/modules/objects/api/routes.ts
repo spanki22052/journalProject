@@ -1,6 +1,8 @@
 import { Router } from "express";
 import { z } from "zod";
 import type { ObjectUseCases } from "../application/use-cases";
+import { sessionAuth, requireAnyRole } from "../../auth/middleware/session-auth.js";
+import type { AuthRepository } from "../../auth/domain/repository";
 
 const createObjectSchema = z.object({
   name: z.string().min(1, "Название обязательно"),
@@ -35,6 +37,15 @@ const createObjectSchema = z.object({
     )
     .optional()
     .default([]),
+  polygonCoords: z
+    .array(z.array(z.number()).length(2))
+    .min(3, "Полигон должен содержать минимум 3 точки")
+    .optional()
+    .transform((coords) => {
+      if (!coords) return undefined;
+      const points = coords.map(c => `${c[1]} ${c[0]}`).join(', '); // lng lat
+      return `POLYGON((${points}))`;
+    }),
 });
 
 const updateObjectSchema = z.object({
@@ -55,6 +66,15 @@ const updateObjectSchema = z.object({
     .transform((str) => (str ? new Date(str) : undefined)),
   progress: z.number().min(0).max(100).optional(),
   isExpanded: z.boolean().optional(),
+  polygonCoords: z
+    .array(z.array(z.number()).length(2))
+    .min(3, "Полигон должен содержать минимум 3 точки")
+    .optional()
+    .transform((coords) => {
+      if (!coords) return undefined;
+      const points = coords.map(c => `${c[1]} ${c[0]}`).join(', '); // lng lat
+      return `POLYGON((${points}))`;
+    }),
 });
 
 const querySchema = z.object({
@@ -65,11 +85,11 @@ const querySchema = z.object({
   offset: z.string().transform(Number).optional(),
 });
 
-export function createObjectRoutes(objectUseCases: ObjectUseCases): Router {
+export function createObjectRoutes(objectUseCases: ObjectUseCases, authRepository: AuthRepository): Router {
   const router = Router();
 
-  // Создать объект
-  router.post("/", async (req, res) => {
+  // Создать объект (только админ и подрядчик)
+  router.post("/", sessionAuth(authRepository), requireAnyRole(authRepository)('ADMIN', 'INSPECTOR'), async (req, res) => {
     try {
       const data = createObjectSchema.parse(req.body);
       const object = await objectUseCases.createObject(data);
@@ -85,8 +105,8 @@ export function createObjectRoutes(objectUseCases: ObjectUseCases): Router {
     }
   });
 
-  // Получить все объекты
-  router.get("/", async (req, res) => {
+  // Получить все объекты (требуется аутентификация)
+  router.get("/", sessionAuth(authRepository), async (req, res) => {
     try {
       const filters = querySchema.parse(req.query);
       const objects = await objectUseCases.getAllObjects(filters);
@@ -109,8 +129,8 @@ export function createObjectRoutes(objectUseCases: ObjectUseCases): Router {
     }
   });
 
-  // Получить объект по ID
-  router.get("/:id", async (req, res) => {
+  // Получить объект по ID (требуется аутентификация)
+  router.get("/:id", sessionAuth(authRepository), async (req, res) => {
     try {
       const { id } = req.params;
       const object = await objectUseCases.getObjectById(id);
@@ -126,8 +146,8 @@ export function createObjectRoutes(objectUseCases: ObjectUseCases): Router {
     }
   });
 
-  // Обновить объект
-  router.put("/:id", async (req, res) => {
+  // Обновить объект (только админ и подрядчик)
+  router.put("/:id", sessionAuth(authRepository), requireAnyRole(authRepository)('ADMIN', 'INSPECTOR'), async (req, res) => {
     try {
       const { id } = req.params;
       const data = updateObjectSchema.parse(req.body);
@@ -150,8 +170,8 @@ export function createObjectRoutes(objectUseCases: ObjectUseCases): Router {
     }
   });
 
-  // Удалить объект
-  router.delete("/:id", async (req, res) => {
+  // Удалить объект (только админ)
+  router.delete("/:id", sessionAuth(authRepository), requireAnyRole(authRepository)('ADMIN'), async (req, res) => {
     try {
       const { id } = req.params;
       const success = await objectUseCases.deleteObject(id);
