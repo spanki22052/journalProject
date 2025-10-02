@@ -224,29 +224,24 @@
 /* Мобильные стили для таблицы задач */
 @media (max-width: 768px) {
   .taskCell:nth-child(1) {
-    width: 100px !important;
-    max-width: 100px !important;
+    width: 100% !important;
+    max-width: 150px !important;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
 
   .taskCell:nth-child(2) {
-    width: 100px !important;
-    max-width: 100px !important;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    display: none !important;
   }
 
   .customHeaderCell:nth-child(1) {
-    width: 100px !important;
-    max-width: 100px !important;
+    width: 150px !important;
+    max-width: 150px !important;
   }
 
   .customHeaderCell:nth-child(2) {
-    width: 100px !important;
-    max-width: 100px !important;
+    display: none !important;
   }
 
   .taskName {
@@ -256,9 +251,10 @@
   }
 
   .assigneeTag {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    max-width: 80px;
+    display: none !important;
   }
+}
+.tableContainer > div > div[dir="ltr"] {
+  height: 40px !important;
+  margin:0 !important;
 }
