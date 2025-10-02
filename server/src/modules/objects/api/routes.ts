@@ -89,7 +89,7 @@ export function createObjectRoutes(objectUseCases: ObjectUseCases, authRepositor
   const router = Router();
 
   // Создать объект (только админ и подрядчик)
-  router.post("/", sessionAuth(authRepository), requireAnyRole(authRepository)('ADMIN', 'CONTRACTOR'), async (req, res) => {
+  router.post("/", sessionAuth(authRepository), requireAnyRole(authRepository)('ADMIN', 'INSPECTOR'), async (req, res) => {
     try {
       const data = createObjectSchema.parse(req.body);
       const object = await objectUseCases.createObject(data);
@@ -147,7 +147,7 @@ export function createObjectRoutes(objectUseCases: ObjectUseCases, authRepositor
   });
 
   // Обновить объект (только админ и подрядчик)
-  router.put("/:id", sessionAuth(authRepository), requireAnyRole(authRepository)('ADMIN', 'CONTRACTOR'), async (req, res) => {
+  router.put("/:id", sessionAuth(authRepository), requireAnyRole(authRepository)('ADMIN', 'INSPECTOR'), async (req, res) => {
     try {
       const { id } = req.params;
       const data = updateObjectSchema.parse(req.body);

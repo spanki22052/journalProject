@@ -30,7 +30,7 @@ export function createChecklistRoutes(
   const router = Router();
 
   // Создать чеклист (только админ и подрядчик)
-  router.post("/", sessionAuth(authRepository), requireAnyRole(authRepository)('ADMIN', 'CONTRACTOR'), async (req, res) => {
+  router.post("/", sessionAuth(authRepository), requireAnyRole(authRepository)('ADMIN', 'INSPECTOR'), async (req, res) => {
     try {
       const data = createChecklistSchema.parse(req.body);
       const checklist = await checklistUseCases.createChecklist(data);
@@ -77,7 +77,7 @@ export function createChecklistRoutes(
   });
 
   // Обновить чеклист (только админ и подрядчик)
-  router.put("/:id", sessionAuth(authRepository), requireAnyRole(authRepository)('ADMIN', 'CONTRACTOR'), async (req, res) => {
+  router.put("/:id", sessionAuth(authRepository), requireAnyRole(authRepository)('ADMIN', 'INSPECTOR'), async (req, res) => {
     try {
       const { id } = req.params;
       const data = updateChecklistSchema.parse(req.body);

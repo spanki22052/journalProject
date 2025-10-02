@@ -103,16 +103,6 @@ export const useObjectsPage = () => {
       ),
     },
     {
-      title: 'Тип',
-      dataIndex: 'type',
-      key: 'type',
-      render: (type: string) => (
-        <Tag color='blue' icon={<AppstoreOutlined />}>
-          {type === 'project' ? 'Проект' : type}
-        </Tag>
-      ),
-    },
-    {
       title: 'Прогресс',
       dataIndex: 'progress',
       key: 'progress',
