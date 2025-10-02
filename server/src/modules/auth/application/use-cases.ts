@@ -111,6 +111,14 @@ export class UserUseCases {
   async getUsersCount(filters?: UserFilters): Promise<number> {
     return this.userRepository.count(filters);
   }
+
+  async getContractors(): Promise<{ id: string; fullName: string }[]> {
+    const contractors = await this.userRepository.findByRole('CONTRACTOR');
+    return contractors.map(contractor => ({
+      id: contractor.id,
+      fullName: contractor.fullName
+    }));
+  }
 }
 
 export class AuthUseCases {

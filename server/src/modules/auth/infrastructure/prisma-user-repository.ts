@@ -5,6 +5,7 @@ import type {
   CreateUserData,
   UpdateUserData,
   UserFilters,
+  UserRole,
 } from "../domain/types";
 
 export class PrismaUserRepository implements UserRepository {
@@ -37,6 +38,17 @@ export class PrismaUserRepository implements UserRepository {
     });
 
     return user ? this.mapToUserData(user) : null;
+  }
+
+  async findByRole(role: UserRole): Promise<UserData[]> {
+    const users = await this.prisma.user.findMany({
+      where: { role },
+      orderBy: {
+        fullName: "asc",
+      },
+    });
+
+    return users.map((user) => this.mapToUserData(user));
   }
 
   async findAll(filters?: UserFilters): Promise<UserData[]> {

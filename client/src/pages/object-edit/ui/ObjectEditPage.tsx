@@ -3,7 +3,7 @@ import { Typography, Card, Button, Space, Spin, Select, Alert } from 'antd';
 import { ArrowLeftOutlined, SaveOutlined } from '@ant-design/icons';
 import { useObjectEditPage } from '../hooks/useObjectEditPage';
 import { ObjectChecklist } from '@features/object-checklist';
-import { mockAssignees } from '@shared/api/mockData';
+import { useContractors } from '@entities/contractor';
 import styles from './ObjectEditPage.module.css';
 
 const { Title, Paragraph } = Typography;
@@ -26,6 +26,8 @@ export const ObjectEditPage: React.FC = () => {
     handleEditChecklistItem,
     handleDeleteChecklistItem,
   } = useObjectEditPage();
+
+  const { data: contractors = [], isLoading: contractorsLoading } = useContractors();
 
   if (loading) {
     return (
@@ -112,10 +114,11 @@ export const ObjectEditPage: React.FC = () => {
                         placeholder='Выберите ответственного'
                         allowClear
                         style={{ minWidth: '300px' }}
+                        loading={contractorsLoading}
                       >
-                        {mockAssignees.map(assignee => (
-                          <Option key={assignee} value={assignee}>
-                            {assignee}
+                        {contractors.map(contractor => (
+                          <Option key={contractor.id} value={contractor.fullName}>
+                            {contractor.fullName}
                           </Option>
                         ))}
                       </Select>

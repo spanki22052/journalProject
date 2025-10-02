@@ -18,7 +18,7 @@ import {
 import { useObjectCreatePage } from '../hooks/useObjectCreatePage';
 import { ObjectChecklist } from '@features/object-checklist';
 import { MapDrawer } from '@features/map-drawer/MapDrawer';
-import { mockAssignees } from '@shared/api/mockData';
+import { useContractors } from '@entities/contractor';
 import styles from './ObjectCreatePage.module.css';
 
 const { Title, Paragraph } = Typography;
@@ -49,6 +49,8 @@ export const ObjectCreatePage: React.FC = () => {
     handleCreateChecklist,
     setPolygonCoords,
   } = useObjectCreatePage();
+
+  const { data: contractors = [], isLoading: contractorsLoading } = useContractors();
 
   if (loading) {
     return (
@@ -103,10 +105,11 @@ export const ObjectCreatePage: React.FC = () => {
                         className={styles.select}
                         placeholder='Выберите ответственного'
                         allowClear
+                        loading={contractorsLoading}
                       >
-                        {mockAssignees.map(assignee => (
-                          <Option key={assignee} value={assignee}>
-                            {assignee}
+                        {contractors.map(contractor => (
+                          <Option key={contractor.id} value={contractor.fullName}>
+                            {contractor.fullName}
                           </Option>
                         ))}
                       </Select>

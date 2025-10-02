@@ -22,6 +22,7 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=3000
+      - FRONTEND_URL=http://localhost:3001
       - DATABASE_URL=postgresql://hakaton_user:hakaton_password@postgres:5432/hakaton_db
       - REDIS_URL=redis://redis:6379
       - MINIO_ENDPOINT=minio
@@ -33,6 +34,8 @@ services:
     command: sh -c "npx prisma migrate deploy && npm start"
     depends_on:
       - db-migrate
+      - mock-objects
+      - seed-super-admin
       - postgres
       - minio
     networks:
@@ -49,6 +52,7 @@ services:
     environment:
       - NODE_ENV=development
       - PORT=3000
+      - FRONTEND_URL=http://localhost:3001
       - DATABASE_URL=postgresql://hakaton_user:hakaton_password@postgres:5432/hakaton_db
       - REDIS_URL=redis://redis:6379
       - MINIO_ENDPOINT=minio
@@ -151,6 +155,72 @@ services:
       "
     networks:
       - app-network
+
+  # Mock Data Initializers
+  mock-users:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://hakaton_user:hakaton_password@postgres:5432/hakaton_db
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      db-migrate:
+        condition: service_completed_successfully
+    command: node dist/scripts/create-mock-users.js
+    networks:
+      - app-network
+    restart: "no"
+
+  mock-contractors:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://hakaton_user:hakaton_password@postgres:5432/hakaton_db
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      db-migrate:
+        condition: service_completed_successfully
+    command: node dist/scripts/create-mock-contractors.js
+    networks:
+      - app-network
+    restart: "no"
+
+  mock-objects:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://hakaton_user:hakaton_password@postgres:5432/hakaton_db
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      mock-contractors:
+        condition: service_completed_successfully
+    command: node dist/scripts/create-mock-objects.js
+    networks:
+      - app-network
+    restart: "no"
+
+  seed-super-admin:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://hakaton_user:hakaton_password@postgres:5432/hakaton_db
+      - REDIS_URL=redis://redis:6379
+      - SUPER_ADMIN_PASSWORD=SuperAdmin123!
+    depends_on:
+      db-migrate:
+        condition: service_completed_successfully
+    command: node dist/scripts/seed.js
+    networks:
+      - app-network
+    restart: "no"
 
   # Nginx Reverse Proxy (отключен до создания конфигурации)
   # nginx:

@@ -17,6 +17,7 @@ export interface UserRepository {
   create(data: CreateUserData): Promise<UserData>;
   findById(id: string): Promise<UserData | null>;
   findByEmail(email: string): Promise<UserData | null>;
+  findByRole(role: UserRole): Promise<UserData[]>;
   findAll(filters?: UserFilters): Promise<UserData[]>;
   update(id: string, data: UpdateUserData): Promise<UserData | null>;
   delete(id: string): Promise<boolean>;

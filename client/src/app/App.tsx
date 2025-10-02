@@ -12,6 +12,7 @@ import { LoginPage } from '@pages/auth';
 import { useServiceWorker } from '@shared/lib/useServiceWorker';
 import { AuthProvider, useAuth } from '@shared/lib/auth-context';
 import { ProtectedRoute } from '@shared/lib/protected-route';
+import { RoleBasedRedirect } from '@shared/lib/role-based-redirect';
 import { withRouter, withAntd, withQuery } from './providers';
 import '../App.css';
 
@@ -54,12 +55,8 @@ const AppContent: React.FC = () => {
           <Suspense fallback={<LoadingFallback />}>
             <Routes>
               <Route 
-                path='/' 
-                element={
-                  <ProtectedRoute permission="view-gantt">
-                    <MainPage />
-                  </ProtectedRoute>
-                } 
+                path='/'
+                element={<RoleBasedRedirect />} 
               />
               <Route 
                 path='/main' 

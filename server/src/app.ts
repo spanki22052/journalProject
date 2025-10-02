@@ -14,6 +14,7 @@ import { SessionAuthRepository } from "./modules/auth/infrastructure/session-aut
 import { BcryptAuthRepository } from "./modules/auth/infrastructure/bcrypt-auth-repository.js";
 import { UserUseCases, AuthUseCases } from "./modules/auth/application/use-cases.js";
 import { createAuthRoutes } from "./modules/auth/api/routes.js";
+import { createContractorsRoutes } from "./modules/auth/api/contractors-routes.js";
 import {
   PrismaChecklistRepository,
   PrismaChecklistItemRepository,
@@ -32,9 +33,10 @@ const io = new SocketIOServer(server, {
 });
 
 // Middleware
+const frontendUrl = loadConfig().FRONTEND_URL;
 app.use(cors({
-  origin: 'http://localhost:3001', // Frontend URL
-  credentials: true, // Allow cookies
+  origin: frontendUrl,
+  credentials: true,
 }));
 app.use(express.json());
 app.use(sessionConfig);
@@ -89,6 +91,13 @@ app.use("/api/auth", (req, res, next) => {
   const authUseCases = new AuthUseCases(userRepository, authRepository);
   const authRoutes = createAuthRoutes(userUseCases, authUseCases, authRepository, req, res);
   authRoutes(req, res, next);
+});
+
+// Contractors роуты
+app.use("/api/contractors", (req, res, next) => {
+  const authRepository = new SessionAuthRepository(prisma, req, res);
+  const contractorsRoutes = createContractorsRoutes(userUseCases, authRepository);
+  contractorsRoutes(req, res, next);
 });
 
 // Health check

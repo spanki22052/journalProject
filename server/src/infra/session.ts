@@ -25,6 +25,10 @@ redisClient.connect().catch((err) => {
 });
 
 // Настройка сессий
+// В Docker у нас HTTP, поэтому делаем secure зависимым от протокола FRONTEND_URL
+const isFrontendHttps = (config.FRONTEND_URL || '').startsWith('https://');
+const isSecureCookie = config.NODE_ENV === 'production' && isFrontendHttps;
+
 export const sessionConfig = session({
   store: new RedisStore({ 
     client: redisClient,
@@ -34,7 +38,7 @@ export const sessionConfig = session({
   resave: false,
   saveUninitialized: true, // Allow saving uninitialized sessions
   cookie: {
-    secure: config.NODE_ENV === 'production', // HTTPS в продакшене
+    secure: isSecureCookie, // Включаем только если фронт работает по HTTPS
     httpOnly: true, // Защита от XSS
     maxAge: 24 * 60 * 60 * 1000, // 24 часа
     sameSite: 'lax' // Защита от CSRF (lax для разработки)
