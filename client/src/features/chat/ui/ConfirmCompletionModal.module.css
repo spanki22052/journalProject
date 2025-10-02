@@ -1,0 +1,90 @@
+.modal {
+  border-radius: 8px;
+}
+
+.modalTitle {
+  display: flex;
+  align-items: center;
+  font-size: 16px;
+  font-weight: 600;
+  color: #262626;
+}
+
+.titleIcon {
+  margin-right: 8px;
+  color: #52c41a;
+  font-size: 18px;
+}
+
+.form {
+  margin-top: 16px;
+}
+
+.textArea {
+  border-radius: 6px;
+  resize: vertical;
+  min-height: 60px;
+}
+
+.textArea:focus {
+  border-color: #1890ff;
+  box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+}
+
+.taskSelect {
+  width: 100%;
+}
+
+.taskSelect .ant-select-selector {
+  border-radius: 6px;
+  border: 1px solid #d9d9d9;
+  transition: all 0.2s ease;
+}
+
+.taskSelect .ant-select-selector:hover {
+  border-color: #1890ff;
+}
+
+.taskSelect.ant-select-focused .ant-select-selector {
+  border-color: #1890ff;
+  box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+}
+
+.cameraButton {
+  background: #52c41a;
+  border-color: #52c41a;
+  color: white;
+  border-radius: 6px;
+  font-weight: 500;
+}
+
+.cameraButton:hover {
+  background: #73d13d;
+  border-color: #73d13d;
+  color: white;
+}
+
+.filePreview {
+  margin-top: 8px;
+  padding: 8px;
+  background: #f8f9fa;
+  border-radius: 6px;
+  border: 1px solid #e9ecef;
+}
+
+.fileItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+}
+
+.fileIcon {
+  color: #1890ff;
+  font-size: 16px;
+}
+
+.fileName {
+  font-size: 14px;
+  color: #262626;
+}
