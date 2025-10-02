@@ -202,6 +202,19 @@
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
+.cameraButton {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%) !important;
+    border: none !important;
+    color: white !important;
+}
+
+.cameraButton:hover {
+    background: linear-gradient(135deg, #ff5252 0%, #d63031 100%) !important;
+    color: white !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
+}
+
 
 /* Адаптивность */
 @media (max-width: 768px) {
@@ -226,5 +239,10 @@
     .actionButton {
         max-width: none;
         width: 100%;
+    }
+
+    .cameraButton {
+        order: -1; /* Кнопка камеры будет первой на мобильных */
+        background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%) !important;
     }
 }

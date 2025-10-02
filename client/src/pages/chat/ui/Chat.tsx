@@ -1,8 +1,13 @@
 import React, { useState } from 'react';
 import { Avatar, Card, Button } from 'antd';
-import { CheckCircleOutlined, EditOutlined } from '@ant-design/icons';
+import {
+  CheckCircleOutlined,
+  EditOutlined,
+  CameraOutlined,
+} from '@ant-design/icons';
 import { MessageType, CheckListType } from '@shared/api';
 import { CheckListSelector } from '@pages/chat';
+import { FullScreenCamera } from '@features/camera';
 import styles from './Chat.module.css';
 
 interface ChatProps {
@@ -18,6 +23,20 @@ export const Chat: React.FC<ChatProps> = ({
 }) => {
   const [selectorVisible, setSelectorVisible] = useState(false);
   const [selectorTitle, setSelectorTitle] = useState('');
+  const [cameraVisible, setCameraVisible] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Проверяем, является ли устройство мобильным
+  React.useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const formatTime = (date: Date) => {
     return date.toLocaleTimeString('ru-RU', {
@@ -43,6 +62,20 @@ export const Chat: React.FC<ChatProps> = ({
     console.log('Selected items:', selectedItems);
     console.log('Action:', selectorTitle);
     // Здесь можно добавить логику отправки данных
+  };
+
+  const handleCameraOpen = () => {
+    setCameraVisible(true);
+  };
+
+  const handleCameraClose = () => {
+    setCameraVisible(false);
+  };
+
+  const handlePhotoCapture = (imageData: string) => {
+    console.log('Фото сделано:', imageData);
+    // Здесь можно добавить логику отправки фото в чат
+    // Например, отправить сообщение с изображением
   };
 
   return (
@@ -133,6 +166,15 @@ export const Chat: React.FC<ChatProps> = ({
         >
           Предложить правку
         </Button>
+        {isMobile && (
+          <Button
+            icon={<CameraOutlined />}
+            onClick={handleCameraOpen}
+            className={`${styles.actionButton} ${styles.cameraButton}`}
+          >
+            Сделать фото
+          </Button>
+        )}
       </div>
 
       <CheckListSelector
@@ -141,6 +183,12 @@ export const Chat: React.FC<ChatProps> = ({
         checkListItems={checkListItems}
         onClose={handleSelectorClose}
         onSubmit={handleSelectorSubmit}
+      />
+
+      <FullScreenCamera
+        visible={cameraVisible}
+        onClose={handleCameraClose}
+        onCapture={handlePhotoCapture}
       />
     </Card>
   );
