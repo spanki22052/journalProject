@@ -4,7 +4,7 @@ import type {
   UserUseCases,
   AuthUseCases,
 } from "../application/use-cases";
-import { sessionAuth, requireAdmin, requireContractor, requireInspector, requireAnyRole, adminAuth, systemAuth } from "../middleware/session-auth";
+import { sessionAuth, requireAdmin, requireContractor, requireInspector, requireAnyRole, adminAuth, systemAuth } from "../middleware/session-auth.js";
 import { SYSTEM_ROLES } from "../constants/roles";
 import type { AuthRepository } from "../domain/repository";
 

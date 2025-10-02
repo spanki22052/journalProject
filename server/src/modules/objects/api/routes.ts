@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { z } from "zod";
 import type { ObjectUseCases } from "../application/use-cases";
-import { sessionAuth, requireAnyRole } from "../../auth/middleware/session-auth";
+import { sessionAuth, requireAnyRole } from "../../auth/middleware/session-auth.js";
 import type { AuthRepository } from "../../auth/domain/repository";
 
 const createObjectSchema = z.object({

@@ -11,6 +11,7 @@ import { ObjectUseCases } from "./modules/objects/application/use-cases.js";
 import { createObjectRoutes } from "./modules/objects/api/routes.js";
 import { PrismaUserRepository } from "./modules/auth/infrastructure/prisma-user-repository.js";
 import { SessionAuthRepository } from "./modules/auth/infrastructure/session-auth-repository.js";
+import { BcryptAuthRepository } from "./modules/auth/infrastructure/bcrypt-auth-repository.js";
 import { UserUseCases, AuthUseCases } from "./modules/auth/application/use-cases.js";
 import { createAuthRoutes } from "./modules/auth/api/routes.js";
 import {
@@ -49,7 +50,8 @@ const checklistUseCases = new ChecklistUseCases(
 );
 
 // Инициализация auth use cases
-const userUseCases = new UserUseCases(userRepository);
+const bcryptAuthRepository = new BcryptAuthRepository();
+const userUseCases = new UserUseCases(userRepository, bcryptAuthRepository);
 const authUseCases = new AuthUseCases(userRepository, null as any); // Будет инициализирован в middleware
 // Инициализация модуля чатов с WebSocket поддержкой
 const chatsModule = new ChatsModule({ prisma });
@@ -66,8 +68,16 @@ chatsModule
 chatsModule.setupWebSocket(io);
 
 // API роуты
-app.use("/api/objects", createObjectRoutes(objectUseCases));
-app.use("/api/checklists", createChecklistRoutes(checklistUseCases));
+app.use("/api/objects", (req, res, next) => {
+  const authRepository = new SessionAuthRepository(prisma, req, res);
+  const objectRoutes = createObjectRoutes(objectUseCases, authRepository);
+  objectRoutes(req, res, next);
+});
+app.use("/api/checklists", (req, res, next) => {
+  const authRepository = new SessionAuthRepository(prisma, req, res);
+  const checklistRoutes = createChecklistRoutes(checklistUseCases, authRepository);
+  checklistRoutes(req, res, next);
+});
 app.use("/api/chats", chatsModule.createRoutes());
 
 // Auth роуты с session-based аутентификацией
