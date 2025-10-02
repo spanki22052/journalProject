@@ -14,9 +14,6 @@ COPY . .
 # Генерируем Prisma клиент
 RUN npx prisma generate
 
-# Применяем миграции
-# Миграции выполняются при запуске контейнера, чтобы БД была доступна
-
 # Собираем TypeScript
 RUN npm run build
 
