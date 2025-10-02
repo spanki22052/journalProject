@@ -38,7 +38,7 @@ export class MinIOService {
     contentType: string
   ): Promise<string> {
     try {
-      const objectName = `chat-files/${Date.now()}-${fileName}`;
+      const objectName = `${Date.now()}-${fileName}`;
 
       await this.client.putObject(
         this.bucketName,
@@ -59,7 +59,7 @@ export class MinIOService {
 
   async getFileUrl(objectName: string): Promise<string> {
     try {
-      // Поскольку bucket публичный, используем прямой URL вместо подписанного
+      // Полностью публичный доступ без аутентификации
       const baseUrl = `http://localhost:9000`;
       return `${baseUrl}/${this.bucketName}/${objectName}`;
     } catch (error) {
